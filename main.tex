@@ -179,6 +179,22 @@ holder.
 
 %---------
 
+%---------
+
+\clearpage
+% \phantomsection
+\addcontentsline{toc}{chapter}{Author's Declaration of Originality}
+\chapter*{Declaration of Co-Authorship / Previous Publication\markboth{\MakeUppercase{Declaration of Co-Authorship / Previous Publication}}{}}
+
+\begin{uwindefaultspaceenv}
+I hereby declare that this thesis incorporates material that is result of joint research, as follows:
+
+I am aware of the University of Windsor Senate Policy on Authorship and I certify that I have properly acknowledged the contribution of other researchers to my thesis, and have obtained written permission from each of the co-author(s) to include the above material(s) in my thesis. 
+
+I certify that, with the above qualification, this thesis, and the research to which it refers, is the product of my own work.
+	
+\end{uwindefaultspaceenv}
+
 %----------
 
 \clearpage
@@ -211,8 +227,13 @@ holder.
 \pagenumbering{arabic}
 
 \subfile{./TeX_files/introduction}
-% \include{./TeX_files/chapter02}
+\subfile{./TeX_files/demonstration}
 \subfile{./TeX_files/semantics}
+\subfile{./TeX_files/combinators}
+\subfile{./TeX_files/interface}
+\subfile{./TeX_files/timing}
+\subfile{./TeX_files/future}
+\subfile{./TeX_files/conclusions}
 
 % bibliography, glossary and index would go here.
 
