@@ -1,0 +1,19 @@
+\documentclass[../main.tex]{subfiles}
+
+\begin{document}
+
+\chapter {Event-Based Semantics}
+
+One problem with traditional triplestores is adding additional contextual information to a triple, for instance time and location.  This is called {\em reification}.
+
+An event-based triplestore is a special case of a triplestore where information is organized into events, rather than as independent facts.  For instance, the triple (``sally'', ``met'', ``susan'') in a traditional triplestore could be represented as three triples in a event-based triplestore:
+
+(``event1'', ``type'', ``meet'')
+
+(``event1'', ``subject'', ``sally'')
+
+(``event1'', ``object'', ``susan'')
+
+The advantage of this approach is that it is possible to convey additional information by simply adding more triples with the first event
+
+\end{document}

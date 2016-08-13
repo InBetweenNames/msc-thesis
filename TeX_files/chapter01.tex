@@ -1,0 +1,53 @@
+\documentclass[../main.tex]{subfiles}
+
+\begin{document}
+
+\chapter{Introduction}
+
+
+
+
+--
+
+However, these existing approaches share a shortcoming in that they do not allow for prepositional phrases in queries.
+
+--
+
+'by' as a preposition, passive versus active verbs being handled uniformly
+
+--
+
+The work presented in this thesis draws on two main concepts: executable attribute grammars\cite{?} and event-based denotational semantics\cite{?}.
+
+Executable attribute grammars are a natural way to accommodate Natural Language queries \cite{?}, and since they allow top-down rather than bottom-up parsing, they are extensible \cite{?}.
+
+Event-based denotational semantics operate on event-based triplestores\cite{?} rather than traditional triplestores.  Triplestores describe entities and their relations to other entities, but a problem exists in how to add contextual information to a particular triple.  In an event-based triplestore, events are described directly rather than entities, and information about entities may be gleaned from the events in which they occur.  Additional information about an event may be added by simply adding a new triple to the triplestore.  The key motivation behind using event-based triplestores is that they directly support reification on triples\cite{?}.
+
+THESIS STATEMENT: By bridging a novel event-based denotational semantics to an executable attribute grammar, it is possible to create a highly modular and extensible Natural Language Interface to the Semantic Web that supports the use prepositional phrases in queries.
+
+An interface currently exists online which allows users to perform Natural Language queries about the Solar system \cite{Solarman:2016}.
+
+Some example queries that can be handled by this system include:
+
+\begin{itemize}
+	\item ``when was something discovered at mt\_wilson''
+	\item ``how was the thing that was discovered at flagstaff discovered''
+	\item ``what was discovered in 1877 in us\_naval\_observatory''
+	\item ``what planet is orbited by a moon that was discovered in 1684''
+	\item ``which vacuumous moon that orbits jupiter was discovered by nicholson or hall with a telescope in 1938 in mt\_wilson or mt\_hopkins''
+\end{itemize}
+
+This thesis will be structured as follows:
+
+\begin{enumerate}
+	\item Introduction
+	\item Demonstration
+	\item The event-based semantics
+	\item The parser combinator
+	\item The query program
+	\item Timing
+	\item Thoughts on scaling up to handle massive triplestores
+	\item Conclusions
+\end{enumerate}
+
+\end{document}
