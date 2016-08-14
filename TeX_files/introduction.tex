@@ -6,22 +6,27 @@
 
 %INTRODUCTION:
 
-The Semantic Web is a network of online databases that store facts in the form of {\em triples}.  A {\em triple} is a 3-tuple that has the form $(\text{\em subject}, \text{\em predicate}, \text{\em object})$, where {\em subject}, {\em predicate}, and {\em object} are Uniform Resource Identifiers \cite{rdf}.  These {\em triples} compose the basic elements of the Resource Description Framework data model that underlies the Semantic Web, and databases that contain them are commonly referred to as 'triplestores'.
+The Semantic Web is a network of online databases that store facts in the form of {\em triples}.  A {\em triple} is a 3-tuple that has the form $(\text{\em subject}, \text{\em predicate}, \text{\em object})$, where {\em subject}, {\em predicate}, and {\em object} are Uniform Resource Identifiers \cite{rdf}.  These {\em triples} compose the basic elements of the Resource Description Framework data model that underlies the Semantic Web, and databases that contain them are commonly referred to as 'triplestores' or 'RDF triplestores'.
 
 %THE PROBLEM:
 
-Although how information is represented in the Semantic Web is standardized by the W3C \cite{w3csemanticweb}, the problem of how to actually query information contained within it is still an area of active research.  A summary of existing approaches is detailed below:
+Although how information is represented in the Semantic Web is standardized by the W3C \cite{w3csemanticweb}, the problem of how to actually query information contained within it is still an area of active research.
+
+The SPARQL Protocol and RDF Query Language is an attempt to provide an SQL-like interface to the Semantic Web.  Currently, it is the de-facto method of querying RDF triplestores.  SPARQL queries form patterns that define restrictions on the elements of triples.  Any triples not matching the query pattern are discarded.  Users submit queries to a {\em SPARQL endpoint} which in turn executes the query against a triplestore and returns the results.  SPARQL is not intended to be used directly by humans, however, and commonly user-oriented Semantic Web query interfaces will provide higher level metaphors for user interaction rather than have users enter SPARQL queries directly.  These query interfaces then generate corresponding SPARQL queries in order to be carried out.
+
+Querying the Semantic Web using Natural Language is an active area of research interest, as it allows users with little to no technical background to construct queries for RDF triplestores.  This would allow, for instance, health or police databases to be queried by professionals with minimal effort on part of the user.  As there have been several attempts to construct a Natural Language Interface for the Semantic Web, and research is ongoing, the problem of doing so is therefore non-trivial.  A summary of existing approaches using Natural Language Interfaces to query the Semantic Web is given below:
+
 
 %SUMMARY OF EXISTING APPROACHES:
 
-\begin{itemize}
-\item SPARQL - more to learn
-\item SMEAGOL - 
-\end{itemize}
+{\em QuestIO - }
+
+{\em AutoSPARQL - }
 
 %THE PROBLEM WITH EXISTING APPROACHES:
 
-However, these existing approaches share a shortcoming in that they do not allow for prepositional phrases in queries, and therefore have limited coverage of the English language.
+%These approaches all attempt to directly translate the user's query into a SPARQL query for processing.
+While these approaches have seen success, they all share a shortcoming in that they do not allow for prepositional phrases in queries, and therefore have limited coverage of the English language.
 
 %OVERVIEW OF NEW APPROACH:
 
