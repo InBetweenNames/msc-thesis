@@ -15,11 +15,16 @@
 \usepackage{fancyhdr}
 \usepackage{setspace}
 
+%TODO: Change "plain" to "revision"
+\fancypagestyle{plain}{
+	\fancyhf{}
+	\fancyhead[L]{\nouppercase{\leftmark}}
+	\fancyhead[R]{\thepage}
+	\fancyfoot[L]{Revision 2}
+}
+
+%TODO: change "fancy" to "revision"
 \pagestyle{fancy}
-\fancyhead{}
-\fancyfoot{}
-\fancyhead[LO,LE]{\nouppercase{\leftmark}}
-\fancyhead[RO,RE]{\thepage}
 
 \newtheorem{theorem}{Theorem}[section]
 \newtheorem{lemma}[theorem]{Lemma}
@@ -183,7 +188,7 @@ holder.
 
 \clearpage
 % \phantomsection
-\addcontentsline{toc}{chapter}{Author's Declaration of Originality}
+\addcontentsline{toc}{chapter}{Declaration of Co-Authorship / Previous Publication}
 \chapter*{Declaration of Co-Authorship / Previous Publication\markboth{\MakeUppercase{Declaration of Co-Authorship / Previous Publication}}{}}
 
 \begin{uwindefaultspaceenv}
