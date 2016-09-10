@@ -1,7 +1,17 @@
 \documentclass[../main.tex]{subfiles}
 
 \begin{document}
+	
+\chapter{Future Work}
 
-\chapter{Thoughts on scaling up to handle massive triplestores}
+\subsection*{Thoughts on scaling up to handle massive triplestores}
+
+The system presented in this thesis requires event-based triplestores in order to function.  Much of the Semantic Web, however, is not comprised of event-based triplestores.  In order to perform queries on these triplestores, there must be a way to transform these existing triplestores into an event-based form.  In the future, it may be possible to automate this task by using RDF Schemas\cite{owl}  to provide the necessary context to facilitate this conversion.
+
+\subsection*{Efficiency}
+
+In addition, there are several drawbacks with the current implementation that prevent it from being used with massive triplestores.  In the worst case, some of the functions would require reading in a significant amount of data from the triplestore in order to return a value.  One example of this is in the membership functions (provide information).
+
+One promising approach in processing large amounts of data is Conceptual Spaces \cite{cs}, which has already seen some use in performing queries in the Semantic Web \cite{usesofcs}.  It may be possible to develop a new event-based semantics that uses Conceptual Spaces (and by extension Conceptual Geometry) to perform queries on larger datasets.
 
 \end{document}

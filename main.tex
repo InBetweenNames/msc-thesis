@@ -15,13 +15,15 @@
 \usepackage{fancyhdr}
 \usepackage{setspace}
 \usepackage[mark]{gitinfo2}
+\usepackage{bibentry}
+\nobibliography*
 
 %TODO: Change "plain" to "revision"
 \fancypagestyle{revision}{
 	\fancyhf{}
 	\fancyhead[L]{\nouppercase{\leftmark}}
 	\fancyhead[R]{\thepage}
-	\fancyfoot[L]{Revision 3}
+	%\fancyfoot[L]{Revision 3}
 }
 
 %TODO: change "plain" to "revision"
@@ -143,7 +145,7 @@
 	
 	\begin{uwinonehalfspaceenv}
 		\Large\textbf{Accommodating prepositional phrases in a highly modular
-			natural language query interface to semantic web triplestores using a novel event-based denotational semantics for English and a set of parser combinators}
+			natural language query interface to semantic web triplestores using a novel event-based denotational semantics for English and a set of functional parser combinators}
 	\end{uwinonehalfspaceenv}
 	
 	\vspace{\fill} %
@@ -201,6 +203,17 @@ holder.
 
 \begin{uwindefaultspaceenv}
 I hereby declare that this thesis incorporates material that is result of joint research, as follows:
+
+Some of the material in this thesis is derived from the following research papers:
+\end{uwindefaultspaceenv}
+
+\cite{frostagbola2014} \bibentry{frostagbola2014}
+
+\cite{frost2014demonstration} \bibentry{frost2014demonstration}
+
+\begin{uwindefaultspaceenv}
+%TODO
+My role in the above papers was in implementing the semantics and providing feedback for future revisions.  The reason I am not listed as co-author is that I became involved in the research after these papers were submitted for publication.
 
 I am aware of the University of Windsor Senate Policy on Authorship and I certify that I have properly acknowledged the contribution of other researchers to my thesis, and have obtained written permission from each of the co-author(s) to include the above material(s) in my thesis. 
 
