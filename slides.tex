@@ -1,0 +1,213 @@
+% Load the beamer-sharcnet document class...
+\documentclass[tabu]{beamer-uwindsor}
+
+% Have latex inform when another run is needed...
+\usepackage{rerunfilecheck}
+
+% Use the csquotes package...
+\usepackage{csquotes}
+
+% Use the listings package...
+\usepackage{listings}
+\lstset {
+  basicstyle=\footnotesize\ttfamily,
+  numbers=left,
+  numberstyle=\tiny,
+  columns=fullflexible,
+  language=C++,
+  morekeywords={alignas,alignof,char16_t,char32_t,constexpr,decltype,noexcept,nullptr,static\_assert,thread\_local,final,override},
+  % Next lines for appearance to be like algorithmicx
+  numbersep=5pt,
+  xleftmargin=20pt,
+  frame=tb,
+  framexleftmargin=20pt,
+  framerule=0.5pt,
+  breaklines=true,
+  % Next line for escapes...
+  escapeinside={/*@}{@*/},
+  abovecaptionskip=1pt,
+  moredelim=[is][\color{CAlertBasis}]{@alert@}{@alert@},
+  moredelim=[is][\color{CExampleBasis}]{@example@}{@example@},
+  moredelim=[is][\color{CBlockBasis}]{@block@}{@block@},
+  moredelim=[is][\color{CTitleBasis}]{@title@}{@title@},
+  moredelim=[is][\color{CBasis}]{@basis@}{@basis@}
+}
+
+%
+% Use TrueType fonts (i.e., xelatex).
+%
+% Use "Charis SIL" font even though it is not sans-serif as
+% it is easy-to-read, has all Unicode characters, is under
+% the open SIL font licence, and is free.
+%
+% As SIL does not have a monospaced font, Liberation Mono
+% is used instead.
+%
+\usepackage{xltxtra,fontspec,xunicode}
+\defaultfontfeatures{Scale=MatchLowercase}
+\setromanfont{Charis SIL}
+\setsansfont{Charis SIL}
+\setmainfont{Charis SIL}
+%\setmonofont[Scale=0.70]{Liberation Mono}
+\setmonofont{Liberation Mono}
+
+%
+% Define slide show and presenter-specific globals...
+%
+\providecommand{\basetexfilename}{slides}
+\providecommand{\emailshane}{peelar@uwindsor.ca}
+\title[Masters Thesis Proposal]{Accommodating prepositional phrases in a highly modular
+	natural language query interface to semantic web triplestores using a novel event-based denotational semantics for English and a set of parser combinators.}
+\date{September 12th 2016}
+\author[Shane Peelar]{%
+  Shane Peelar, B.Sc. \texorpdfstring{\\}{}%
+  {\footnotesize\href{mailto:\emailshane}{\emailshane}} \texorpdfstring{\\}{}%
+}
+\institute[University of Windsor]{%
+  University of Windsor, \texorpdfstring{\\}{}%
+  Windsor, Ontario, Canada \texorpdfstring{\\}{}%
+  Copyright \copyright{} 2016 \insertshortauthor{}. All Rights Reserved. \texorpdfstring{\\}{}%
+  ~ \texorpdfstring{\\}{}%
+}
+\subject{Intro}
+
+% bibliography...
+\usepackage[backend=biber,bibstyle=numeric-comp,sorting=nyvt,natbib=true,mcite=true,maxnames=100,url=true,isbn=false,doi=false,uniquename=init,firstinits=true,hyperref=true,backref=true,date=iso8601,sortcites]{biblatex}
+\renewcommand{\subtitlepunct}{\addcolon\addspace}
+
+%\hypersetup{pdfpagemode=FullScreen}
+
+
+% Load support for hypertext references...
+\usepackage{url}
+
+% Turn off the navigation bar...
+\beamertemplatenavigationsymbolsempty
+
+% Support arithmetic with numbers...
+\usepackage{fp}
+
+% Use Tikz
+\usepackage{tikz}
+
+%
+% Make it easy to output a number in roman numeral form...
+%
+\makeatletter
+\newcommand*{\asroman}[1]{\expandafter\@slowromancap\romannumeral #1@}
+\makeatother
+
+%
+% Redefine the part page to subtract one from the part # since the first
+% part of this document represents the document title page and overview
+% preamble...
+%
+\setbeamertemplate{part page}
+{
+  \begin{centering}
+    \FPeval{\result}{clip(\insertpartnumber-1)}
+    {\usebeamerfont{part name}\usebeamercolor[fg]{part name}\partname~\asroman{\result}}
+    \vskip1em\par
+    \begin{beamercolorbox}[sep=16pt,center,shadow=false,rounded=true]{part title}
+      \usebeamerfont{part title}\insertpart\par
+    \end{beamercolorbox}
+  \end{centering}
+}
+
+%
+% Define how beamer shows auto-generated pages...
+%
+\makeatletter
+\newcommand*{\resetsectioncount}{
+  \beamer@tocsectionnumber=0\relax%
+  \setcounter{section}{0}%
+}
+\makeatother
+
+\makeatletter
+\AtBeginPart{%
+  % Restart section numbering within each part...
+  \resetsectioncount%
+  % And output (if applicable) the part page...
+  \ifthenelse{\boolean{showpartpage}}{%
+    \frame{\partpage}%
+  }{}%
+}
+\makeatother
+
+\AtBeginSection[]{%
+  \ifthenelse{\boolean{showsectiontoc}}{%
+    \begin{frame}{Table of Contents}%
+      \tableofcontents[sectionstyle=show/hide,subsectionstyle=show/show/hide]%
+    \end{frame}%
+  }{}%
+}
+
+% Bibliography...
+\addbibresource{thesis.bib}
+
+% Title Page Logo
+\titlegraphic{\includegraphics[width=2cm]{logos/uwin-logo-horz-3col.eps}}
+
+% 
+% The presentation slide content follows...
+%
+\begin{document}
+	% Don't show logo or footer on title page...
+	{
+	\setbeamertemplate{logo}{}
+	\setbeamertemplate{footline}{} 
+	\begin{frame}[label=TitleSlide,noframenumbering]
+	  \titlepage
+	\end{frame}
+	}
+
+	\sectionwithouttoc{Outline}
+	\begin{frame}{Outline}
+		\tableofcontents
+	\end{frame}
+	
+	\sectionwithouttoc{Introduction}
+	\begin{frame}{Introduction}
+	\end{frame}
+	
+	\sectionwithouttoc{Related Work}
+	\begin{frame}{Related Work}
+	\end{frame}
+	
+	\sectionwithouttoc{Proposed Work}
+	\begin{frame}{Proposed Work}
+	\end{frame}
+	
+	\sectionwithouttoc{Proof of Concept}
+	\begin{frame}{Proof of Concept}
+	\end{frame}
+	
+	\sectionwithouttoc{Thank You \& Feedback}
+	\begin{frame}{Thank You \& Feedback}
+	\end{frame}
+  
+	\sectionwithouttoc{References}
+	\begin{frame}{References}
+	  \def\newblock{}
+	  \setbeamertemplate{bibliography item}[text]
+	  \setlength\bibitemsep{1.5\itemsep}
+	  \printbibliography
+	\end{frame}
+	
+	%\appendix 
+	%\section*{Appendix Overview}
+	%\begin{frame}{Appendix Overview}
+	%  \tableofcontents[part=3,sectionstyle=show/show,subsectionstyle=hide/hide/hide]
+	%\end{frame}
+	
+	%\sectionwithouttoc{An Appendix Title}
+	%\begin{frame}{\insertsection}
+	%  This is the first section.
+	%\end{frame}
+	
+	%\sectionwithouttoc{Another Appendix Title}
+	%\begin{frame}{\insertsection}
+	%  This is the second section.
+	%\end{frame}
+\end{document}
