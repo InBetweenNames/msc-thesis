@@ -75,7 +75,7 @@
 	natural language query interface to semantic web triplestores using a novel event-based denotational semantics for English and a set of parser combinators.}
 \date{September 12th 2016}
 \author[Shane Peelar]{%
-  Shane Peelar, B.Sc. \texorpdfstring{\\}{}%
+  Shane Peelar, BSc (Hons) \texorpdfstring{\\}{}%
   {\footnotesize\href{mailto:\emailshane}{\emailshane}} \texorpdfstring{\\}{}%
 }
 \institute[University of Windsor]{%
@@ -186,8 +186,15 @@
 	  \titlepage
 	\end{frame}
 	}
+	
+	\begin{frame}{Thesis Committee}
+		\begin{itemize}
+			\item Supervisors: Dr. Richard Frost and Dr. Robert Kent
+			\item Internal Reader: Dr. Luis Rueda
+			\item External Reader: Dr. Richard Caron
+		\end{itemize}
+	\end{frame}
 
-	\sectionwithouttoc{Outline}
 	\begin{frame}{Outline}
 		\tableofcontents
 	\end{frame}
@@ -244,7 +251,7 @@
 	\end{frame}
 	
 	\sectionwithouttoc{Natural Language Interfaces to the Semantic Web}
-	\begin{frame}{Natural Language Interfaces to the Semantic Web}
+	\begin{frame}[allowframebreaks]{Natural Language Interfaces to the Semantic Web}
 		\begin{itemize}
 			\item SPARQL is low level and not user-friendly
 			\item Natural Language Interfaces
@@ -253,9 +260,10 @@
 				\item Require minimal effort on part of the user
 				\item Area of active research, with several previous attempts
 			\end{itemize}
-			\item ORAKEL \cite{cimiano2007orakel} -
-			\item QuestIO \cite{tablan2008natural} -
-			\item AutoSPARQL \cite{lehmann2011autosparql} -
+			\item ORAKEL (2007) \cite{cimiano2007orakel} - An ontology-aware English interface to the Semantic Web based on Montague semantics.  Parses sentences according to a provided grammar,
+			and evaluates queries based on compositional semantics.  Supports quantification, negation, and conjunction.  Attempts to convert the input query to a SPARQL query.
+			\item QuestIO (2008) \cite{tablan2008natural} - An ontology-aware English interface to the Semantic Web that is keyword oriented, attempting to match words against concepts to hone down queries.  Uses SeRQL, a query language similar to SPARQL, to form queries.  Sentences are transformed into SeRQL queries by the use of a formal semantics.
+			\item AutoSPARQL (2011) \cite{lehmann2011autosparql} - A supervised machine learning approach using English to query the Semantic Web.  Queries are provided in the form of keywords, which are used to construct query trees.  These are then converted to SPARQL queries.  It is a feedback oriented system in that the user is expected to be actively involved in refining subsequent results by selecting candidates from the returned set that best match what the user is looking for.
 		\end{itemize}
 	\end{frame}
 	
@@ -277,15 +285,52 @@
 	\sectionwithouttoc{Executable Attribute Grammars}
 	\begin{frame}{Executable Attribute Grammars}
 		\begin{itemize}
-		\item Executable attribute grammars are a natural way to process Natural Language queries, and since they allow top-down rather than bottom-up parsing, they are highly modular \cite{frosthafiz2008}.
+		\item Executable attribute grammars are a natural way to process Natural Language queries, and since they allow top-down rather than bottom-up parsing, they are highly modular \cite{frosthafiz2008}
+		\item Efficient top-down parsing has been demonstrated previously \cite{frosthafiz2008}
+		\item One added benefit is that ambiguity is tracked, producing parse trees for all possible interpretations of a grammar
+		\item This allows ambiguous grammars to be used, simplifying development
+		\item A modified form of the parser described in \cite{frosthafiz2008} that allows for monadic combinators in semantics is used as the basis for the parser in the proposed system
 		\end{itemize}
 	\end{frame}
 	
 	\sectionwithouttoc{Event-Based Denotational Semantics}
-	\begin{frame}{Event-Based Denotational Semantics}
+	\begin{frame}[allowframebreaks]{Event-Based Denotational Semantics}
 		\begin{itemize}
 		\item Event-based denotational semantics operate on event-based triplestores \cite{frost2014demonstration} rather than traditional triplestores
+		\item One key difference compared to previous approaches is that a direct translation of the query to SPARQL is not performed \cite{frost2014event}
+		\item Instead, each individual word is a function representing a query, with combinators combining results of previous queries to form a final result
+		\item Prepositions are accommodated by honing down results from previous queries
+		\item The semantics as presented originally were pure code.  They have been rewritten to be monadic to facilitate safe IO operations for streaming queries to external triplestores
 		\end{itemize}
+		
+	\end{frame}
+	
+	\defverbatim[colored]\lstIoo{
+		\begin{lstlisting}[basicstyle=\ttfamily,keywordstyle=\color{red}]
+		(``Jane'', ``purchased'', ``pencil'')
+		\end{lstlisting}
+	}
+	
+	\defverbatim[colored]\lstIo{
+		\begin{lstlisting}[basicstyle=\ttfamily,keywordstyle=\color{red}]
+		(``event1'', ``subject'', ``Jane'')
+		(``event1'', ``type'', ``purchase'')
+		(``event1'', ``object'', ``pencil'')
+		\end{lstlisting}
+	}
+	
+	\sectionwithouttoc{Event-Based Triplestores}
+	\begin{frame}{Event-Based Triplestores}
+		\begin{itemize}
+			\item In event-based triplestores triples describe events rather than entities
+			\item Information about entities and their relationships to one another may be gleaned from the events in which they occur
+			\item Additional information about an event may be added by simply adding a new triple to the triplestore
+			\item The key motivation behind using event-based triplestores is that they directly support reification on triples\cite{frost2014event}
+		\end{itemize}
+		Example (traditional):
+		{\lstIoo}
+		Example (event-based):
+		{\lstIo}
 	\end{frame}
 	
 	\sectionwithouttoc{Thesis Statement}
@@ -296,10 +341,58 @@
 	\sectionwithouttoc{Proof of Concept}
 	\begin{frame}{Proof of Concept}
 		We prove the Thesis by creating an online English query interface to a triplestore containing thousands of facts about the solar system. \cite{Solarman:2016}.
+		
+		Some example queries that can be handled by this system include:
+		
+		\begin{itemize}
+			\item ``when was something discovered at mt\_wilson''
+			\item ``how was the thing that was discovered at flagstaff discovered''
+			\item ``what was discovered in 1877 in us\_naval\_observatory''
+			\item ``what planet is orbited by a moon that was discovered in 1684''
+			\item ``which vacuumous moon that orbits jupiter was discovered by nicholson or hall with a telescope in 1938 in mt\_wilson or mt\_hopkins''
+		\end{itemize}
+		
+		The interface can be accessed at: \url{http://speechweb2.cs.uwindsor.ca/solarman2/}
 	\end{frame}
 	
-	\sectionwithouttoc{Nove}
-	\begin{frame}{Proof of Concept}
+	\sectionwithouttoc{Implementation Details}
+	\begin{frame}{Implementation Details}
+		\begin{itemize}
+			\item Implemented in Haskell
+			\item SafeHaskell is used in the Direct Query Interface to prevent arbitrary code execution
+			\item The monadic parser was joined with the monadic semantics in combination with a grammar
+			\item Memoization is performed at the query level to keep queries fast
+			\item The actual query logic is contained in the Getts module, which provides interfaces to SPARQL triplestores and also list-based in-program triplestores.  A general typeclass is provided for future extensibility
+		\end{itemize}
+	\end{frame}
+	
+	\sectionwithouttoc{Improvements over Original Semantics}
+	\begin{frame}{Improvements over Original Semantics}
+		\begin{itemize}
+			\item The original semantics suffered from an implicit `and' problem where chained prepositions in sentences were treated as though they had the word `and' in between them.
+			For example ``who discovered a moon in 1877 with a telescope'' would have been treated as ``who discovered a moon in 1877 and with a telescope''.
+			\item This also interfered with the correct handling of words such as `one', `two', and `every'
+			\item The `collect' operation is now more efficient an can be performed in O(n log n) time
+		\end{itemize}
+	\end{frame}
+	
+	\sectionwithouttoc{Novel additions}
+	\begin{frame}{Novel additions}
+		The use of `by' as a preposition:
+		\begin{itemize}
+		\item In developing the system, it was discovered that the logic for handling the word `by' (e.g, ``phobos was discovered by hall'') was identical to a preposition in the semantics that searched for a subject in a given event
+		\item The functionality was merged, and with no added complexity to the grammar, the word `by' is supported in queries
+		\end{itemize}
+	\end{frame}
+	
+	\sectionwithouttoc{Work to be Done}
+	\begin{frame}{Work to be Done}
+		\begin{itemize}
+			\item The Web interface needs improvement
+			\item Investigate conversion of traditional triplestores to event-based using RDF Schemas
+			\item Accommodating `why' (e.g. ``why did hall discover phobos'')
+			\item Complexity analysis 
+		\end{itemize}
 	\end{frame}
 	
 	\sectionwithouttoc{Timeline}
