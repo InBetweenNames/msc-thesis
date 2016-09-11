@@ -9,28 +9,43 @@
 
 % Use the listings package...
 \usepackage{listings}
-\lstset {
-  basicstyle=\footnotesize\ttfamily,
-  numbers=left,
-  numberstyle=\tiny,
-  columns=fullflexible,
-  language=C++,
-  morekeywords={alignas,alignof,char16_t,char32_t,constexpr,decltype,noexcept,nullptr,static\_assert,thread\_local,final,override},
-  % Next lines for appearance to be like algorithmicx
-  numbersep=5pt,
-  xleftmargin=20pt,
-  frame=tb,
-  framexleftmargin=20pt,
-  framerule=0.5pt,
-  breaklines=true,
-  % Next line for escapes...
-  escapeinside={/*@}{@*/},
-  abovecaptionskip=1pt,
-  moredelim=[is][\color{CAlertBasis}]{@alert@}{@alert@},
-  moredelim=[is][\color{CExampleBasis}]{@example@}{@example@},
-  moredelim=[is][\color{CBlockBasis}]{@block@}{@block@},
-  moredelim=[is][\color{CTitleBasis}]{@title@}{@title@},
-  moredelim=[is][\color{CBasis}]{@basis@}{@basis@}
+
+\lstloadlanguages{Haskell}
+
+\lstnewenvironment{code}
+{\lstset{}%
+	\csname lst@SetFirstLabel\endcsname}
+{\csname lst@SaveFirstLabel\endcsname}
+\lstset{
+	basicstyle={\scriptsize\ttfamily\singlespacing},
+	flexiblecolumns=false,
+	basewidth={0.5em,0.45em},
+	literate={+}{{$+$}}1 {/}{{$/$}}1 {*}{{$*$}}1 {=}{{$=$}}1
+	{>}{{$>$}}1 {<}{{$<$}}1 {\\}{{$\lambda$}}1
+	{\\\\}{{\char`\\\char`\\}}1
+	{->}{{$\rightarrow$}}2 {>=}{{$\geq$}}2 {<-}{{$\leftarrow$}}2
+	{<=}{{$\leq$}}2 {=>}{{$\Rightarrow$}}2
+	{\ .\ }{{$\circ$}}2
+	{>>}{{>>}}2 {>>=}{{>>=}}2
+	{|}{{$\mid$}}1
+}
+
+\lstnewenvironment{spec}
+{\lstset{}%
+	\csname lst@SetFirstLabel\endcsname}
+{\csname lst@SaveFirstLabel\endcsname}
+\lstset{
+	basicstyle={\scriptsize\ttfamily\singlespacing},
+	flexiblecolumns=false,
+	basewidth={0.5em,0.45em},
+	literate={+}{{$+$}}1 {/}{{$/$}}1 {*}{{$*$}}1 {=}{{$=$}}1
+	{>}{{$>$}}1 {<}{{$<$}}1 {\\}{{$\lambda$}}1
+	{\\\\}{{\char`\\\char`\\}}1
+	{->}{{$\rightarrow$}}2 {>=}{{$\geq$}}2 {<-}{{$\leftarrow$}}2
+	{<=}{{$\leq$}}2 {=>}{{$\Rightarrow$}}2
+	{\ .\ }{{$\circ$}}2
+	{>>}{{>>}}2 {>>=}{{>>=}}2
+	{|}{{$\mid$}}1
 }
 
 %
@@ -71,8 +86,18 @@
 }
 \subject{Intro}
 
+\usepackage{hyperref}
+
+\usepackage{xcolor}
+\hypersetup{
+	colorlinks,
+	linkcolor={red!50!black},
+	citecolor={blue!50!black},
+	urlcolor={blue!80!black}
+}
+
 % bibliography...
-\usepackage[backend=biber,bibstyle=numeric-comp,sorting=nyvt,natbib=true,mcite=true,maxnames=100,url=true,isbn=false,doi=false,uniquename=init,firstinits=true,hyperref=true,backref=true,date=iso8601,sortcites]{biblatex}
+\usepackage[backend=biber,bibstyle=numeric-comp,sorting=ydnt,natbib=true,mcite=true,maxnames=100,url=true,isbn=false,doi=false,uniquename=init,giveninits=true,hyperref=true,backref=true,date=edtf,sortcites]{biblatex}
 \renewcommand{\subtitlepunct}{\addcolon\addspace}
 
 %\hypersetup{pdfpagemode=FullScreen}
@@ -169,26 +194,135 @@
 	
 	\sectionwithouttoc{Introduction}
 	\begin{frame}{Introduction}
+		\begin{itemize}
+			\item The Semantic Web (part of Web 3.0)
+			\begin{itemize}
+				\item Distributed and decentralized
+				\item Resource Description Framework (RDF) \cite{w3csemanticweb}
+				\item SPARQL Protocol and RDF Query Language (SPARQL)
+			\end{itemize}
+			\item Can be thought of, informally, as applying the model of the World Wide Web to databases
+			\item SPARQL is low-level (like SQL)
+		\end{itemize}
 	\end{frame}
 	
-	\sectionwithouttoc{Related Work}
-	\begin{frame}{Related Work}
+	\subsectionwithouttoc{Resource Description Framework}
+	\begin{frame}{Resource Description Framework}
+		\begin{itemize}
+			\item Data is organized into {\em triples}
+			\item A {\em triple} is a 3-tuple that has the form $(\text{\em subject}, \text{\em predicate}, \text{\em object})$
+			\item {\em subject}, {\em predicate}, and {\em object} are Uniform Resource Identifiers (URIs) \cite{w3csemanticweb}
+			\item A database containing these triples is commonly called a ``triplestore''
+			\item Example triple: (``Jane'', ``purchased'', ``pencil'')
+		\end{itemize}
 	\end{frame}
 	
-	\sectionwithouttoc{Proposed Work}
-	\begin{frame}{Proposed Work}
+	\subsectionwithouttoc{SPARQL}
+	\defverbatim[colored]\lstI{
+		\begin{lstlisting}[basicstyle=\ttfamily,keywordstyle=\color{red}]
+	PREFIX foaf:  <http://xmlns.com/foaf/0.1/>
+	SELECT ?name ?email
+	FROM <http://www.w3.org/People/Berners-Lee/card>
+	WHERE {
+	{      SELECT DISTINCT ?person ?name WHERE { 
+	?person foaf:name ?name 
+	} ORDER BY ?name LIMIT 10 OFFSET 10    }
+	}
+		\end{lstlisting}
+	}
+	
+	\begin{frame}{SPARQL Protocol and RDF Query Language}
+		\begin{itemize}
+			\item RDF Query Language
+			\item Similar to SQL
+			\item Queries are submitted to {\em SPARQL endpoints}
+			\item Form patterns that define restrictions on the elements of triples
+			\item Similar to pattern matching in functional programming
+			\item Low-level
+			\item Example: \lstI
+		\end{itemize}
+	\end{frame}
+	
+	\sectionwithouttoc{Natural Language Interfaces to the Semantic Web}
+	\begin{frame}{Natural Language Interfaces to the Semantic Web}
+		\begin{itemize}
+			\item SPARQL is low level and not user-friendly
+			\item Natural Language Interfaces
+			\begin{itemize}
+				\item Require little technical knowledge to use
+				\item Require minimal effort on part of the user
+				\item Area of active research, with several previous attempts
+			\end{itemize}
+			\item ORAKEL \cite{cimiano2007orakel} -
+			\item QuestIO \cite{tablan2008natural} -
+			\item AutoSPARQL \cite{lehmann2011autosparql} -
+		\end{itemize}
+	\end{frame}
+	
+	\sectionwithouttoc{Problem Statement}
+	\begin{frame}{Problem Statement}
+		
+		\textbf{The Problem}:
+		Previous work has seen success, but the English NLIs have a shortcoming in that they do not allow for prepositional phrases in queries, and hence have a limited coverage of the English language.
+		\newline
+		
+		The work presented in this thesis draws on two main concepts:
+		\begin{itemize}
+			\item Executable Attribute Grammars\cite{frosthafiz2008}
+			\item Event-Based Denotational Semantics\cite{frostagbola2014}.
+		\end{itemize}
+		
+	\end{frame}
+	
+	\sectionwithouttoc{Executable Attribute Grammars}
+	\begin{frame}{Executable Attribute Grammars}
+		\begin{itemize}
+		\item Executable attribute grammars are a natural way to process Natural Language queries, and since they allow top-down rather than bottom-up parsing, they are highly modular \cite{frosthafiz2008}.
+		\end{itemize}
+	\end{frame}
+	
+	\sectionwithouttoc{Event-Based Denotational Semantics}
+	\begin{frame}{Event-Based Denotational Semantics}
+		\begin{itemize}
+		\item Event-based denotational semantics operate on event-based triplestores \cite{frost2014demonstration} rather than traditional triplestores
+		\end{itemize}
+	\end{frame}
+	
+	\sectionwithouttoc{Thesis Statement}
+	\begin{frame}{Thesis Statement}
+		By integrating a novel event-based denotational semantics with a parser constructed as an executable attribute grammar, it is possible to create a highly modular and extensible Natural Language Interface to the Semantic Web that supports the use prepositional phrases in queries.
 	\end{frame}
 	
 	\sectionwithouttoc{Proof of Concept}
 	\begin{frame}{Proof of Concept}
+		We prove the Thesis by creating an online English query interface to a triplestore containing thousands of facts about the solar system. \cite{Solarman:2016}.
 	\end{frame}
+	
+	\sectionwithouttoc{Nove}
+	\begin{frame}{Proof of Concept}
+	\end{frame}
+	
+	\sectionwithouttoc{Timeline}
+	\begin{frame}{Timeline}
+		
+		\begin{itemize}
+			\item September - Revamp web interface
+			\item October - Complexity analysis and report writing
+			\item November - Investigate how RDF schemas could be used to convert existing triplestores to event-based
+			\item December - Completion and defence 
+		\end{itemize}
+		
+	\end{frame}
+		
 	
 	\sectionwithouttoc{Thank You \& Feedback}
 	\begin{frame}{Thank You \& Feedback}
+		\centering
+		Thank you for attending! \\ Comments, suggestions, or questions?
 	\end{frame}
   
 	\sectionwithouttoc{References}
-	\begin{frame}{References}
+	\begin{frame}[allowframebreaks]{References}
 	  \def\newblock{}
 	  \setbeamertemplate{bibliography item}[text]
 	  \setlength\bibitemsep{1.5\itemsep}

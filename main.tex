@@ -15,8 +15,10 @@
 \usepackage{fancyhdr}
 \usepackage{setspace}
 \usepackage[mark]{gitinfo2}
-\usepackage{bibentry}
-\nobibliography*
+\usepackage[hidelinks]{hyperref}
+\usepackage[backend=biber,bibstyle=numeric-comp,sorting=ydnt,natbib=true,mcite=true,maxnames=100,url=true,isbn=false,doi=false,uniquename=init,giveninits=true,hyperref=true,backref=true,date=edtf,sortcites]{biblatex}
+
+\addbibresource{thesis.bib}
 
 %TODO: Change "plain" to "revision"
 \fancypagestyle{revision}{
@@ -207,9 +209,9 @@ I hereby declare that this thesis incorporates material that is result of joint 
 Some of the material in this thesis is derived from the following research papers:
 \end{uwindefaultspaceenv}
 
-\cite{frostagbola2014} \bibentry{frostagbola2014}
+\cite{frostagbola2014} \fullcite{frostagbola2014}
 
-\cite{frost2014demonstration} \bibentry{frost2014demonstration}
+\cite{frost2014demonstration} \fullcite{frost2014demonstration}
 
 \begin{uwindefaultspaceenv}
 %TODO
@@ -263,8 +265,7 @@ I certify that, with the above qualification, this thesis, and the research to w
 
 % bibliography, glossary and index would go here.
 
-\bibliographystyle{plain}
-\bibliography{thesis}
+\printbibliography[heading=bibintoc]
 
 \chapter*{Vita Auctoris}
 \addcontentsline{toc}{chapter}{Vita Auctoris}
