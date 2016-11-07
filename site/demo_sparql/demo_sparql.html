@@ -34,15 +34,17 @@
 
         <div class="row">
             <form onsubmit="return false;" class="col-md-10 offset-md-1">
-                <fieldset class="form-group">
+                <fieldset class="form-group" id="querygroup">
                     <input class="form-control" id="query" type="text" placeholder="Enter query here" data-trigger="manual" data-placement="top"
-                        data-title="Completions" >
-                        <!--oninput="updateCompletions()"-->
+                        data-title="Completions" oninput="removeFeedback()">
+                    <!--oninput="updateCompletions()"-->
                 </fieldset>
-                <button class="btn btn-primary col-lg-2 offset-lg-5" onclick="send()">Run Query</button>
+                <fieldset class="form-group">
+                    <div id="result" class="text-xs-center">
+                    </div>
+                </fieldset>
+            <button class="btn btn-primary col-lg-2 offset-lg-5" onclick="send()">Run Query</button>
             </form>
-            <div id="result">
-            </div>
         </div>
         <p>
             <strong>Examples:</strong>
@@ -90,17 +92,17 @@
         $(function () {
            $('#query').popover({offset: "10 0"})
         });
-    
-        $(document).click(function(event) { 
+
+        $(document).click(function(event) {
         if(!$(event.target).closest('#query').length) {
             $("#query").popover("dispose");
-        }        
+        }
         });
-    
+
      </script-->
 
     <script type="text/javascript">
-            
+
     function textMetrics(el) {
 
     var h = 0, w = 0;
@@ -149,22 +151,40 @@
         var textWidth = $("#query").outerWidth();
         $(".popover").css("margin-left", (-(textWidth / 2) + x) + "px")
         popover.html(x);
-        
 
     }
     </script>
 
     <script type="text/javascript">
+        function removeFeedback()
+        {
+            $("#querygroup").removeClass("has-danger");
+            $("#query").removeClass("form-control-danger");
+            $("#querygroup").removeClass("has-success");
+            $("#query").removeClass("form-control-success");
+        }
+
         function send()
         {
+            removeFeedback();
             //$('#query').popover('dispose');
-            $("#result").html("<img src='../loading.gif'></img>")
+            $("#result").html("<img src='loading.gif'></img>")
             $.post(
                 "demo_sparql/solarman.cgi",
-                { query: $("#query").val(), 
+                { query: $("#query").val(),
             key: 0 },
                 function(data, textStatus)
                 {
+                    if (data === "Do not know that one yet, will work on it tonight")
+                    {
+                        $("#querygroup").addClass("has-danger");
+                        $("#query").addClass("form-control-danger");
+                    }
+                    else
+                    {
+                        $("#querygroup").addClass("has-success");
+                        $("#query").addClass("form-control-success");
+                    }
                     $("#result").html(data)
                 }
             );
