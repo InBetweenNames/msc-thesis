@@ -44,7 +44,9 @@
             </div>
         </div>
         <p>
-            <strong>Example:</strong> <code>which moons orbit jupiter</code>
+            <strong>Examples:</strong>
+            <p><code>which moons orbit jupiter</code></p>
+            <p><code>who discovered a moon in 1877</code> <p>
         </p>
         <a href="http://speechweb2.cs.uwindsor.ca/solarman2/examples.html">Click here for more examples</a>
 
@@ -102,7 +104,7 @@
 
     var h = 0, w = 0;
 
-    var div = document.createElement('div');
+    var div = document.createElement('pre');
     document.body.appendChild(div);
     $(div).css({
     position: 'absolute',
@@ -133,12 +135,16 @@
 
     function updateCompletions()
     {
+        if (!$("#query").val()) {
+            $('#query').popover('dispose');
+            return;
+        }
         if ($(".popover-content").length == 0) {
             $('#query').popover('show');
         }
 
         var popover = $(".popover-content");
-        var x = textMetrics($("#query")).width;
+        var x = Math.floor(textMetrics($("#query")).width) + 50;
         var textWidth = $("#query").outerWidth();
         $(".popover").css("margin-left", (-(textWidth / 2) + x) + "px")
         popover.html(x);

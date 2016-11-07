@@ -1,86 +1,127 @@
 <!DOCTYPE html>
-<html><head>
-<meta http-equiv="content-type" content="text/html; charset=windows-1252">
-        <title>WINDSWEQ - The WINDsor Semantic Web English Query interface - Live Demo with RDF Triplestore</title>
-    </head>
-    <body>
-        <h1>Live Demo - New Semantics - SPARQL version - Direct Query Interface</h1>
-	<h2>A Demonstration of our new semantics remade using a SPARQL endpoint as the triplestore</h2>
-        <p>
-	This is a live demo of the Solarman application for Natural Language queries to event based semantic web data.
-	Previously our demonstration used an in-program triplestore.  To demonstrate the real-world applicability of our semantics,
-	we have redesigned our demo to use a SPARQL endpoint instead as its triplestore.  This improved version is faster and now
-	operates directly on the semantic web.
-        </p>
-	<h3>Novel additions</h3>
-	<p>
-	In addition to these changes, we also demonstrate our support for 
-chained prepositional phrases in our semantics here.
-	We also demonstrate a novel way to handle the word 'by', as used in the
- passive form of a verb (e.g., 'discovered by'), by treating it directly
-	as a preposition.  In doing this, we can support queries such as 'which
- moon was discovered in 1877 by hall' without any added complexity to
-	the semantics.
-	</p>
-	<h3>Query interface</h3>
-        <p>
-        In the input field below, you may type and run any valid query using the semantic combinators and functions. 
-        </p>
-	<p>
-	Queries are written as expressions in the Haskell language.
-	</p>
-        <p>
-        <b>Examples:</b> which moons $ orbit jupiter <br><br> which planets $ orbited_ [by $ a (moon `that` discovered_ [by galileo])]
-	<br><br> <a href="http://speechweb2.cs.uwindsor.ca/solarman2/examples.html"> Click here for more examples and a list of valid functions and combinators </a>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.5/css/bootstrap.min.css" integrity="sha384-AysaV+vQoT3kOAXZkl02PThvDr8HYKPZhNT5h/CXfBThSRXQ6jW5DO2ekP5ViFdi"
+        crossorigin="anonymous">
+    <title>WINDSWEQ - The WINDsor Semantic Web English Query Interface - Live Demo with RDF Triplestore</title>
+</head>
+
+<body>
+    <div class="container">
+        <div class="jumbotron">
+            <!--h1>Accommodating prepositional phrases in a highly modular natural language query interface
+                to Semantic Web triplestores using a novel event-based denotational semantics for English
+                and a set of parser combinators</h1-->
+            <!--h1>Live Demo - New Semantics - SPARQL version - Natural Language Interface</h1-->
+            <!--h1 class="display-4">WINDSWEQ: The WINDsor Semantic Web English Query Interface</h1-->
+            <!--h1 class="display-4">Live Demo of a Natural Language Interface to the Semantic Web using an Event-Based Denotational Semantics</h1-->
+            <h1 class="display-3 text-xs-center">Solarman:</h1>
+            <h2 class="text-xs-center"><small>Live Demo of an Event-Based Denotational Semantics for the Semantic Web</small></h2>
+            <hr>
+            <h3 class="text-xs-center">Direct Query Interface</h3>
+        </div>
+        <h1><small>A demonstration of our new event-based denotational semantics using a SPARQL endpoint as the triplestore</small></h1>
+        <p class="lead">
+            This is a live demo of the Solarman application for Natural Language queries to event based semantic web data. Previously
+            our demonstration used an in-program triplestore. To demonstrate the real-world applicability of our semantics,
+            we have redesigned our demo to use a SPARQL endpoint instead as its triplestore. This improved version is faster
+            and now operates directly on the semantic web.
         </p>
 
-	<p>You can also access the endpoint via a speech front end, on Windows 
-or Android by installing the JavaScript version of speech browser. You 
-can install the browser here <a href="http://speechweb.cs.uwindsor.ca/index.php?page=install_guide">here</a>, and then <a href="http://speechweb2.cs.uwindsor.ca/solarman2/demo_sparql/"> access the speech app</a>.
-	</p>
+        <div class="row">
+            <form onsubmit="return false;" class="col-md-10 offset-md-1">
+                <fieldset class="form-group">
+                    <input class="form-control" id="query" type="text" placeholder="Enter expression here" data-trigger="manual" data-placement="top"
+                        data-title="Completions" oninput="updateCompletions()">
+                </fieldset>
+                <button class="btn btn-primary col-lg-2 offset-lg-5" onclick="send()">Run Query</button>
+            </form>
+            <div id="result">
+            </div>
+        </div>
+
+        <h3>Novel additions</h3>
+        <p>
+            In addition to these changes, we also demonstrate our support for chained prepositional phrases in our semantics here. We
+            also demonstrate a novel way to handle the word 'by', as used in the passive form of a verb (e.g., 'discovered
+            by'), by treating it directly as a preposition. In doing this, we can support queries such as 'which moon was
+            discovered in 1877 by hall' without any added complexity to the semantics.
+        </p>
+        <h3>Query interface</h3>
+        <p>
+            In the input field above, you may type and run any valid query using the semantic combinators and functions.
+        </p>
+        <p>
+            Queries are written as expressions in the Haskell language.
+        </p>
+        <p>
+            <strong>Examples:</strong>
+            <p>
+            <code>which moons $ orbit jupiter</code>
+            </p>
+            <p>
+            <code>which planets $ orbited_ [by $ a (moon `that` discovered_ [by galileo])]</code>
+            </p>
+        </p>
+
+        <h2>How to use</h2>
+
+        <p>Unlike the natural language interface, this interface accepts expressions in the Haskell language to evaluate semantic
+            queries. That is, you, the user, have the direct ability to construct and evaluate queries using our parser combinators.
+            Try some of the examples above.</p>
+
+        <p> There are two transitive verbs used in Solarman, <code>discover</code> and <code>orbit</code>. Depending on your use
+            of these verbs, the appropriate version must be used in the expression:
+            <ul>
+            <li><code>discover</code> is the active voice (e.g. "hall discovered a moon")</li>
+            <li><code>discover'</code> is the active voice with support for prepositional phrases, and </li>
+            <li><code>discover_</code> is the passive voice with prepositional phrases </li>
+            </ul>
+
+            <p>The above voices apply to the <code>orbit</code> verb as well.</p>
+            
+            <p>Note that we treat the word <code>by</code> as a preposition in our grammar and semantics.</p>
+            
+            An example query using
+            the passive voice: <code>phobos $ discovered_ [by hall]</code> (in English: "phobos was discovered by hall"). An example
+            query in the active voice: <code>hall $ discovered' phobos [in' 1877, with $ a telescope]</code> (in English: "hall discovered
+            phobos in 1877 with a telescope")</p>
+
+        <p>A full list of available functions is available <a href="http://speechweb2.cs.uwindsor.ca/solarman2/Interactive.hs">here</a>.</p>
+
+        <p>We permit the <code>.</code> and <code>$</code> operators from the Haskell prelude, and any function defined in that file, in queries. SafeHaskell
+            prevents the evaluation of any other function.</p>
+
+        
+        <!--p>You can also access the endpoint via a speech front end, on Windows or Android by installing the JavaScript version
+            of speech browser. You can install the browser here <a href="http://speechweb.cs.uwindsor.ca/index.php?page=install_guide">here</a>,
+            and then <a href="http://speechweb2.cs.uwindsor.ca/solarman2/demo_sparql/"> access the speech app</a>.
+        </p-->
+
+        <p><a href="http://speechweb2.cs.uwindsor.ca/solarman2/examples.html"> Click here for more examples and a list of valid functions and combinators</a></p>
 
         <p><a href="http://speechweb2.cs.uwindsor.ca/sparql">Link to our SPARQL endpoint</a></p>
-    
-        <p><a href="http://speechweb2.cs.uwindsor.ca/sparql?default-graph-uri=http%3A%2F%2Fsolarman.richard.myweb.cs.uwindsor.ca&amp;query=select+*+where+%7B+%3Fevent+%3Frelation+%3Fvalue+%7D&amp;format=text%2Fhtml&amp;debug=on&amp;timeout=">List of triples in the graph</a><a></a></p><a>
-        
-	<form onsubmit="return false;">
-        Query: <input style="width:50%" id="query" type="text">
-        <button onclick="send()">Run Query</button>
-	</form>
-        <div id="result">
-        </div>
-	<h2>How to use</h2>
 
-	<p>Unlike the natural language interface, this interface accepts 
-expressions in the Haskell language to evaluate semantic queries.  That 
-is, you, the user, have the direct ability to construct and evaluate 
-queries using our parser combinators.  Try some of the examples above.</p>
+        <p><a href="http://speechweb2.cs.uwindsor.ca/sparql?default-graph-uri=http%3A%2F%2Fsolarman.richard.myweb.cs.uwindsor.ca&amp;query=select+*+where+%7B+%3Fevent+%3Frelation+%3Fvalue+%7D&amp;format=text%2Fhtml&amp;debug=on&amp;timeout=">List of triples in the graph</a>
+        </p>
+    </div>
 
-	<p>Some things to note: there are two transitive verbs used in 
-Solarman, 'discover' and 'orbit'.  Depending on your use of these verbs,
- the appropriate version must be called.  "discover" is the active voice
- (i.e. "hall discovered a moon"), "discover'" is the active voice with 
-support for prepositional phrases, and "discover_" is the passive voice 
-with prepositional phrases.  Note that we treat 'by' as a preposition in
- our grammar.  An example query using the passive voice: 'phobos $ 
-discovered_ [by hall]' (in English: "phobos was discovered by hall").  
-An example query in the active voice: 'hall $ discovered' phobos [in' 
-1877, with $ a telescope]' (in English "hall discovered phobos in 1877 
-with a telescope")</p>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js" integrity="sha384-3ceskX3iaEnIogmQchP8opvBy3Mi7Ce34nWjpBIwVTHfGYWQS9jwHDVRnpKKHJg7"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.3.7/js/tether.min.js" integrity="sha384-XTs3FgkjiBgo8qjEjBk0tGmf3wPrWtA6coPfQDfFEY8AnYJwjalXCiosYRBIBZX8"
+        crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.5/js/bootstrap.min.js" integrity="sha384-BLiI7JTZm+JWlgKa0M0kGRpJbF2J8q+qreVrKBC47e3K6BW78kGLrCkeRX6I9RoK"
+        crossorigin="anonymous"></script>
 
-	</a><p><a>A full list of available functions is available </a><a href="http://speechweb2.cs.uwindsor.ca/solarman2/Interactive.hs">here</a><a>.</a></p><a>
 
-	<p>We permit the (.) and ($) operators from the prelude, and any 
-function defined in that file, in queries.  SafeHaskell prevents the 
-evaluation of any other function.</p><p>
-    
-    
-    
-    <script type="text/javascript" src="WINDSWEQ%20-%20The%20WINDsor%20Semantic%20Web%20English%20Query%20interface%20-%20Live%20Demo%20with%20RDF%20Triplestore_files/jquery.js"></script>
     <script type="text/javascript">
     function send()
     {
-        $("#result").html("<img src='loading.gif'></img>")
+        $("#result").html("<img src='../loading.gif'></img>")
         $.post(
             "appcgi.py",
             { query: $("#query").val(), 
@@ -95,4 +136,6 @@ evaluation of any other function.</p><p>
     }
     </script>
 
-</p></a></body></html>
+</body>
+
+</html>
