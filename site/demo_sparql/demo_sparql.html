@@ -19,9 +19,9 @@
             <!--h1>Live Demo - New Semantics - SPARQL version - Natural Language Interface</h1-->
             <!--h1 class="display-4">WINDSWEQ: The WINDsor Semantic Web English Query Interface</h1-->
             <!--h1 class="display-4">Live Demo of a Natural Language Interface to the Semantic Web using an Event-Based Denotational Semantics</h1-->
-            <h1 class="display-4 text-xs-center">Solarman:</h1>
+            <h1 class="display-3 text-xs-center">Solarman:</h1>
             <h2 class="text-xs-center"><small>Live Demo of an Event-Based Denotational Semantics for the Semantic Web</small></h2>
-            <hr/>
+            <hr>
             <h3 class="text-xs-center">Natural Language Interface</h3>
         </div>
         <h1><small>A demonstration of our new event-based denotational semantics using a SPARQL endpoint as the triplestore</small></h1>
@@ -35,7 +35,9 @@
         <div class="row">
         <form onsubmit="return false;" class="col-md-10 offset-md-1">
             <fieldset class="form-group">
-                <input class="form-control" id="query" type="text" placeholder="Enter query here">
+                <input class="form-control" id="query" type="text" placeholder="Enter query here"
+                    data-trigger="manual" data-placement="top" data-title="Completions"
+                    oninput="updateCompletions()">
             </fieldset>
             <button class="btn btn-primary col-md-2 offset-md-5" onclick="send()">Run Query</button>
         </form>
@@ -43,10 +45,11 @@
         </div>
         </div>
         <p>
-            <b>Example:</b> <code>which moons orbit jupiter</code>
+            <strong>Example:</strong> <code>which moons orbit jupiter</code>
         </p>
         <a href="http://speechweb2.cs.uwindsor.ca/solarman2/examples.html">Click here for more examples</a>
 
+        <hr>
         <h3>Novel additions</h3>
         <p>
             In addition to these changes, we also demonstrate our support for chained prepositional phrases in our semantics here. We
@@ -56,16 +59,16 @@
         </p>
         <h3>Query interface</h3>
         <p>
-            In the input field below, you may type and run any valid query using the semantic functions.
+            In the input field above, you may type and run any valid query using the semantic functions.
         </p>
         <p>
             Queries are written in lower case English with no punctuation.
         </p>
 
-        <p>You can also access the endpoint via a speech front end, on Windows or Android by installing the JavaScript version of
+        <!--p>You can also access the endpoint via a speech front end, on Windows or Android by installing the JavaScript version of
             speech browser. You can install the browser here <a href="http://speechweb.cs.uwindsor.ca/index.php?page=install_guide">here</a>,
             and then <a href="http://speechweb2.cs.uwindsor.ca/solarman2/demo_sparql/"> access the speech app</a>.
-        </p>
+        </p-->
 
         <p><a href="http://speechweb2.cs.uwindsor.ca/sparql">Link to our SPARQL endpoint</a></p>
 
@@ -80,8 +83,17 @@
             crossorigin="anonymous"></script>
 
         <script type="text/javascript">
+        function updateCompletions()
+        {
+            var x = Math.floor(Math.random() * 100);
+            $('#query').popover('show');
+        }
+        </script>
+
+        <script type="text/javascript">
         function send()
         {
+            $('#query').popover('dispose');
             $("#result").html("<img src='../loading.gif'></img>")
             $.post(
                 "demo_sparql/solarman.cgi",
