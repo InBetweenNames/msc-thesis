@@ -36,7 +36,8 @@
             <form onsubmit="return false;" class="col-md-10 offset-md-1">
                 <fieldset class="form-group">
                     <input class="form-control" id="query" type="text" placeholder="Enter query here" data-trigger="manual" data-placement="top"
-                        data-title="Completions" oninput="updateCompletions()">
+                        data-title="Completions" >
+                        <!--oninput="updateCompletions()"-->
                 </fieldset>
                 <button class="btn btn-primary col-lg-2 offset-lg-5" onclick="send()">Run Query</button>
             </form>
@@ -85,7 +86,7 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.5/js/bootstrap.min.js" integrity="sha384-BLiI7JTZm+JWlgKa0M0kGRpJbF2J8q+qreVrKBC47e3K6BW78kGLrCkeRX6I9RoK"
         crossorigin="anonymous"></script>
 
-    <script type="text/javascript">
+    <!--script type="text/javascript">
         $(function () {
            $('#query').popover({offset: "10 0"})
         });
@@ -96,7 +97,7 @@
         }        
         });
     
-     </script>
+     </script-->
 
     <script type="text/javascript">
             
@@ -156,7 +157,7 @@
     <script type="text/javascript">
         function send()
         {
-            $('#query').popover('dispose');
+            //$('#query').popover('dispose');
             $("#result").html("<img src='../loading.gif'></img>")
             $.post(
                 "demo_sparql/solarman.cgi",
