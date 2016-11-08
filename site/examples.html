@@ -1,446 +1,613 @@
 <html>
-    <head>
-        <title>WINDSWEQ - The WINDsor Semantic Web English Query interface</title>
-    </head>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.5/css/bootstrap.min.css" integrity="sha384-AysaV+vQoT3kOAXZkl02PThvDr8HYKPZhNT5h/CXfBThSRXQ6jW5DO2ekP5ViFdi"
+        crossorigin="anonymous">
+    <style>
+        .list-inline-item {
+            font-size: 24px;
+            border: 1px transparent;
+            border-radius: 5px;
+            background: #F0F0F0;
+            padding: 5px;
+            margin: 2px;
+        }
+        .card-columns {
+            -webkit-column-count: 1;
+            -moz-column-count: 1;
+            column-count: 1;
+        }
+        @media (min-width: 48em) {
+            .card-columns {
+                -webkit-column-count: 2;
+                -moz-column-count: 2;
+                column-count: 2;
+            }
+        }
+
+        @media (min-width: 72em) {
+            .card-columns {
+                -webkit-column-count: 3;
+                -moz-column-count: 3;
+                column-count: 3;
+            }
+        }
+
+        @media (min-width: 96em) {
+            .card-columns {
+                -webkit-column-count: 4;
+                -moz-column-count: 4;
+                column-count: 4;
+            }
+        }
+
+        @media (min-width: 120em) {
+            .card-columns {
+                -webkit-column-count: 5;
+                -moz-column-count: 5;
+                column-count: 5;
+            }
+        }
+
+    </style>
+    <title>WINDSWEQ - The WINDsor Semantic Web English Query interface</title>
+</head>
+
 <body>
 
-<h1>Some Examples:</h1>
+    <div class="container-fluid">
+        <div class="card-columns">
+                <div class="card">
+                    <h4 class="card-header">Some Examples:</h4>
+                    <div class="card-block">
+                        <ul class="list-group">
+                        <li class="list-group-item">does mars spin</li>
+                        <li class="list-group-item">who discovered ganymede</li>
+                        <li class="list-group-item">does earth spin and orbit the sun</li>
+                        <li class="list-group-item">which moons that were discovered by hall orbit mars</li>
+                        <li class="list-group-item">who discovered a moon that orbits mars</li>
+                        <li class="list-group-item">did hall discover every moon that orbits mars</li>
+                        <li class="list-group-item">how many moons were discovered by hall and kuiper</li>
+                        <li class="list-group-item">how many moons were discovered by hall or kuiper</li>
+                        <li class="list-group-item">every moon was discovered by a person</li>
+                        <li class="list-group-item">which planets are orbited by a moon that was discovered by galileo</li>
+                        <li class="list-group-item">which moons were discovered by nobody</li>
+                        <li class="list-group-item">hall discovered a moon that orbits mars</li>
+                        <li class="list-group-item">which moons that orbit mars were discovered by hall</li>
+                        <li class="list-group-item">every moon orbits every planet</li>
+                        <li class="list-group-item">every planet is orbited by a moon</li>
+                        <li class="list-group-item">a planet is orbited by a moon</li>
+                        <li class="list-group-item">does phobos orbit mars</li>
+                        <li class="list-group-item">which moon was discovered by a person</li>
+                        <li class="list-group-item">who discovered a moon with a telescope</li>
+                        <li class="list-group-item">what was discovered in 1877 in us_naval_observatory</li>
+                        <li class="list-group-item">how many things were discovered in us_naval_observatory</li>
+                        <li class="list-group-item">which planets are orbited by two moons that were discovered with a telescope</li>
+                        <li class="list-group-item">what moon was discovered by one person in 1877</li>
+                        <li class="list-group-item">one planet is orbited by two moons</li>
+                        <li class="list-group-item">which vacuumous moon that orbits jupiter was discovered by nicholson or hall with a telescope in 1938 in mt_wilson or mt_hopkins</li>
+                        <li class="list-group-item">what planet is orbited by a moon that was discovered in 1684</li>
+                        <li class="list-group-item">what moon that orbits jupiter was discovered in 1951 by a person in mt_wilson</li>
+                        <li class="list-group-item">how many moons were discovered in 1938 by a person with a telescope</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="card">
+                    <h4 class="card-header">Preposition examples:</h4>
+                    <div class="card-block">
+                        <ul class="list-group">
+                        <li class="list-group-item">where were the moons that were discovered by hall or kuiper in 1877 discovered</li>
+                        <li class="list-group-item">where was a vacuumous moon that orbits a brown planet discovered</li>
+                        <li class="list-group-item">how was the thing that was discovered at flagstaff discovered</li>
+                        <li class="list-group-item">when did hall or galileo discover something</li>
+                        <li class="list-group-item">what was a thing discovered at mt_wilson in 1938</li>
+                        <li class="list-group-item">when was something discovered at mt_wilson</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="card">
+                    <h4 class="card-header">Common nouns:</h4>
+                    <div class="card-block">
+                        <ul class="list-inline">
+                            <li class="list-inline-item">thing</li>
+                            <li class="list-inline-item">things</li>
+                            <li class="list-inline-item">planets</li>
+                            <li class="list-inline-item">planet</li>
+                            <li class="list-inline-item">person</li>
+                            <li class="list-inline-item">sun</li>
+                            <li class="list-inline-item">moon</li>
+                            <li class="list-inline-item">moons</li>
+                            <li class="list-inline-item">satellite</li>
+                            <li class="list-inline-item">satellites</li>
+                            <li class="list-inline-item">human</li>
+                            <li class="list-inline-item">discoverer</li>
+                            <li class="list-inline-item">discoverers</li>
+                            <li class="list-inline-item">humans</li>
+                            <li class="list-inline-item">people</li>
+                            <li class="list-inline-item">telescope</li>
+                            <li class="list-inline-item">telescopes</li>
+                            <li class="list-inline-item">team</li>
+                            <li class="list-inline-item">teams</li>
+                            <li class="list-inline-item">spacecraft</li>
+                            <li class="list-inline-item">spacecrafts</li>
+                            <li class="list-inline-item">place</li>
+                            <li class="list-inline-item">places</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="card">
+                    <h4 class="card-header">Transitive verbs:</h4>
+                    <div class="card-block">
+                        <ul class="list-inline">
+                            <li class="list-inline-item">discover</li>
+                            <li class="list-inline-item">discovers</li>
+                            <li class="list-inline-item">discovered</li>
+                            <li class="list-inline-item">orbit</li>
+                            <li class="list-inline-item">orbited</li>
+                            <li class="list-inline-item">orbits</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="card">
+                    <h4 class="card-header">Intransitive verbs:</h4>
+                    <div class="card-block">
+                        <ul class="list-inline">
+                            <li class="list-inline-item">exist</li>
+                            <li class="list-inline-item">exists</li>
+                            <li class="list-inline-item">spin</li>
+                            <li class="list-inline-item">spins</li>
+                            <li class="list-inline-item">orbit</li>
+                            <li class="list-inline-item">orbits</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="card">
+                    <h4 class="card-header">Linking verbs:</h4>
+                    <div class="card-block">
+                        <ul class="list-inline">
+                            <li class="list-inline-item">is</li>
+                            <li class="list-inline-item">was</li>
+                            <li class="list-inline-item">are</li>
+                            <li class="list-inline-item">were</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="card">
+                    <h4 class="card-header">Determiners:</h4>
+                    <div class="card-block">
+                        <ul class="list-inline">
+                            <li class="list-inline-item">the</li>
+                            <li class="list-inline-item">a</li>
+                            <li class="list-inline-item">one</li>
+                            <li class="list-inline-item">an</li>
+                            <li class="list-inline-item">some</li>
+                            <li class="list-inline-item">any</li>
+                            <li class="list-inline-item">every</li>
+                            <li class="list-inline-item">all</li>
+                            <li class="list-inline-item">two</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="card">
+                    <h4 class="card-header">Relative Pronouns:</h4>
+                    <div class="card-block">
+                        <ul class="list-inline">
+                            <li class="list-inline-item">that</li>
+                            <li class="list-inline-item">who</li>
+                            <li class="list-inline-item">which</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="card">
+                    <h4 class="card-header">Joiners:</h4>
+                    <div class="card-block">
+                        <ul class="list-inline">
+                            <li class="list-inline-item">and</li>
+                            <li class="list-inline-item">or</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="card">
+                    <h4 class="card-header">Question types:</h4>
+                    <div class="card-block">
+                        <ul class="list-inline">
+                            <li class="list-inline-item">does</li>
+                            <li class="list-inline-item">did</li>
+                            <li class="list-inline-item">do</li>
+                            <li class="list-inline-item">what</li>
+                            <li class="list-inline-item">who</li>
+                            <li class="list-inline-item">which</li>
+                            <li class="list-inline-item">what</li>
+                            <li class="list-inline-item">where</li>
+                            <li class="list-inline-item">when</li>
+                            <li class="list-inline-item">how</li>
+                            <li class="list-inline-item">howmany</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="card">
+                    <h4 class="card-header">Indefinite pronouns:</h4>
+                    <div class="card-block">
+                        <ul class="list-inline">
+                            <li class="list-inline-item">anyone</li>
+                            <li class="list-inline-item">anything</li>
+                            <li class="list-inline-item">anybody</li>
+                            <li class="list-inline-item">someone</li>
+                            <li class="list-inline-item">something</li>
+                            <li class="list-inline-item">somebody</li>
+                            <li class="list-inline-item">everyone</li>
+                            <li class="list-inline-item">everything</li>
+                            <li class="list-inline-item">everybody</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="card">
+                    <h4 class="card-header">Prepositions:</h4>
+                    <div class="card-block">
+                        <ul class="list-inline">
+                            <li class="list-inline-item">with</li>
+                            <li class="list-inline-item">in</li>
+                            <li class="list-inline-item">at</li>
+                            <li class="list-inline-item">by</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="card">
+                    <h4 class="card-header">Planets:</h4>
+                    <div class="card-block">
+                        <ul class="list-inline">
+                            <li class="list-inline-item">earth</li>
+                            <li class="list-inline-item">jupiter</li>
+                            <li class="list-inline-item">mars</li>
+                            <li class="list-inline-item">mercury</li>
+                            <li class="list-inline-item">neptune</li>
+                            <li class="list-inline-item">saturn</li>
+                            <li class="list-inline-item">uranus</li>
+                            <li class="list-inline-item">venus</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="card">
+                    <h4 class="card-header">Dwarf planets:</h4>
+                    <div class="card-block">
+                        <ul class="list-inline">
+                            <li class="list-inline-item">pluto</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="card">
+                    <h4 class="card-header">Moons:</h4>
+                    <div class="card-block">
+                        <ul class="list-inline">
+                            <li class="list-inline-item">adrastea</li>
+                            <li class="list-inline-item">aegaeon</li>
+                            <li class="list-inline-item">aegir</li>
+                            <li class="list-inline-item">aitne</li>
+                            <li class="list-inline-item">albiorix</li>
+                            <li class="list-inline-item">almathea</li>
+                            <li class="list-inline-item">ananke</li>
+                            <li class="list-inline-item">anthe</li>
+                            <li class="list-inline-item">aoede</li>
+                            <li class="list-inline-item">arche</li>
+                            <li class="list-inline-item">ariel</li>
+                            <li class="list-inline-item">atlas</li>
+                            <li class="list-inline-item">autonoe</li>
+                            <li class="list-inline-item">bebhionn</li>
+                            <li class="list-inline-item">belinda</li>
+                            <li class="list-inline-item">bergelmir</li>
+                            <li class="list-inline-item">bestla</li>
+                            <li class="list-inline-item">bianca</li>
+                            <li class="list-inline-item">caliban</li>
+                            <li class="list-inline-item">callirrhoe</li>
+                            <li class="list-inline-item">callisto</li>
+                            <li class="list-inline-item">calypso</li>
+                            <li class="list-inline-item">carme</li>
+                            <li class="list-inline-item">carpo</li>
+                            <li class="list-inline-item">chaldene</li>
+                            <li class="list-inline-item">charon</li>
+                            <li class="list-inline-item">cordelia</li>
+                            <li class="list-inline-item">cressida</li>
+                            <li class="list-inline-item">cupid</li>
+                            <li class="list-inline-item">cyllene</li>
+                            <li class="list-inline-item">daphnis</li>
+                            <li class="list-inline-item">deimos</li>
+                            <li class="list-inline-item">desdemona</li>
+                            <li class="list-inline-item">despina</li>
+                            <li class="list-inline-item">dione</li>
+                            <li class="list-inline-item">elara</li>
+                            <li class="list-inline-item">enceladus</li>
+                            <li class="list-inline-item">epimetheus</li>
+                            <li class="list-inline-item">erinome</li>
+                            <li class="list-inline-item">erriapus</li>
+                            <li class="list-inline-item">euanthe</li>
+                            <li class="list-inline-item">eukelade</li>
+                            <li class="list-inline-item">euporie</li>
+                            <li class="list-inline-item">europa</li>
+                            <li class="list-inline-item">eurydome</li>
+                            <li class="list-inline-item">farbauti</li>
+                            <li class="list-inline-item">fenrir</li>
+                            <li class="list-inline-item">ferdinand</li>
+                            <li class="list-inline-item">fornjot</li>
+                            <li class="list-inline-item">francisco</li>
+                            <li class="list-inline-item">galatea</li>
+                            <li class="list-inline-item">ganymede</li>
+                            <li class="list-inline-item">greip</li>
+                            <li class="list-inline-item">halimede</li>
+                            <li class="list-inline-item">harpalyke</li>
+                            <li class="list-inline-item">hati</li>
+                            <li class="list-inline-item">hegemone</li>
+                            <li class="list-inline-item">helene</li>
+                            <li class="list-inline-item">helike</li>
+                            <li class="list-inline-item">hermippe</li>
+                            <li class="list-inline-item">herse</li>
+                            <li class="list-inline-item">himalia</li>
+                            <li class="list-inline-item">hydra</li>
+                            <li class="list-inline-item">hyperion</li>
+                            <li class="list-inline-item">hyrrokkin</li>
+                            <li class="list-inline-item">iapetus</li>
+                            <li class="list-inline-item">ijiraq</li>
+                            <li class="list-inline-item">io</li>
+                            <li class="list-inline-item">iocaste</li>
+                            <li class="list-inline-item">isonoe</li>
+                            <li class="list-inline-item">janus</li>
+                            <li class="list-inline-item">jarnsaxa</li>
+                            <li class="list-inline-item">juliet</li>
+                            <li class="list-inline-item">kale</li>
+                            <li class="list-inline-item">kallichore</li>
+                            <li class="list-inline-item">kalyke</li>
+                            <li class="list-inline-item">kari</li>
+                            <li class="list-inline-item">kerberos</li>
+                            <li class="list-inline-item">kiviuq</li>
+                            <li class="list-inline-item">kore</li>
+                            <li class="list-inline-item">laomedeia</li>
+                            <li class="list-inline-item">larissa</li>
+                            <li class="list-inline-item">leda</li>
+                            <li class="list-inline-item">loge</li>
+                            <li class="list-inline-item">luna</li>
+                            <li class="list-inline-item">lysithea</li>
+                            <li class="list-inline-item">mab</li>
+                            <li class="list-inline-item">margaret</li>
+                            <li class="list-inline-item">megaclite</li>
+                            <li class="list-inline-item">methone</li>
+                            <li class="list-inline-item">metis</li>
+                            <li class="list-inline-item">mimas</li>
+                            <li class="list-inline-item">miranda</li>
+                            <li class="list-inline-item">mneme</li>
+                            <li class="list-inline-item">mundilfari</li>
+                            <li class="list-inline-item">naiad</li>
+                            <li class="list-inline-item">narvi</li>
+                            <li class="list-inline-item">nereid</li>
+                            <li class="list-inline-item">neso</li>
+                            <li class="list-inline-item">nix</li>
+                            <li class="list-inline-item">oberon</li>
+                            <li class="list-inline-item">ophelia</li>
+                            <li class="list-inline-item">orthosie</li>
+                            <li class="list-inline-item">paaliaq</li>
+                            <li class="list-inline-item">pallene</li>
+                            <li class="list-inline-item">pan</li>
+                            <li class="list-inline-item">pandora</li>
+                            <li class="list-inline-item">pasiphae</li>
+                            <li class="list-inline-item">pasithee</li>
+                            <li class="list-inline-item">perdita</li>
+                            <li class="list-inline-item">phobos</li>
+                            <li class="list-inline-item">phoebe</li>
+                            <li class="list-inline-item">polydeuces</li>
+                            <li class="list-inline-item">portia</li>
+                            <li class="list-inline-item">praxidike</li>
+                            <li class="list-inline-item">prometheus</li>
+                            <li class="list-inline-item">prospero</li>
+                            <li class="list-inline-item">proteus</li>
+                            <li class="list-inline-item">psamathe</li>
+                            <li class="list-inline-item">puck</li>
+                            <li class="list-inline-item">rhea</li>
+                            <li class="list-inline-item">rosalind</li>
+                            <li class="list-inline-item">sao</li>
+                            <li class="list-inline-item">setebos</li>
+                            <li class="list-inline-item">siarnaq</li>
+                            <li class="list-inline-item">sinope</li>
+                            <li class="list-inline-item">skathi</li>
+                            <li class="list-inline-item">skoll</li>
+                            <li class="list-inline-item">sponde</li>
+                            <li class="list-inline-item">stephano</li>
+                            <li class="list-inline-item">styx</li>
+                            <li class="list-inline-item">surtur</li>
+                            <li class="list-inline-item">suttungr</li>
+                            <li class="list-inline-item">sycorax</li>
+                            <li class="list-inline-item">tarqeq</li>
+                            <li class="list-inline-item">tarvos</li>
+                            <li class="list-inline-item">taygete</li>
+                            <li class="list-inline-item">telesto</li>
+                            <li class="list-inline-item">tethys</li>
+                            <li class="list-inline-item">thalassa</li>
+                            <li class="list-inline-item">thebe</li>
+                            <li class="list-inline-item">thelxinoe</li>
+                            <li class="list-inline-item">themisto</li>
+                            <li class="list-inline-item">thrymr</li>
+                            <li class="list-inline-item">thyone</li>
+                            <li class="list-inline-item">titan</li>
+                            <li class="list-inline-item">titania</li>
+                            <li class="list-inline-item">trinculo</li>
+                            <li class="list-inline-item">triton</li>
+                            <li class="list-inline-item">umbriel</li>
+                            <li class="list-inline-item">ymir</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="card">
+                    <h4 class="card-header">People:</h4>
+                    <div class="card-block">
+                        <ul class="list-inline">
+                            <li class="list-inline-item">allen</li>
+                            <li class="list-inline-item">baum</li>
+                            <li class="list-inline-item">bernard</li>
+                            <li class="list-inline-item">bond</li>
+                            <li class="list-inline-item">buie</li>
+                            <li class="list-inline-item">burns</li>
+                            <li class="list-inline-item">cassini</li>
+                            <li class="list-inline-item">christy</li>
+                            <li class="list-inline-item">currie</li>
+                            <li class="list-inline-item">dollfus</li>
+                            <li class="list-inline-item">fernandez</li>
+                            <li class="list-inline-item">fountain</li>
+                            <li class="list-inline-item">fraser</li>
+                            <li class="list-inline-item">galileo</li>
+                            <li class="list-inline-item">gehrels</li>
+                            <li class="list-inline-item">gladman</li>
+                            <li class="list-inline-item">gleason</li>
+                            <li class="list-inline-item">grav</li>
+                            <li class="list-inline-item">hall</li>
+                            <li class="list-inline-item">hamilton</li>
+                            <li class="list-inline-item">herschel</li>
+                            <li class="list-inline-item">holman</li>
+                            <li class="list-inline-item">huygens</li>
+                            <li class="list-inline-item">jewitt</li>
+                            <li class="list-inline-item">karkoschka</li>
+                            <li class="list-inline-item">kavelaars</li>
+                            <li class="list-inline-item">kleyna</li>
+                            <li class="list-inline-item">kowal</li>
+                            <li class="list-inline-item">kuiper</li>
+                            <li class="list-inline-item">laques</li>
+                            <li class="list-inline-item">larson</li>
+                            <li class="list-inline-item">lassell</li>
+                            <li class="list-inline-item">lecacheux</li>
+                            <li class="list-inline-item">lissauer</li>
+                            <li class="list-inline-item">magnier</li>
+                            <li class="list-inline-item">marsden</li>
+                            <li class="list-inline-item">mcmillan</li>
+                            <li class="list-inline-item">melotte</li>
+                            <li class="list-inline-item">merline</li>
+                            <li class="list-inline-item">milisavljevic</li>
+                            <li class="list-inline-item">montani</li>
+                            <li class="list-inline-item">mutchler</li>
+                            <li class="list-inline-item">nicholson</li>
+                            <li class="list-inline-item">pascu</li>
+                            <li class="list-inline-item">perrine</li>
+                            <li class="list-inline-item">petit</li>
+                            <li class="list-inline-item">pickering</li>
+                            <li class="list-inline-item">reitsema</li>
+                            <li class="list-inline-item">roemer</li>
+                            <li class="list-inline-item">scholl</li>
+                            <li class="list-inline-item">scotti</li>
+                            <li class="list-inline-item">seidelmann</li>
+                            <li class="list-inline-item">sheppard</li>
+                            <li class="list-inline-item">showalter</li>
+                            <li class="list-inline-item">smith</li>
+                            <li class="list-inline-item">soummer</li>
+                            <li class="list-inline-item">spahr</li>
+                            <li class="list-inline-item">spencer</li>
+                            <li class="list-inline-item">steffl</li>
+                            <li class="list-inline-item">stern</li>
+                            <li class="list-inline-item">throop</li>
+                            <li class="list-inline-item">weaver</li>
+                            <li class="list-inline-item">young_e_f</li>
+                            <li class="list-inline-item">young_l_a</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="card">
+                    <h4 class="card-header">Suns:</h4>
+                    <div class="card-block">
+                        <ul class="list-inline">
+                            <li class="list-inline-item">sol</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="card">
+                    <h4 class="card-header">Adjectives:</h4>
+                    <div class="card-block">
+                        <ul class="list-inline">
+                            <li class="list-inline-item">atmospheric</li>
+                            <li class="list-inline-item">blue</li>
+                            <li class="list-inline-item">solid</li>
+                            <li class="list-inline-item">brown</li>
+                            <li class="list-inline-item">gaseous</li>
+                            <li class="list-inline-item">green</li>
+                            <li class="list-inline-item">red</li>
+                            <li class="list-inline-item">ringed</li>
+                            <li class="list-inline-item">vacuumous</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="card">
+                    <h4 class="card-header">Telescopes:</h4>
+                    <div class="card-block">
+                        <ul class="list-inline">
+                            <li class="list-inline-item">aerial_telescope_1</li>
+                            <li class="list-inline-item">blanco_telescope</li>
+                            <li class="list-inline-item">bruce_astrograph</li>
+                            <li class="list-inline-item">canada-france-hawaii_telescope</li>
+                            <li class="list-inline-item">cassegrain_telescope</li>
+                            <li class="list-inline-item">crossley_reflector_telescope</li>
+                            <li class="list-inline-item">galilean_telescope_1</li>
+                            <li class="list-inline-item">ground_based_telescope_1</li>
+                            <li class="list-inline-item">ground_based_telescope_2</li>
+                            <li class="list-inline-item">ground_based_telescope_3</li>
+                            <li class="list-inline-item">hale_telescope</li>
+                            <li class="list-inline-item">hooker_telescope</li>
+                            <li class="list-inline-item">hubble_space_telescope</li>
+                            <li class="list-inline-item">reflector_telescope_1</li>
+                            <li class="list-inline-item">reflector_telescope_2</li>
+                            <li class="list-inline-item">reflector_telescope_3</li>
+                            <li class="list-inline-item">reflector_telescope_4</li>
+                            <li class="list-inline-item">refractor_telescope_1</li>
+                            <li class="list-inline-item">refractor_telescope_2</li>
+                            <li class="list-inline-item">refractor_telescope_3</li>
+                            <li class="list-inline-item">refractor_telescope_4</li>
+                            <li class="list-inline-item">schmidt_telescope</li>
+                            <li class="list-inline-item">subaru_reflector_telescope</li>
+                            <li class="list-inline-item">telescope_1</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="card">
+                    <h4 class="card-header">Places:</h4>
+                    <div class="card-block">
+                        <ul class="list-inline">
+                            <li class="list-inline-item">arequipa</li>
+                            <li class="list-inline-item">cambridge</li>
+                            <li class="list-inline-item">cerro_tololo</li>
+                            <li class="list-inline-item">flagstaff</li>
+                            <li class="list-inline-item">fort_davis</li>
+                            <li class="list-inline-item">greenwich</li>
+                            <li class="list-inline-item">kitt_peak</li>
+                            <li class="list-inline-item">la_silla</li>
+                            <li class="list-inline-item">liverpool</li>
+                            <li class="list-inline-item">mauna_kea</li>
+                            <li class="list-inline-item">mt_hamilton</li>
+                            <li class="list-inline-item">mt_hopkins</li>
+                            <li class="list-inline-item">mt_palomar</li>
+                            <li class="list-inline-item">mt_wilson</li>
+                            <li class="list-inline-item">padua</li>
+                            <li class="list-inline-item">paris</li>
+                            <li class="list-inline-item">pic_du_midi</li>
+                            <li class="list-inline-item">slough</li>
+                            <li class="list-inline-item">the_hague</li>
+                            <li class="list-inline-item">us_naval_observatory</li>
+                        </ul>
+                    </div>
+                </div>
+                 <div class="card">
+                    <h4 class="card-header">Years:</h4>
+                    <div class="card-block">
+                        Any year between 1000 and 3000
+                    </div>
+                </div>
 
-does mars spin</br>
-who discovered ganymede</br>
-does earth spin and orbit the sun</br>
-which moons that were discovered by hall orbit mars</br>
-who discovered a moon that orbits mars</br>
-did hall discover every moon that orbits mars</br>
-how many moons were discovered by hall and kuiper</br>
-how many moons were discovered by hall or kuiper</br>
-every moon was discovered by a person</br>
-which planets are orbited by a moon that was discovered by galileo</br>
-which moons were discovered by nobody</br>
-hall discovered a moon that orbits mars</br>
-which moons that orbit mars were discovered by hall</br>
-every moon orbits every planet</br>
-every planet is orbited by a moon</br>
-a planet is orbited by a moon</br>
-does phobos orbit mars</br>
-which moon was discovered by a person</br>
-who discovered a moon with a telescope</br>
-what was discovered in 1877 in us_naval_observatory</br>
-how many things were discovered in us_naval_observatory</br>
-which planets are orbited by two moons that were discovered with a telescope</br>
-what moon was discovered by one person in 1877</br>
-one planet is orbited by two moons</br>
-which vacuumous moon that orbits jupiter was discovered by nicholson or hall with a telescope in 1938  in mt_wilson or mt_hopkins</br>
-what planet is orbited by a moon that was discovered in 1684</br>
-what moon that orbits jupiter was discovered in 1951 by a person in mt_wilson</br>
-how many moons were discovered in 1938 by a person with a telescope</br>
+        </div>
 
-<h1>Preposition examples:</h1>
-where were the moons that were discovered by hall or kuiper in 1877 discovered</br>
-where was a vacuumous moon that orbits a brown planet discovered</br>
-how was the thing that was discovered at flagstaff discovered</br>
-when did hall or galileo discover something</br>
-what was a thing discovered at mt_wilson in 1938</br>
-when was something discovered at mt_wilson</br>
+        <a href="demo_sparql.html" class="btn btn-primary btn-lg active" role="button" aria-pressed="true">Back to query interface</a>
+    </div>
 
-<h1>Common nouns:</h1>
-thing</br>
-things</br>
-planets</br>
-planet</br>
-person</br>
-sun</br>
-moon</br>
-moons</br>
-satellite</br>
-satellites</br>
-human</br>
-discoverer</br>
-discoverers</br>
-humans</br>
-people</br>
-telescope</br>
-telescopes</br>
-team</br>
-teams</br>
-spacecraft</br>
-spacecrafts</br>
-place</br>
-places</br>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js" integrity="sha384-3ceskX3iaEnIogmQchP8opvBy3Mi7Ce34nWjpBIwVTHfGYWQS9jwHDVRnpKKHJg7"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.3.7/js/tether.min.js" integrity="sha384-XTs3FgkjiBgo8qjEjBk0tGmf3wPrWtA6coPfQDfFEY8AnYJwjalXCiosYRBIBZX8"
+        crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.5/js/bootstrap.min.js" integrity="sha384-BLiI7JTZm+JWlgKa0M0kGRpJbF2J8q+qreVrKBC47e3K6BW78kGLrCkeRX6I9RoK"
+        crossorigin="anonymous"></script>
 
-<h1>Transitive verbs:</h1>
-discover</br>
-discovers</br>
-discovered</br>
-orbit</br>
-orbited</br>
-orbits</br>
-
-<h1>Intransitive verbs:</h1>
-exist</br>
-exists</br>
-spin</br>
-spins</br>
-orbit</br>
-orbits</br>
-
-<h1>Linking verbs:</h1>
-is</br>
-was</br>
-are</br>
-were</br>
-
-<h1>Determiners:</h1>
-the</br>
-a</br>
-one</br>
-an</br>
-some</br>
-any</br>
-every</br>
-all</br>
-two</br>
-
-<h1>Relative Pronouns:</h1>
-that</br>
-who</br>
-which</br>
-
-<h1>Joiners:</h1>
-and</br>
-or</br>
-
-<h1>Question types:</h1>
-does</br>
-did</br>
-do</br>
-what</br>
-who</br>
-which</br>
-what</br>
-where</br>
-when</br>
-how</br>
-how many</br>
-
-<h1>Indefinite pronouns:</h1>
-anyone</br>
-anything</br>
-anybody</br>
-someone</br>
-something</br>
-somebody</br>
-everyone</br>
-everything</br>
-everybody</br>
-
-
-<h1>Prepositions:</h1>
-with</br>
-in</br>
-at</br>
-by</br>
-
-<h1>Planets:</h1>
-earth</br>
-jupiter</br>
-mars</br>
-mercury</br>
-neptune</br>
-saturn</br>
-uranus</br>
-venus</br>
-
-<h1>Dwarf planets:</h1>
-pluto</br>
-
-<h1>Moons:</h1>
-
-adrastea</br>
-aegaeon</br>
-aegir</br>
-aitne</br>
-albiorix</br>
-almathea</br>
-ananke</br>
-anthe</br>
-aoede</br>
-arche</br>
-ariel</br>
-atlas</br>
-autonoe</br>
-bebhionn</br>
-belinda</br>
-bergelmir</br>
-bestla</br>
-bianca</br>
-caliban</br>
-callirrhoe</br>
-callisto</br>
-calypso</br>
-carme</br>
-carpo</br>
-chaldene</br>
-charon</br>
-cordelia</br>
-cressida</br>
-cupid</br>
-cyllene</br>
-daphnis</br>
-deimos</br>
-desdemona</br>
-despina</br>
-dione</br>
-elara</br>
-enceladus</br>
-epimetheus</br>
-erinome</br>
-erriapus</br>
-euanthe</br>
-eukelade</br>
-euporie</br>
-europa</br>
-eurydome</br>
-farbauti</br>
-fenrir</br>
-ferdinand</br>
-fornjot</br>
-francisco</br>
-galatea</br>
-ganymede</br>
-greip</br>
-halimede</br>
-harpalyke</br>
-hati</br>
-hegemone</br>
-helene</br>
-helike</br>
-hermippe</br>
-herse</br>
-himalia</br>
-hydra</br>
-hyperion</br>
-hyrrokkin</br>
-iapetus</br>
-ijiraq</br>
-io</br>
-iocaste</br>
-isonoe</br>
-janus</br>
-jarnsaxa</br>
-juliet</br>
-kale</br>
-kallichore</br>
-kalyke</br>
-kari</br>
-kerberos</br>
-kiviuq</br>
-kore</br>
-laomedeia</br>
-larissa</br>
-leda</br>
-loge</br>
-luna</br>
-lysithea</br>
-mab</br>
-margaret</br>
-megaclite</br>
-methone</br>
-metis</br>
-mimas</br>
-miranda</br>
-mneme</br>
-mundilfari</br>
-naiad</br>
-narvi</br>
-nereid</br>
-neso</br>
-nix</br>
-oberon</br>
-ophelia</br>
-orthosie</br>
-paaliaq</br>
-pallene</br>
-pan</br>
-pandora</br>
-pasiphae</br>
-pasithee</br>
-perdita</br>
-phobos</br>
-phoebe</br>
-polydeuces</br>
-portia</br>
-praxidike</br>
-prometheus</br>
-prospero</br>
-proteus</br>
-psamathe</br>
-puck</br>
-rhea</br>
-rosalind</br>
-sao</br>
-setebos</br>
-siarnaq</br>
-sinope</br>
-skathi</br>
-skoll</br>
-sponde</br>
-stephano</br>
-styx</br>
-surtur</br>
-suttungr</br>
-sycorax</br>
-tarqeq</br>
-tarvos</br>
-taygete</br>
-telesto</br>
-tethys</br>
-thalassa</br>
-thebe</br>
-thelxinoe</br>
-themisto</br>
-thrymr</br>
-thyone</br>
-titan</br>
-titania</br>
-trinculo</br>
-triton</br>
-umbriel</br>
-ymir</br>
-
-
-<h1>People:</h1>
-allen</br>
-baum</br>
-bernard</br>
-bond</br>
-buie</br>
-burns</br>
-cassini</br>
-christy</br>
-currie</br>
-dollfus</br>
-fernandez</br>
-fountain</br>
-fraser</br>
-galileo</br>
-gehrels</br>
-gladman</br>
-gleason</br>
-grav</br>
-hall</br>
-hamilton</br>
-herschel</br>
-holman</br>
-huygens</br>
-jewitt</br>
-karkoschka</br>
-kavelaars</br>
-kleyna</br>
-kowal</br>
-kuiper</br>
-laques</br>
-larson</br>
-lassell</br>
-lecacheux</br>
-lissauer</br>
-magnier</br>
-marsden</br>
-mcmillan</br>
-melotte</br>
-merline</br>
-milisavljevic</br>
-montani</br>
-mutchler</br>
-nicholson</br>
-pascu</br>
-perrine</br>
-petit</br>
-pickering</br>
-reitsema</br>
-roemer</br>
-scholl</br>
-scotti</br>
-seidelmann</br>
-sheppard</br>
-showalter</br>
-smith</br>
-soummer</br>
-spahr</br>
-spencer</br>
-steffl</br>
-stern</br>
-throop</br>
-weaver</br>
-young_e_f</br>
-young_l_a</br>
-
-<h1>Suns:</h1>
-sol</br>
-
-<h1>Adjectives:</h1>
-atmospheric</br>
-blue</br>
-solid</br>
-brown</br>
-gaseous</br>
-green</br>
-red</br>
-ringed</br>
-vacuumous</br>
-
-<h1>Telescopes:</h1>
-aerial_telescope_1</br>
-blanco_telescope</br>
-bruce_astrograph</br>
-canada-france-hawaii_telescope</br>
-cassegrain_telescope</br>
-crossley_reflector_telescope</br>
-galilean_telescope_1</br>
-ground_based_telescope_1</br>
-ground_based_telescope_2</br>
-ground_based_telescope_3</br>
-hale_telescope</br>
-hooker_telescope</br>
-hubble_space_telescope</br>
-reflector_telescope_1</br>
-reflector_telescope_2</br>
-reflector_telescope_3</br>
-reflector_telescope_4</br>
-refractor_telescope_1</br>
-refractor_telescope_2</br>
-refractor_telescope_3</br>
-refractor_telescope_4</br>
-schmidt_telescope</br>
-subaru_reflector_telescope</br>
-telescope_1</br>
-
-<h1>Places:</h1>
-arequipa</br>
-cambridge</br>
-cerro_tololo</br>
-flagstaff</br>
-fort_davis</br>
-greenwich</br>
-kitt_peak</br>
-la_silla</br>
-liverpool</br>
-mauna_kea</br>
-mt_hamilton</br>
-mt_hopkins</br>
-mt_palomar</br>
-mt_wilson</br>
-padua</br>
-paris</br>
-pic_du_midi</br>
-slough</br>
-the_hague</br>
-us_naval_observatory</br>
-
-
-<h1>Years:</h1>
-Any year between 1000 and 3000</br>
-
-<a href='demo_sparql.html'>Back to query interface</a>
 </body>
+
 </html>
