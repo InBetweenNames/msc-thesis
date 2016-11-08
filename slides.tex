@@ -335,7 +335,7 @@
 	
 	\sectionwithouttoc{Thesis Statement}
 	\begin{frame}{Thesis Statement}
-		By integrating a novel event-based denotational semantics with a parser constructed as an executable attribute grammar, it is possible to create a highly modular and extensible Natural Language Interface to the Semantic Web that supports the use prepositional phrases in queries.
+		By integrating a novel event-based denotational semantics with a parser constructed as an executable attribute grammar, it is possible to create a highly modular and extensible Natural Language Interface to the Semantic Web that supports the use of prepositional phrases in queries.
 	\end{frame}
 	
 	\sectionwithouttoc{Proof of Concept}
@@ -369,10 +369,13 @@
 	\sectionwithouttoc{Improvements over Original Semantics}
 	\begin{frame}{Improvements over Original Semantics}
 		\begin{itemize}
+			\item The original event-based semantics were developed by Frost, Agboola et al. \cite{frostagbola2014}
+			\item The interface to the remote triplestore was overhauled with the monadic improvements described
 			\item The original semantics suffered from an implicit `and' problem where chained prepositions in sentences were treated as though they had the word `and' in between them.
 			For example ``who discovered a moon in 1877 with a telescope'' would have been treated as ``who discovered a moon in 1877 and with a telescope''.
 			\item This also interfered with the correct handling of words such as `one', `two', and `every'
 			\item The `collect' operation is now more efficient an can be performed in O(n log n) time
+			\item `by' is treated as a preposition in the grammar
 		\end{itemize}
 	\end{frame}
 	
