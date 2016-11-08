@@ -94,7 +94,7 @@
             query in the active voice: <code>hall $ discovered' phobos [in' 1877, with $ a telescope]</code> (in English: "hall discovered
             phobos in 1877 with a telescope")</p>
 
-        <p>A full list of available functions is available <a href="http://speechweb2.cs.uwindsor.ca/solarman2/Interactive.hs">here</a>.</p>
+        <p>A full list of available functions is available <a href="http://speechweb2.cs.uwindsor.ca/solarman2/demo_sparql/XSaiga/Interactive.hs">here</a>.</p>
 
         <p>We permit the <code>.</code> and <code>$</code> operators from the Haskell prelude, and any function defined in that file, in queries. SafeHaskell
             prevents the evaluation of any other function.</p>
@@ -124,7 +124,8 @@
     <script type="text/javascript">
     function send()
     {
-        $("#loading").html("<img src='loading.gif'></img>")
+        $("#loading").html("<img src='loading.gif'></img>");
+        $("#result").html("");
         $.post(
             "demo_sparql/appcgi.py",
             { query: $("#query").val(), 
@@ -133,9 +134,8 @@
             {
 	        	var altered = data.replace(/GHC\.[A-Z][a-z]*\./g,"").replace(/\"/g, "");
 	        	var whitespaced = altered.replace(/]\),/g, "]),\n").replace(/,/g, ", ");
-                var noInteractive = whitespaced.replace(/<interactive>/g, "");
                 $("#loading").html("");
-                $("#result").html(noInteractive);
+                $("#result").text(whitespaced);
             }
         );
     }

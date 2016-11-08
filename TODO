@@ -4,18 +4,23 @@
 
 * Incorporate revisions
 
-* Appendix: triples.nt that were used
-
-* Provide a way to get triples.nt (comprehensive)
+* Appendix: triples.nt that were used ?
 
 * Benchmark my condense with stable/unstableSortBy vs Stock vs Wale's version
 
-* Examples page redone
-
 * Complexity analysis and report writing
+  +Wale stuff
+  +Convert dictionary to ordered map?
 
 * Investigate how RDF schemas could be used to convert existing triplestores to event-based
 
 * Scheduling
 
 * Defence 
+
+
+Done today:
+* Examples page
+* Sped up Direct Query Interface by using precompiled code
+(document?)
+* Found method to easily export all triples (saved as triples.nt and solarman_triples.csv)
