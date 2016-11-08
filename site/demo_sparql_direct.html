@@ -40,8 +40,8 @@
                     <!--oninput="updateCompletions()"-->
                 </fieldset>
                 <fieldset class="form-group">
-                    <div id="result" class="text-xs-center">
-                    </div>
+                    <pre id="result" style="white-space: pre-wrap">
+                    </pre>
                 </fieldset>
             <button class="btn btn-primary col-lg-2 offset-lg-5" onclick="send()">Run Query</button>
             </form>
@@ -126,14 +126,15 @@
     {
         $("#result").html("<img src='loading.gif'></img>")
         $.post(
-            "appcgi.py",
+            "demo_sparql/appcgi.py",
             { query: $("#query").val(), 
 	      key: 0 },
             function(data, textStatus)
             {
-		var altered = data.replace(/GHC\.[A-Z][a-z]*\./g,"").replace(/\"/g, "");
-		//var altered = data;
-                $("#result").html(altered);
+	    	var altered = data.replace(/GHC\.[A-Z][a-z]*\./g,"").replace(/\"/g, "");
+	    	var whitespaced = altered.replace(/]\),/g, "]),\n").replace(/,/g, ", ");
+            var noInteractive = whitespaced.replace(/<interactive>/g, "");
+                $("#result").html(noInteractive);
             }
         );
     }
