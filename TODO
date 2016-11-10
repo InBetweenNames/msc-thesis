@@ -10,17 +10,48 @@
 
 * Complexity analysis and report writing
   +Wale stuff
-  +Convert dictionary to ordered map?
 
 * Investigate how RDF schemas could be used to convert existing triplestores to event-based
 
 * Scheduling
 
+* Talk about bugfix: filter_ev
+
 * Defence 
 
+Hayoo -- search functions by type
 
-Done today:
+* Proper name for Image found:
+
+ "Aggregate association list" http://hackage.haskell.org/package/hinduce-missingh-0.0.0.0/docs/Data-List-HIUtils.html#v%3aaggregateAL
+ "aListCollect" http://hackage.haskell.org/package/rosso-1.0/docs/src/Data-List-Rosso1.html#alistCollect
+ "Collate" http://hackage.haskell.org/package/hmt-0.15/docs/Music-Theory-List.html#v:collate
+ "groupList" http://hackage.haskell.org/package/liquid-fixpoint/docs/Language-Fixpoint-Misc.html#v:groupList
+ "keyvalue-collate" http://hackage.haskell.org/package/hly/docs/Music-LilyPond-Light-Analysis.html#v:kv_collate-39-
+ "groupSort" http://hackage.haskell.org/package/extra/docs/Data-List-Extra.html#v:groupSort
+
+"Aggregate an association list, such that keys become unique"
+
+Done so far:
 * Examples page
 * Sped up Direct Query Interface by using precompiled code
 (document?)
 * Found method to easily export all triples (saved as triples.nt and solarman_triples.csv)
+* Tested out Wale's versus my version: wrote CollectBench.hs
+  On 10,000,000 triples with 1000 entities and 10000 events:
+    My version: 9.347000000 sec
+    Wale's version: 14.020000000 sec
+
+  Difference: my version takes advantage of lazy evaluation
+
+* Able to profile timing information now about where time is spent
+* Using this, optimized hostname lookup (previously was looking up
+  IP addresses on every getts* invocation--now this is done ahead of time)
+
+* The *vast majority* of time is spent on IO.  Only a very small fraction
+of time (<1% on my system) is spent doing any computation.
+  +For future work: fusing together operations when possible to reduce overhead
+  +Opportunity: fusing together make_relation stuff: each getts_inverse
+  is one database fetch
+
+  *Justify unsafePerformIO: canonical example
