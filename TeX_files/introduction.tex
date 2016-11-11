@@ -6,18 +6,28 @@
 
 %INTRODUCTION:
 
-The Semantic Web is a network of online databases that store facts in the form of {\em triples}.  A {\em triple} is a 3-tuple that has the form $(\text{\em subject}, \text{\em predicate}, \text{\em object})$, where {\em subject}, {\em predicate}, and {\em object} are Uniform Resource Identifiers \cite{w3csemanticweb}.  These {\em triples} compose the basic elements of the Resource Description Framework data model that underlies the Semantic Web, and databases that contain them are commonly referred to as 'triplestores' or 'RDF triplestores'.
+\section{The Semantic Web}
+
+The Semantic Web is a network of online databases that store facts in the form of {\em triples}.  A {\em triple} is a 3-tuple that has the form $(\text{\em subject}, \text{\em predicate}, \text{\em object})$, where {\em subject}, {\em predicate}, and {\em object} are Uniform Resource Identifiers \cite{w3csemanticweb}.
+
+TODO: Insert URI explanation with example.  Explain use of () versus <>.  Explain mapping of names to strings.
+
+
+These {\em triples} compose the basic elements of the Resource Description Framework data model that underlies the Semantic Web, and databases that contain them are commonly referred to as 'triplestores' or 'RDF triplestores'.
 
 %THE PROBLEM:
 
+\section {The Problem}
+
 Although information represented in the Semantic Web is standardized by the W3C \cite{w3csemanticweb}, the problem of how to actually query information contained within it is still an area of active research.
 
-The SPARQL Protocol and RDF Query Language is an attempt to provide an SQL-like interface to the Semantic Web.  Currently, it is the de-facto method of querying RDF triplestores.  SPARQL queries form patterns that define restrictions on the elements of triples.  Any triples not matching the query pattern are discarded.  Users submit queries to a {\em SPARQL endpoint} which in turn executes the query against a triplestore and returns the results.  SPARQL is not intended to be used directly by humans, however, and commonly user-oriented Semantic Web query interfaces provide higher level metaphors for user interaction rather than have users enter SPARQL queries directly.  These query interfaces then generate corresponding SPARQL queries.
+The SPARQL Protocol and RDF Query Language is an attempt to provide an SQL-like interface to the Semantic Web.  Currently, it is the de-facto method of querying RDF triplestores.  SPARQL queries form patterns that define restrictions on the elements of triples.  Only triples matching the query pattern are returned in the result.  Users submit queries to a {\em SPARQL endpoint} which in turn executes the query against a triplestore and returns the results.  SPARQL is not intended to be used directly by humans, however. User-friendly Semantic Web query interfaces provide higher level metaphors for interacting with RDF triplestores, improving accessibility.  These query interfaces then transform these metaphors into corresponding SPARQL queries.
 
 Querying the Semantic Web using Natural Language is an active area of research interest, as it allows users with little to no technical background to construct queries for RDF triplestores.  This would allow, for instance, health or police databases to be queried by professionals with minimal effort on part of the user.  As there have been several attempts to construct a Natural Language Interface for the Semantic Web, and research is ongoing, the problem of doing so is therefore non-trivial.  A summary of existing approaches using Natural Language Interfaces to query the Semantic Web is given below:
 
 
 %SUMMARY OF EXISTING APPROACHES:
+\section {Existing approaches}
 
 {\em ORAKEL \cite{cimiano2007orakel} - }
 
@@ -30,35 +40,36 @@ Querying the Semantic Web using Natural Language is an active area of research i
 %These approaches all attempt to directly translate the user's query into a SPARQL query for processing.
 While these approaches have seen success, they all share a shortcoming in that they do not allow for prepositional phrases in queries, and therefore have limited coverage of the English language.
 
+\section {New approach}
 %OVERVIEW OF NEW APPROACH:
 
-The work presented in this thesis draws on two main concepts: executable attribute grammars\cite{frosthafiz2008} and event-based denotational semantics\cite{frostagbola2014}.
+The work presented in this thesis draws on two main concepts: executable attribute grammars\cite{frosthafiz2008} and event-based denotational semantics\cite{frostagboola2014}.
 
-Executable attribute grammars are a natural way to process Natural Language queries \cite{?}, and since they allow top-down rather than bottom-up parsing, they are highly modular \cite{frosthafiz2008}.
+Executable attribute grammars are a natural way to implement Natural Language processors \cite{?}, and since they allow top-down rather than bottom-up parsing, they are highly modular \cite{frosthafiz2008}.  This makes them well suited to the natural specification of semantic rules.
 
-Event-based denotational semantics operate on event-based triplestores\cite{frost2014demonstration} rather than traditional triplestores.  Triplestores describe entities and their relations to other entities, but a problem exists in how to add contextual information to a particular triple.  In an event-based triplestore, triples describe events rather than entities, and information about entities and their relationships to one another may be gleaned from the events in which they occur.  Additional information about an event may be added by simply adding a new triple to the triplestore.  The key motivation behind using event-based triplestores is that they directly support reification on triples\cite{frost2014event}.
+Event-based denotational semantics operate on event-based triplestores\cite{frost2014demonstration} rather than traditional triplestores.  Triplestores describe entities and their relations to other entities, but a problem exists in how to add contextual information to a particular triple.  In an event-based triplestore, triples describe events rather than entities, and information about entities and their relationships to one another may be gleaned from the events in which they occur.  Additional information about an event may be added by simply adding a new triple to the triplestore.
 
 As an example, the sentence ``Jane bought a pencil'' could be represented in a traditional triplestore with the triple
 
 
 \begin{code}
-	(``Jane'', ``purchased'', ``pencil'')
+	(Jane, purchased, pencil_1)
 \end{code}
 
 In an event-based triplestore, the same sentence could be represented with three triples:
 
 \begin{code}
-	(``event1'', ``subject'', ``Jane'')
-	(``event1'', ``type'', ``purchase'')
-	(``event1'', ``object'', ``pencil'')
+	(event1, subject, Jane)
+	(event1, type, purchase)
+	(event1, object, pencil_1)
 \end{code}
 	
-Additionally, other information about the event may be added as well, for example including the purchase price with the triple: (``event1'', ``cost'', ``\$1''), or perhaps the time the transaction occurred with (``event1'', ``time'', $t$).  
+Additionally, other information about the event may be added as well, for example including the purchase price with the triple: (event1, cost, \$1), or perhaps the time the transaction occurred with (event1, time, $t$).  
 
-\subsubsection*{Thesis Statement}
+\section{Thesis Statement}
 By integrating a novel event-based denotational semantics with a parser constructed as an executable attribute grammar, it is possible to create a highly modular and extensible Natural Language Interface to the Semantic Web that supports the use of prepositional phrases in queries.
 
-\subsubsection*{Proof of Concept} We prove the Thesis by creating an online English query interface to a triplestore containing thousands of facts about the solar system. \cite{Solarman:2016}.
+\section{Proof of Concept} We prove the Thesis by creating an online English query interface to a triplestore containing thousands of facts about the solar system. \cite{Solarman:2016}.
 
 Some example queries that can be handled by this system include:
 
@@ -72,10 +83,11 @@ Some example queries that can be handled by this system include:
 
 In addition to this, we demonstrate a novel method of handling the word ``by'' as used in the passive form of a verb by treating it directly as a preposition within our grammar, unifying our treatment of active and passive verbs.  In doing this, we are able to accommodate queries such as ``which moon was discovered in 1877 by hall'' without any added complexity to the semantics.\\
 
-The thesis report is structured as follows:
+\section{Structure of Thesis Report}
+
+The remainder Thesis Report is structured as follows:
 
 \begin{enumerate}
-	\item Introduction
 	\item Demonstration
 	\item The event-based semantics
 	\item The parser combinator

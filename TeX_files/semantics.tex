@@ -9,27 +9,29 @@ One problem with traditional triplestores is that it is difficult to add context
 An event-based triplestore is a special case of a triplestore where information is organized into events.  For example, the triple (``sally'', ``met'', ``susan'') in a traditional triplestore could be represented by three triples in a event-based triplestore:
 
 \begin{code}
-	(``event1'', ``type'', ``meet'')
-	(``event1'', ``subject'', ``sally'')
-	(``event1'', ``object'', ``susan'')
+	(event1, type, meet)
+	(event1, subject, sally)
+	(event1, object, susan)
 \end{code}
 
-The advantage of this approach is that it is possible to add additional information by simply adding more triples with ``event1'':
+The advantage of this approach is that it is possible to add additional information by simply adding more triples with event1:
 
 \begin{code}
-	(``event1'', ``year'', ``1955'')
-	(``event1'', ``location'', ``Windsor, Ontario'')
+	(event1, year, 1955)
+	(event1, location, Windsor, Ontario)
 \end{code}
+
+The key motivation behind using event-based triplestores in this Thesis is that they directly support reification on triples\cite{frostagboola2014}.
 
 --
 
-Two improvements from the original semantics presented in \cite{frost2014demonstration} \cite{frostagbola2014} are also detailed below.
+The improvements from the original semantics presented in \cite{frost2014demonstration} \cite{frostagbola2014} are detailed below.
 
-\subsubsection*{The implicit `and' problem}
+\section{The implicit `and' problem}
 
-\subsubsection*{The use of `by' as a preposition}
+\section{The use of `by' as a preposition}
 
-\subsubsection*{Efficiency improvements}
+\section{Efficiency improvements}
 
 The ``collect'' operation now has a worst-case time complexity of O$(n$ log $n)$ time.
 

@@ -196,32 +196,6 @@ holder.
 
 %---------
 
-%---------
-
-\clearpage
-% \phantomsection
-\addcontentsline{toc}{chapter}{Declaration of Co-Authorship / Previous Publication}
-\chapter*{Declaration of Co-Authorship / Previous Publication\markboth{\MakeUppercase{Declaration of Co-Authorship / Previous Publication}}{}}
-
-\begin{uwindefaultspaceenv}
-I hereby declare that this thesis incorporates material that is result of joint research, as follows:
-
-Some of the material in this thesis is derived from the following research papers:
-\end{uwindefaultspaceenv}
-
-\cite{frostagbola2014} \fullcite{frostagbola2014}
-
-\cite{frost2014demonstration} \fullcite{frost2014demonstration}
-
-\begin{uwindefaultspaceenv}
-%TODO
-My role in the above papers was in implementing the semantics and providing feedback for future revisions.  The reason I am not listed as co-author is that I became involved in the research after these papers were submitted for publication.
-
-I am aware of the University of Windsor Senate Policy on Authorship and I certify that I have properly acknowledged the contribution of other researchers to my thesis, and have obtained written permission from each of the co-author(s) to include the above material(s) in my thesis. 
-
-I certify that, with the above qualification, this thesis, and the research to which it refers, is the product of my own work.
-	
-\end{uwindefaultspaceenv}
 
 %----------
 
@@ -245,6 +219,52 @@ I certify that, with the above qualification, this thesis, and the research to w
 %----------
 
 \tableofcontents
+
+%---------
+
+\clearpage
+% \phantomsection
+\addcontentsline{toc}{chapter}{Declaration of Co-Authorship / Previous Publication}
+\chapter*{Declaration of Co-Authorship / Previous Publication\markboth{\MakeUppercase{Declaration of Co-Authorship / Previous Publication}}{}}
+
+\begin{uwindefaultspaceenv}
+	I hereby declare that this thesis incorporates material that is result of joint research, as follows:
+	
+	Some of the material in this thesis is derived from the following research papers:
+\end{uwindefaultspaceenv}
+
+\cite{frosthafiz2008} \fullcite{frosthafiz2008}
+
+\cite{frostagboola2014} \fullcite{frostagboola2014}
+
+\cite{frost2014demonstration} \fullcite{frost2014demonstration}
+
+\begin{uwindefaultspaceenv}
+	%TODO
+	Paper \cite{frosthafiz2008} (Frost, Hafiz, and Callaghan) describes a set of functional parser combinators developed by Frost and Hafiz as part of Hafiz's doctoral thesis work, which enables language processors to be built as executable specifications of fully-general attribute grammars, including ambiguous left-recursive grammars.  The processors use a polynomial time complexity top-down parsing strategy which enables a natural specification of the grammars and the associated semantic rules.  This was previously thought to be impossible, and was stated as such in many textbooks on parsing.
+	
+	Paper \cite{frostagboola2014} (Frost, Agboola, Matthews, and Donais) describes an event based semantics developed by Dr. Frost and his research team and includes extracts from a Haskell program which demonstrated the viability of the semantics with respect to an in-program database of triples coded as part of the program.
+	
+	Paper \cite{frost2014demonstration} (Frost, Donais, Matthews, Agboola, and Stewart) describes the demonstration of the Haskell program which I wrote and which forms the basis of this thesis work.  The reason that I am not listed as an author is that hte paper was submitted before I officially joined the research team.  I developed the Haskell program after the paper was submitted.  The online program was the one used by Dr. Frost in the demonstration he gave at the conference this paper was presented at.
+	
+	My contributions to the research project include:
+	
+	\begin{itemize}
+		\item Improving the efficiency of the programs which implement the event-based semantics
+		\item Integrating the event-based semantics with the parser combinators to build the query processor
+		\item Enhancing the existing module to access the external triplestore with efficient methods to do so, including a basic form of query fusion in the form of memoization
+		\item Demonstrating a novel method of handling the word ``by'' in prepositional phrases
+		\item Building a web interface to the query processor which includes both an English Natural Language Interface and also a safe Direct Query Interface for directly evaluating the combinators
+		\item Converting the parser Hafiz wrote\cite{frosthafiz2008} to work natively work with monads in Haskell, as well as the original semantics \cite{frost2014demonstration} to be monad based
+		\item Maintaining the XSaiga package on {\em Hackage} \cite{XSaiga:2016}, an online repository of Haskell libraries and programs, which contains the semantics, parser, and triplestore described in this Thesis
+	\end{itemize}
+	
+	I am aware of the University of Windsor Senate Policy on Authorship and I certify that I have properly acknowledged the contribution of other researchers to my thesis, and have obtained written permission from each of the co-author(s) to include the above material(s) in my thesis. 
+	
+	I certify that, with the above qualification, this thesis, and the research to which it refers, is the product of my own work.
+	
+\end{uwindefaultspaceenv}
+
 \listoffigures
 
 \clearpage

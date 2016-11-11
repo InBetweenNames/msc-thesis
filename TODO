@@ -17,6 +17,12 @@
 
 * Talk about bugfix: filter_ev
 
+* getts_inverse: call this getts_preimage?
+
+* Proper name for image
+
+* Talk about memoization of getts* being a basic form of fusion
+
 * Defence 
 
 Hayoo -- search functions by type
