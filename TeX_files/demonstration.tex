@@ -4,17 +4,107 @@
 
 \chapter{Demonstration of the query interface that has been built}
 
-The query interface can be accessed via this URL:
+The query program is called ``Solarman'', and there exists two web based interfaces that can be used to interact with it.
+
+\section{Natural Language Interface}
+
+The English Natural Language query interface can be accessed via this URL:
 
 \url{http://speechweb2.cs.uwindsor.ca/solarman2/demo_sparql.html}
 
 %Screenshot of the page
 
-In the text box labeled ``Query'', English queries about the Solar system can be entered to be evaluated.
+\begin{figure}[h]
+\centering
+\includegraphics[width=\textwidth]{natlang4}
+\caption{Screenshot of English Natural Language Interface}
+\end{figure}
+In the text box labeled ``Enter query here'', English queries about the Solar system can be entered to be evaluated.  This is accomplished using the {\em Common Gateway Interface}, or {\em CGI}, to directly execute the ``Solarman'' program on the server with the given query as an argument.  Internally, Solarman is configured to use a Virtuoso \cite{virtuoso} RDF database as its SPARQL endpoint.
+
+Traversing the ``More Examples'' link will bring up a page that contains a full list of the words that can be used in queries, along with a list of example queries that can be used.
+
 %%
+
+\section{Direct Query Interface}
 
 In addition, a ``Direct Query Interface'' is provided that allows users to directly interact with the parser combinators by chaining them together to form queries.  It can be accessed via this URL:
 
 \url{http://speechweb2.cs.uwindsor.ca/solarman2/demo_sparql_direct.html}
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=\textwidth]{directquery3}
+	\caption{Screenshot of Direct Query Interface}
+\end{figure}
+
+The Direct Query Interface is implemented using Safe Haskell \cite{safehaskell}, an extension of the Haskell language that restricts the functions that can be evaluated
+to a safe subset that is suitable for executing untrusted code.
+
+Examples of queries that can be performed with the Direct Query Interface:
+\begin{itemize}
+	\item ``\texttt{when' \$ something \$ discovered\_ [at mt\_wilson]}'' (English: ``when was something discovered at mt\_wilson'')
+	\item ``\texttt{how' \$ discovered \$ the (thing `that` discovered\_ [at flagstaff])}'' (English: ``how was the thing that was discovered at flagstaff discovered'')
+	\item ``\texttt{what \$ discovered\_ [in' 1877, at us\_naval\_observatory]}'' (English: ``what was discovered in 1877 at us\_naval\_observatory'')
+	\item ``\texttt{which planet \$ orbited\_ [by \$ a (moon `that` discovered\_ [in' 1684])]}'' (English: ``what planet is orbited by a moon that was discovered in 1684'')
+	\item ``\texttt{which ( liftM2 intersect\_entevimages vacuumous  (moon `that` orbits jupiter)) \$ discovered\_ [by \$ nicholson `termor` hall, with \$ a telescope, in' 1938, at \$ mt\_wilson `termor` mt\_hopkins]}'' (English: ``which vacuumous moon that orbits jupiter was discovered by nicholson or hall with a telescope in 1938 in mt\_wilson or mt\_hopkins'')
+\end{itemize}
+
+\subsection{Verb voices}
+
+When using transitive verbs in the Direct Query Interface, the appropriate voice of the verb must be selected.  Both the ``discover'' and ``orbit''
+transitive verbs are supported.  The available voices are summarized as follows:
+
+\begin{itemize}
+	\item discover is the active voice (e.g. "hall discovered a moon")
+	\item discover' is the active voice with support for prepositional phrases, and
+	\item discover\_ is the passive voice with prepositional phrases
+\end{itemize}
+
+The above voices apply to the ``orbit'' verb as well.
+
+\subsection{Evaluating types}
+
+In addition to evaluating queries, the types of the combinators themselves and their results may also be evaluated by prepending the query with
+``:t''.  For example:
+
+\begin{itemize}
+	\item ``:t moon'' returns ``moon :: IO Image''
+	\item ``:t a moon'' returns ``a moon :: IO [(String,  t2)] $\rightarrow$ IO [(String,  t2)]''
+	\item ``:t by'' returns ``by :: t $\rightarrow$ ([[Char]],  t)''
+	\item ``:t discovered\''' returns ``discovered'	:: (IO Image $->$ IO Image) $\rightarrow$ [([[Char]],  IO Image $\rightarrow$ IO Image)] $\rightarrow$ IO Image''
+	\item ``:t vacuumous'' returns ``vacuumous :: IO Image''
+\end{itemize}
+
+\subsection{Result formatting}
+
+The results of the Direct Query Interface are formatted for easier viewing.  In particular, in each ``Image'', each result pair is on its own line, making
+it clear which entities are connected with which events.
+
+\section{XSaiga Package}
+
+``Solarman'' is also included as part of the XSaiga package that we have uploaded to {\em Hackage}, an online repository of Haskell libraries and software \cite{XSaiga:2016}.
+It is available at this URL:
+
+\url{https://hackage.haskell.org/package/XSaiga}
+
+To install the XSaiga package, the GHC compiler version 8.0.1 or higher is required.  With the {\em cabal} command, execute the following at a terminal:
+
+\begin{code}
+	> cabal update
+	> cabal install XSaiga
+\end{code}
+
+The XSaiga code resides inside the XSaiga namespace, and includes the parser, Solarman and its semantics, and a local triplestore in the module ``LocalData'' containing
+all of the RDF triples in a list.  
+
+\section{Accessibility}
+
+Both interfaces are naturally suited for accessibility programs such as screen readers in order to accommodate those with disabilities.
+This was accomplished using the {\em WAVE Web Accessibility Evaluation Tool} \cite{wave} and {\em AChecker IDI Web Accessibility Checker} \cite{achecker} to validate the interfaces for accessibility.
+
+\section{SPARQL Endpoint}
+The SPARQL endpoint that Solarman uses can be accessed via this URL:
+
+\url{http://speechweb2.cs.uwindsor.ca/sparql}
 
 \end{document}

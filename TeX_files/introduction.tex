@@ -27,7 +27,7 @@ To begin understanding The Semantic Web, first some terminology must be introduc
 A Uniform Resource Identifiers may also be referred to as a {\em URI}.  A URI may take the form of a {\em name}, a {\em location}, or possibly both at once.
 A common example of a URI is an HTTP URL for a website.  Another example would be the ISBN of a book, or a telephone number.
 URIs are a fundamental component of The Semantic Web, as it standardizes the notion of identification for the devices or {\em agents}
-that comprise it.  Having a canonical name for a given object helps agents to refer to it, and in turn understand what one another are referring to.
+that comprise it.  Having a canonical name for a given object helps agents to refer to it, and in turn understand what one another are referring to when communicating.
 
 \begin{definition}[Triple]
 	A 3-tuple that has the form $(\text{\em subject}, \text{\em predicate}, \text{\em object})$, where {\em subject}, {\em predicate}, and {\em object} are Uniform Resource Identifiers \cite{w3csemanticweb}.
@@ -39,12 +39,10 @@ These {\em triples} compose the basic elements of the Resource Description Frame
 
 In this Thesis Report, we use the syntax $(\text{\em s}, \text{\em v}, \text{\em o})$ to describe a triple.  However, in practice, different encodings are used
 to represent triples.  For instance, in {\em N-Triples} syntax \cite{w3cntriples}, the triple $(\text{\em s}, \text{\em v}, \text{\em o})$ would be represented using
-the string ``$<\text{\em s}> <\text{\em v}> <\text{\em o}>$.''.  In our Haskell code, we would represent this triple using the tuple (``s'', ``v'', ``o''), with
+the string obtained by substituting the URIs that $s$, $v$, and $o$ represent directly into their corresponding placeholders ``$\$s$'', ``$\$v$'', and ``$\$o$'' in the following string:  ``$<\text{\em \$s}>$ $<\text{\em \$v}>$ $<\text{\em \$o}>$.''.  In our Haskell code, we would represent this triple using the tuple (``s'', ``v'', ``o''), with
 the {\em subject}, {\em predicate}, and {\em object} URIs being directly mapped to the {\em String} type in the language.
 
 Therefore, in this Thesis Report the triples we refer to are ``abstract'' triples rather than the actual concrete representations of those triples in practice.
-
-
 
 %THE PROBLEM:
 
@@ -54,7 +52,7 @@ Although information represented in the Semantic Web is standardized by the W3C 
 
 The SPARQL Protocol and RDF Query Language is an attempt to provide an SQL-like interface to the Semantic Web.  Currently, it is the de-facto method of querying RDF triplestores.  SPARQL queries form patterns that define restrictions on the elements of triples.  Only triples matching the query pattern are returned in the result.  Users submit queries to a {\em SPARQL endpoint} which in turn executes the query against a triplestore and returns the results.  SPARQL is not intended to be used directly by humans, however. User-friendly Semantic Web query interfaces provide higher level metaphors for interacting with RDF triplestores, improving accessibility.  These query interfaces then transform these metaphors into corresponding SPARQL queries.
 
-Querying the Semantic Web using Natural Language is an active area of research interest, as it allows users with little to no technical background to construct queries for RDF triplestores.  This would allow, for instance, health or police databases to be queried by professionals with minimal effort on part of the user.  As there have been several attempts to construct a Natural Language Interface for the Semantic Web, and research is ongoing, the problem of doing so is therefore non-trivial.  A summary of existing approaches using Natural Language Interfaces to query the Semantic Web is given below:
+Querying the Semantic Web using Natural Language is an active area of research interest, as it allows users with little to no technical background to construct queries for RDF triplestores.  This would allow, for instance, health or police databases to be queried by professionals with minimal effort on part of the user.  It would also enhance accessibility of The Semantic Web for users who have disabilities.  As there have been several attempts to construct a Natural Language Interface for the Semantic Web, and research is ongoing, the problem of doing so is therefore non-trivial.  A summary of existing approaches using Natural Language Interfaces to query the Semantic Web is given below:
 
 
 %SUMMARY OF EXISTING APPROACHES:
