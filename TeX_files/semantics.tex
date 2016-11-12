@@ -4,9 +4,11 @@
 
 \chapter {Event-Based Semantics}
 
+\section{Event-Based Triplestores}
+
 One problem with traditional triplestores is that it is difficult to add contextual information to a triple.  Two common examples of contextual information are time and location.  Many approaches that allow this use a method called {\em reification} \cite{?}.
 
-An event-based triplestore is a special case of a triplestore where information is organized into events.  For example, the triple (``sally'', ``met'', ``susan'') in a traditional triplestore could be represented by three triples in a event-based triplestore:
+Another approach, however, is organize information into {\em events}.  For example, the triple \texttt{(sally, met, susan)} in a traditional triplestore could be represented by three triples:
 
 \begin{code}
 	(event1, type, meet)
@@ -14,24 +16,44 @@ An event-based triplestore is a special case of a triplestore where information 
 	(event1, object, susan)
 \end{code}
 
-The advantage of this approach is that it is possible to add additional information by simply adding more triples with event1:
+These triples describe the event in which ``Sally met Susan'' rather than directly describing the meeting itself.  The advantage of this approach is that it is possible to add additional information about the meeting by simply adding more triples with \texttt{event1} as the {\em subject}:
 
 \begin{code}
 	(event1, year, 1955)
-	(event1, location, Windsor, Ontario)
+	(event1, location, windsor)
 \end{code}
 
-The key motivation behind using event-based triplestores in this Thesis is that they directly support reification on triples\cite{frostagboola2014}.
+Triplestores that organize their information in this fashion are called {\em Event-based Triplestores}.
 
---
+\begin{definition}[Event]
+	A point in time and the physical occurrences that are associated with it
+\end{definition}
 
-The improvements from the original semantics presented in \cite{frost2014demonstration} \cite{frostagbola2014} are detailed below.
+\begin{definition}[Event-Based Triplestore]
+	A special case of a triplestore where the \texttt{subject} of the triples contained within it refer to Events\cite{frostagboola2014}
+\end{definition}
 
-\section{The implicit `and' problem}
+The {\em objects} that triples refer to are called {\em entities}.
 
-\section{The use of `by' as a preposition}
+\begin{definition}[Entity]
+	``A thing capable of an independent existence that can be uniquely identified'' \cite{kent2015era}
+\end{definition}
 
-\section{Efficiency improvements}
+In the example above, both \texttt{susan} and \texttt{sally} would be entities.  \texttt{windsor} and the year \texttt{1955} would also be considered entities.
+
+The key motivation behind using Event-based triplestores in this Thesis is that they directly support reification on triples\cite{frostagboola2014}.
+
+\section{Improvements over Original Semantics}
+
+The improvements from the original semantics presented in \cite{frost2014demonstration} \cite{frostagboola2014} are detailed below.
+
+\subsection{The implicit `and' problem}
+
+\subsection{The use of `by' as a preposition}
+
+\subsection{Efficiency}
+
+\subsection{Naming of ``Images''}
 
 The ``collect'' operation now has a worst-case time complexity of O$(n$ log $n)$ time.
 

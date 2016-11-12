@@ -16,6 +16,8 @@ improving accessibility for those who have disabilities.
 The Internet of Things is built on {\em The Semantic Web}, a body of open standards that allows these devices to ``speak the same language'' to one another, much
 like how the {\em World Wide Web} operates today.
 
+%TODO: Add more here?  Tie in Semantic Web with Natural Language, and talk about how NLP interfaces could be used to control IoT devices
+
 \section{The Semantic Web}
 
 To begin understanding The Semantic Web, first some terminology must be introduced.
@@ -24,9 +26,9 @@ To begin understanding The Semantic Web, first some terminology must be introduc
 	``A compact sequence of characters that identifies an abstract or physical resource'' \cite{w3curi}
 \end{definition}
 
-A Uniform Resource Identifiers may also be referred to as a {\em URI}.  A URI may take the form of a {\em name}, a {\em location}, or possibly both at once.
+A Uniform Resource Identifier may also be referred to as a {\em URI}.  A URI may take the form of a {\em name}, a {\em location}, or possibly both at once.
 A common example of a URI is an HTTP URL for a website.  Another example would be the ISBN of a book, or a telephone number.
-URIs are a fundamental component of The Semantic Web, as it standardizes the notion of identification for the devices or {\em agents}
+URIs are a fundamental component of The Semantic Web, as it standardizes the notion of identification for the devices, or more generally speaking, {\em agents}
 that comprise it.  Having a canonical name for a given object helps agents to refer to it, and in turn understand what one another are referring to when communicating.
 
 \begin{definition}[Triple]
@@ -99,7 +101,7 @@ In an event-based triplestore, the same sentence could be represented with three
 	(event1, object, pencil_1)
 \end{code}
 	
-Additionally, other information about the event may be added as well, for example including the purchase price with the triple: (event1, cost, \$1), or perhaps the time the transaction occurred with (event1, time, $t$).  
+Additionally, other information about the event may be added as well, for example including the purchase price with the triple: \texttt{(event1, cost, \$1)}, or perhaps the time $t$ the transaction occurred with \texttt{(event1, time, $t$)}.  
 
 \section{Thesis Statement}
 By integrating a novel event-based denotational semantics with a parser constructed as an executable attribute grammar, it is possible to create a highly modular and extensible Natural Language Interface to the Semantic Web that supports the use of prepositional phrases in queries.
@@ -116,7 +118,7 @@ Some example queries that can be handled by this system include:
 	\item ``which vacuumous moon that orbits jupiter was discovered by nicholson or hall with a telescope in 1938 in mt\_wilson or mt\_hopkins''
 \end{itemize}
 
-In addition to this, we demonstrate a novel method of handling the word ``by'' as used in the passive form of a verb by treating it directly as a preposition within our grammar, unifying our treatment of active and passive verbs.  In doing this, we are able to accommodate queries such as ``which moon was discovered in 1877 by hall'' without any added complexity to the semantics.\\
+In addition to this, we demonstrate a novel method of handling the word ``by'' as used in the passive form of a verb by treating it directly as a preposition within our grammar, unifying our treatment of active and passive verbs.  In doing this, we are able to accommodate queries such as ``which moon was discovered in 1877 by hall'' without any added complexity to the semantics.
 
 \section{Structure of Thesis Report}
 
