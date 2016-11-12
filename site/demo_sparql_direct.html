@@ -7,6 +7,14 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.5/css/bootstrap.min.css" integrity="sha384-AysaV+vQoT3kOAXZkl02PThvDr8HYKPZhNT5h/CXfBThSRXQ6jW5DO2ekP5ViFdi"
         crossorigin="anonymous">
+
+    <style>
+    legend {
+        position: absolute !important;
+        top: -9999px !important;
+        left: -9999px !important;
+    }
+    </style>
     <title>WINDSWEQ - The WINDsor Semantic Web English Query Interface - Live Demo with RDF Triplestore</title>
 </head>
 
@@ -24,7 +32,7 @@
             <hr>
             <h3 class="text-xs-center">Direct Query Interface</h3>
         </div>
-        <h1><small>A demonstration of our new event-based denotational semantics using a SPARQL endpoint as the triplestore</small></h1>
+        <h2><small>A demonstration of our new event-based denotational semantics using a SPARQL endpoint as the triplestore</small></h2>
         <p class="lead">
             This is a live demo of the Solarman application for Natural Language queries to event based semantic web data. Previously
             our demonstration used an in-program triplestore. To demonstrate the real-world applicability of our semantics,
@@ -35,11 +43,14 @@
         <div class="row">
             <form onsubmit="return false;" class="col-md-10 offset-md-1">
                 <fieldset class="form-group">
+                    <legend>Query interface</legend>
+                    <label class="sr-only" for="query">Query</label>
                     <input class="form-control" id="query" type="text" placeholder="Enter expression here" data-trigger="manual" data-placement="top"
                         data-title="Completions" >
                     <!--oninput="updateCompletions()"-->
                 </fieldset>
                 <fieldset class="form-group">
+                    <legend>Query result</legend>
                     <div id="loading" class="text-xs-center"></div>
                     <pre id="result" style="white-space: pre-wrap">
                     </pre>
@@ -69,6 +80,8 @@
             <p>
             <code>which planets $ orbited_ [by $ a (moon `that` discovered_ [by galileo])]</code>
             </p>
+
+            <a class="btn btn-outline-primary" href="http://speechweb2.cs.uwindsor.ca/solarman2/examples.html">More Examples</a>
         </p>
 
         <h2>How to use</h2>
@@ -94,7 +107,7 @@
             query in the active voice: <code>hall $ discovered' phobos [in' 1877, with $ a telescope]</code> (in English: "hall discovered
             phobos in 1877 with a telescope")</p>
 
-        <p>A full list of available functions is available <a href="http://speechweb2.cs.uwindsor.ca/solarman2/demo_sparql/XSaiga/Interactive.hs">here</a>.</p>
+        <p><a class="btn btn-outline-primary" href="http://speechweb2.cs.uwindsor.ca/solarman2/demo_sparql/XSaiga/Interactive.hs">Available Functions</a></p>
 
         <p>We permit the <code>.</code> and <code>$</code> operators from the Haskell prelude, and any function defined in that file, in queries. SafeHaskell
             prevents the evaluation of any other function.</p>
@@ -104,8 +117,6 @@
             of speech browser. You can install the browser here <a href="http://speechweb.cs.uwindsor.ca/index.php?page=install_guide">here</a>,
             and then <a href="http://speechweb2.cs.uwindsor.ca/solarman2/demo_sparql/"> access the speech app</a>.
         </p-->
-
-        <p><a href="http://speechweb2.cs.uwindsor.ca/solarman2/examples.html"> Click here for more examples and a list of valid functions and combinators</a></p>
 
         <p><a href="http://speechweb2.cs.uwindsor.ca/sparql">Link to our SPARQL endpoint</a></p>
 
