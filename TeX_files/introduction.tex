@@ -52,19 +52,25 @@ Although information represented in the Semantic Web is standardized by the W3C 
 
 The SPARQL Protocol and RDF Query Language is an attempt to provide an SQL-like interface to the Semantic Web.  Currently, it is the de-facto method of querying RDF triplestores.  SPARQL queries form patterns that define restrictions on the elements of triples.  Only triples matching the query pattern are returned in the result.  Users submit queries to a {\em SPARQL endpoint} which in turn executes the query against a triplestore and returns the results.  SPARQL is not intended to be used directly by humans, however. User-friendly Semantic Web query interfaces provide higher level metaphors for interacting with RDF triplestores, improving accessibility.  These query interfaces then transform these metaphors into corresponding SPARQL queries.
 
-Querying the Semantic Web using Natural Language is an active area of research interest, as it allows users with little to no technical background to construct queries for RDF triplestores.  This would allow, for instance, health or police databases to be queried by professionals with minimal effort on part of the user.  It would also enhance accessibility of The Semantic Web for users who have disabilities.  As there have been several attempts to construct a Natural Language Interface for the Semantic Web, and research is ongoing, the problem of doing so is therefore non-trivial.  A summary of existing approaches using Natural Language Interfaces to query the Semantic Web is given below:
+Querying the Semantic Web using Natural Language is an active area of research interest, as it allows users with little to no technical background to construct queries for RDF triplestores.  This allows, for instance, health or police databases to be queried by professionals with minimal effort on part of the user.  It also enhances accessibility of The Semantic Web for users who have disabilities.  As there have been several attempts to construct a Natural Language Interface for the Semantic Web, and research is ongoing, the problem of doing so is non-trivial.  A summary of existing approaches for Natural Language Interfaces to query the Semantic Web is given below:
 
 
 %SUMMARY OF EXISTING APPROACHES:
 \section {Existing approaches}
 
-{\em ORAKEL \cite{cimiano2007orakel} - }
+\subsubsection{ORAKEL}
+An ontology-aware English interface to the Semantic Web based on Montague semantics\cite{cimiano2007orakel}.  Parses sentences according to a provided grammar,
+and evaluates queries based on compositional semantics.  Supports quantification, negation, and conjunction.  Attempts to convert the input query to a SPARQL query.
 
-{\em QuestIO \cite{tablan2008natural} - Question Based Interface to Ontologies}
+\subsubsection{QuestIO}
+An ontology-aware English interface to the Semantic Web that is keyword oriented, attempting to match words against concepts to hone down queries\cite{tablan2008natural} .  Uses SeRQL, a query language similar to SPARQL, to form queries.  Sentences are transformed into SeRQL queries by the use of a formal semantics.
 
-{\em AutoSPARQL \cite{lehmann2011autosparql} - }
+\subsubsection{AutoSPARQL}
+A supervised machine learning approach using English to query the Semantic Web \cite{lehmann2011autosparql}.  Queries are provided in the form of keywords, which are used to construct query trees.  These are then converted to SPARQL queries.  It is a feedback oriented system in that the user is expected to be actively involved in refining subsequent results by selecting candidates from the returned set that best match what the user is looking for.
 
 %THE PROBLEM WITH EXISTING APPROACHES:
+
+\section {Shortcomings of previous approaches}
 
 %These approaches all attempt to directly translate the user's query into a SPARQL query for processing.
 While these approaches have seen success, they all share a shortcoming in that they do not allow for prepositional phrases in queries, and therefore have limited coverage of the English language.
