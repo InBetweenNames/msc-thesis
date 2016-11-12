@@ -13,16 +13,38 @@ Increasingly, Internet-aware ``smart'' devices are becoming the norm, silently r
 sensors, network adapters, and other electronic hardware. These devices are what comprise the {\em Internet of Things}, a revolutionary change in how we interact with devices and appliances around us.  One benefit of this change is that these devices are able to be operated remotely and through alternative interfaces, drastically
 improving accessibility for those who have disabilities.
 
-The Internet of Things is built on {\em The Semantic Web}, a body of open standards that allows these devices to ``speak the same language'' to one another.
+The Internet of Things is built on {\em The Semantic Web}, a body of open standards that allows these devices to ``speak the same language'' to one another, much
+like how the {\em World Wide Web} operates today.
 
 \section{The Semantic Web}
 
-The Semantic Web is a network of online databases that store facts in the form of {\em triples}.  A {\em triple} is a 3-tuple that has the form $(\text{\em subject}, \text{\em predicate}, \text{\em object})$, where {\em subject}, {\em predicate}, and {\em object} are Uniform Resource Identifiers \cite{w3csemanticweb}.
+To begin understanding The Semantic Web, first some terminology must be introduced.
 
-TODO: Insert URI explanation with example.  Explain use of () versus <>.  Explain mapping of names to strings.
+\begin{definition}[Uniform Resource Identifier]
+	``A compact sequence of characters that identifies an abstract or physical resource'' \cite{w3curi}
+\end{definition}
+
+A Uniform Resource Identifiers may also be referred to as a {\em URI}.  A URI may take the form of a {\em name}, a {\em location}, or possibly both at once.
+A common example of a URI is an HTTP URL for a website.  Another example would be the ISBN of a book, or a telephone number.
+URIs are a fundamental component of The Semantic Web, as it standardizes the notion of identification for the devices or {\em agents}
+that comprise it.  Having a canonical name for a given object helps agents to refer to it, and in turn understand what one another are referring to.
+
+\begin{definition}[Triple]
+	A 3-tuple that has the form $(\text{\em subject}, \text{\em predicate}, \text{\em object})$, where {\em subject}, {\em predicate}, and {\em object} are Uniform Resource Identifiers \cite{w3csemanticweb}.
+\end{definition}
 
 
-These {\em triples} compose the basic elements of the Resource Description Framework data model that underlies the Semantic Web, and databases that contain them are commonly referred to as 'triplestores' or 'RDF triplestores'.
+Fundamentally, The Semantic Web is a network of online databases that store facts in the form of {\em triples}.  
+These {\em triples} compose the basic elements of the Resource Description Framework data model that underlies the Semantic Web, and databases that contain them are commonly referred to as {\em triplestores} or {\em RDF triplestores}.
+
+In this Thesis Report, we use the syntax $(\text{\em s}, \text{\em v}, \text{\em o})$ to describe a triple.  However, in practice, different encodings are used
+to represent triples.  For instance, in {\em N-Triples} syntax \cite{w3cntriples}, the triple $(\text{\em s}, \text{\em v}, \text{\em o})$ would be represented using
+the string ``$<\text{\em s}> <\text{\em v}> <\text{\em o}>$.''.  In our Haskell code, we would represent this triple using the tuple (``s'', ``v'', ``o''), with
+the {\em subject}, {\em predicate}, and {\em object} URIs being directly mapped to the {\em String} type in the language.
+
+Therefore, in this Thesis Report the triples we refer to are ``abstract'' triples rather than the actual concrete representations of those triples in practice.
+
+
 
 %THE PROBLEM:
 
