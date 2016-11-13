@@ -6,6 +6,7 @@
 \usepackage{listings}
 \usepackage{setspace}
 \usepackage{amsthm}
+\usepackage{thmtools}
 \usepackage{amssymb,amsmath}
 \usepackage{url}
 \usepackage{verbatim}
@@ -21,6 +22,36 @@
 \graphicspath{ {images/} }
 
 \addbibresource{thesis.bib}
+
+\newtheoremstyle{definitionsty}{3pt}{3pt}{\slshape}{}{\bfseries}{.}{.5em}{}
+\theoremstyle{definitionsty}
+\newtheorem{tdefn}{Definition}[chapter]
+\newenvironment{defn}
+{\begin{shaded}\begin{tdefn}}
+		{\end{tdefn}\end{shaded}}
+
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd\thmtlo@chaptervspacehack
+{\addtocontents{loe}{\protect\addvspace{10\p@}}}
+{\addtocontents{loe}{\protect\thmlopatch@endchapter\protect\thmlopatch@chapter{\thechapter}}}
+{}{}
+\AtEndDocument{\addtocontents{loe}{\protect\thmlopatch@endchapter}}
+\long\def\thmlopatch@chapter#1#2\thmlopatch@endchapter{%
+	\setbox\z@=\vbox{#2}%
+	\ifdim\ht\z@>\z@
+	\hbox{\bfseries\chaptername\ #1}\nobreak
+	#2
+	\addvspace{10\p@}
+	\fi
+}
+\def\thmlopatch@endchapter{}
+
+\makeatother
+\renewcommand{\thmtformatoptarg}[1]{ -- #1}
+\renewcommand{\listtheoremname}{List of definitions}
+
+
 
 %TODO: Change "plain" to "revision"
 \fancypagestyle{revision}{
@@ -277,6 +308,9 @@ holder.
 \listoftables
 \clearpage
 
+\listoftheorems
+\clearpage
+
 \pagenumbering{arabic}
 
 \subfile{./TeX_files/introduction}
@@ -291,6 +325,9 @@ holder.
 % bibliography, glossary and index would go here.
 
 \printbibliography[heading=bibintoc]
+
+\chapter*{Appendix}
+\addcontentsline{appendix}{chapter}{Appendix}
 
 \chapter*{Vita Auctoris}
 \addcontentsline{toc}{chapter}{Vita Auctoris}

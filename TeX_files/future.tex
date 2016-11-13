@@ -4,13 +4,73 @@
 	
 \chapter{Future Work}
 
-\subsection*{Thoughts on scaling up to handle massive triplestores}
 
-The system presented in this thesis requires event-based triplestores in order to function.  Much of the Semantic Web, however, is not comprised of event-based triplestores.  In order to perform queries on these triplestores, there must be a way to transform these existing triplestores into an event-based form.  In the future, it may be possible to automate this task by using RDF Schemas\cite{owl}  to provide the necessary context to facilitate this conversion.
+\section{Providing Event-based views into entity-based triplestores}
 
-\subsection*{Efficiency}
+The system presented in this Thesis requires event-based triplestores in order to function.  Much of the Semantic Web, however, is not comprised of event-based triplestores.  In order to perform queries on these databases, there must be a way to transform these existing triplestores into an event-based form or provide an event-based ``view'' into these databases. 
 
-In addition, there are several drawbacks with the current implementation that prevent it from being used with massive triplestores.  In the worst case, some of the functions would require reading in a significant amount of data from the triplestore in order to return a value.  One example of this is in the membership functions (provide information).
+In practice, entity-based triplestores also contain {\em ontology} information that describes the structure of particular sets of triples.  An ontology in the Semantic Web
+serves a similar purpose as a schema does in a relational database.  In fact, the original language proposed by the W3C for describing ontologies was called {\em RDF Schema}.  This evolved into what is known today as the {\em Web Ontology Language} or {\em OWL} for short.
+
+\begin{definition}[Ontology]
+	``An ontology is an explicit specification of a conceptualization'' \cite{gruber}
+\end{definition}
+
+Using information present in Web Ontologies, it may be possible to provide event-based views into entity-based data.
+
+\section{Thoughts on scaling up to handle massive triplestores}
+
+There are several drawbacks with the current implementation that prevent it from being used with massive triplestores.
+In the worst case, some of the functions would require reading in a significant amount of data from the triplestore in order to return a value.  One example of this is in the membership functions (provide information).
+
+\subsection{Query fusion}
+
+The semantics as they exist currently in some cases perform many small queries to the triplestore, slowing down processing dramatically.
+In particular, as seen in the Timing chapter, running time of the semantics was empirically measured to be dominated by the IO involved in actually communicating
+with the remote triplestore.
+
+One way of remedying this is to reduce the number of queries to the remote triplestore.  To achieve this, it may be possible to modify the semantics to
+support {\em query fusion}, fusing smaller queries together into larger queries in order to reduce the number of queries performed.
+
+In the {\em Parser Combinators} chapter of this Thesis Report, it was explained that the parser now operates in the IO monad, and that with a small amount of work, it could
+work in other monads as well.  To support query fusion in the semantics, a new monad could be devised that the semantic functions would use instead of the IO monad.  Let us
+call this hypothetical monad \texttt{QueryFusion}.  This monad would be pure, functioning much like the State monad as it exists in the Haskell language currently: threading
+an implicit ``state'' argument through the combinators and semantic functions and keeping the details of that state neatly abstracted away.  The goal of this would be
+to obtain a value of type \texttt{QueryFusion a}, which with the help of a function, say, \texttt{runQueryFusion}, that would convert the query into an IO action.
+
+One nice side effect of this is that it would allow the semantics to once again be defined as pure functions.
+
+An example of how this could work:
+
+\begin{code}
+	
+runQueryFusion :: QueryFusion a -> IO a
+
+main = do
+	rawQuery <- getQueryString      -- rawQuery :: String
+	let sQuery = genQuery rawQuery  -- sQuery   :: QueryFusion Result
+	result <- runQueryFusion query  -- result   :: Result
+	print result
+
+\end{code}
+
+The actual optimization itself would occur in the \texttt{runQueryFusion} function.  A variety of transformations could occur in this process.
+
+A basic form of query fusion exists in the Solarman source code currently that relies on {\em memoization}.  The SPARQL backend in the Getts module remembers the
+results of previous queries, and so if another query is made for the same information, the previous result is returned.  This optimization was made
+under the assumption that the triples would not change in the span of time that the query was being made.  More sophisticated query fusions
+would be implementable with the above scheme.
+
+\subsection{Data parallelism}
+
+Assuming that the Query Fusion changes are implemented, further optimizations could occur by exploiting parallelism within the semantic functions.
+Currently, no parallelism is taken advantage of within the semantics: they are implemented in a single-threaded manner.
+
+Data parallelism is a special case of task parallelism where all of the tasks are identical, but the data on which they operate differs.
+
+
+\subsection{Conceptual spaces}
+
 
 One promising approach in processing large amounts of data is Conceptual Spaces \cite{cs}, which has already seen some use in performing queries in the Semantic Web \cite{usesofcs}.  It may be possible to develop a new event-based semantics that uses Conceptual Spaces (and by extension Conceptual Geometry) to perform queries on larger datasets.
 
