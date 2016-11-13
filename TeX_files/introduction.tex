@@ -52,10 +52,9 @@ We call triplestores whose information is organized around entities {\em entity-
 	A triplestore where the {\em subject} and {\em object} of the triples contained within it refer only to {\em entities}
 \end{definition}
 
-In this Thesis Report, we use the syntax $(\text{\em s}, \text{\em v}, \text{\em o})$ to describe a triple.  However, in practice, different encodings are used
-to represent triples.  For instance, in {\em N-Triples} syntax \cite{w3cntriples}, the triple $(\text{\em s}, \text{\em v}, \text{\em o})$ would be represented using
-the string obtained by substituting the URIs that $s$, $v$, and $o$ represent directly into their corresponding placeholders ``$\$s$'', ``$\$v$'', and ``$\$o$'' in the following string:  ``$<\text{\em \$s}>$ $<\text{\em \$v}>$ $<\text{\em \$o}>$.''.  In our Haskell code, we would represent this triple using the tuple (``s'', ``v'', ``o''), with
-the {\em subject}, {\em predicate}, and {\em object} URIs being directly mapped to the {\em String} type in the language.
+In this Thesis Report, we use the syntax \texttt{(s, v, o)} to describe a triple.  However, in practice, different encodings are used
+to represent triples.  For instance, in {\em N-Triples} syntax \cite{w3cntriples}, the triple \texttt{(s, v, o)} would be represented using
+the string obtained by substituting the URIs that \texttt{s}, \texttt{v}, and \texttt{o} represent directly into their corresponding placeholders ``\texttt{\$s}'', ``\texttt{\$v}'', and ``\texttt{\$o}'' in the following string:  ``\texttt{<\$s> <\$v> <\$o>.}''.  In our Haskell code, we would represent this triple using the tuple \texttt{(ss, vs, os)}, where \texttt{ss}, \texttt{vs}, and \texttt{os} are, respectively, the URIs that \texttt{s}, \texttt{v}, and \texttt{o} represent mapped to the \texttt{String} type in the language.
 
 Therefore, in this Thesis Report the triples we refer to are ``abstract'' triples rather than the actual concrete representations of those triples in practice.
 

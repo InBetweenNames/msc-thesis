@@ -21,13 +21,18 @@ Using information present in Web Ontologies, it may be possible to provide event
 \section{Thoughts on scaling up to handle massive triplestores}
 
 There are several drawbacks with the current implementation that prevent it from being used with massive triplestores.
-In the worst case, some of the functions would require reading in a significant amount of data from the triplestore in order to return a value.  One example of this is in the membership functions (provide information).
+In the worst case, some of the functions would require reading in a significant amount of data from the triplestore in order to return a value.  One example of this is in the membership functions.
 
-\subsection{Query fusion}
-
-The semantics as they exist currently in some cases perform many small queries to the triplestore, slowing down processing dramatically.
+In addition to this, the semantics as they exist currently in some cases perform many small queries to the triplestore, slowing down processing dramatically.
 In particular, as seen in the Timing chapter, running time of the semantics was empirically measured to be dominated by the IO involved in actually communicating
 with the remote triplestore.
+
+An example of where these small queries are made are in the \texttt{make\_filtered\_relation} and \texttt{make\_inverted\_filtered\_relation} semantic functions.
+
+In these functions, \texttt{getts\_preimage} is applied to each event list inside the Image passed to the function for each preposition or termphrase.  \texttt{getts\_preimage} makes a request to the remote triplestore for each event list.  Therefore, if there are $n$ Image tuples (TODO: define Image tuple) inside the Image (TODO: redefine image), and
+$m$ prepositions (and optionally a termphrase) $n*m$ requests will be made to the remote triplestore in order to compute the final Image in the worst case.
+
+\subsection{Query fusion}
 
 One way of remedying this is to reduce the number of queries to the remote triplestore.  To achieve this, it may be possible to modify the semantics to
 support {\em query fusion}, fusing smaller queries together into larger queries in order to reduce the number of queries performed.
@@ -64,17 +69,82 @@ would be implementable with the above scheme.
 \subsection{Data parallelism}
 
 Assuming that the Query Fusion changes are implemented, further optimizations could occur by exploiting parallelism within the semantic functions.
-Currently, no parallelism is taken advantage of within the semantics: they are implemented in a single-threaded manner.
+Currently, no parallelism is taken advantage of within the semantics, as they are implemented in a single-threaded manner.
 
-Data parallelism is a special case of task parallelism where all of the tasks are identical, but the data on which they operate differs.
+\begin{definition}[Task parallelism]
+	Dividing a problem into independent {\em tasks} and executing them in parallel, possibly on different sets of data
+\end{definition}
+
+Semantic functions which do not depend on one another, for example \texttt{moon} and \texttt{planet}, could be evaluated in parallel to accelerate processing.
+In addition to this, when the final Images are obtained for the semantic functions, {\em data parallelism} could be used to efficiently perform operations
+on Images.
+
+\begin{definition}[Data parallelism]
+	A special case of task parallelism where the tasks are identical, but are executed over different sets of data
+\end{definition}
+
+As an example of data parallelism, consider the problem of squaring each integer in a list. Let us define a function \texttt{square} that computes the square of a number.
+
+\begin{code}
+	square :: Integer -> Integer
+	square x = x * x
+\end{code}
+
+A single-threaded Haskell program might evaluate \texttt{square} across all of the elements in a list in the following manner:
+
+\begin{code}
+	list :: [Integer]
+	
+	squareList = map square
+	
+	> squareList [1,2,3] => [1,4,9]
+\end{code}
+
+Note that squaring one number in the list does not depend on the square of any other number in the list.
+Therefore, we could in theory compute the elements of \texttt{squareList [1,2,3]} in parallel.
+
+Suppose we have $n$ hardware threads of execution available to use.  Let us define a function to partition \texttt{list} into $n$ sublists:
+
+\begin{code}
+	partition n = foldr buildPart (empty n) . split n
+	
+	split :: Int -> [Int] -> [[Int]]
+	split n [] = []
+	split n list = (take n list) : (split n \$ drop n list )
+	
+	empty :: Int -> [[Int]]
+	empty 0 = []
+	empty n = [] : (empty (n - 1))
+	
+	buildPart :: [Int] -> [[Int]] -> [[Int]]
+	buildPart x partition = (zipWith (:) x partition) ++ drop (length x) partition
+	
+\end{code}
+
+Now, execute \texttt{square} over each sublist with a hypothetical \texttt{parMap} function which
+performs a \texttt{map} across each element in a list in parallel, distributing each task among a different core:
+
+\begin{code}
+	result = concat \$ parMap squareList \$ partition n list
+\end{code}
+
+In this view, \texttt{squareList} is a task being executed in parallel across all of the partitions of our input list.
+Specifically, this example is exhibiting data parallelism, as we have one task \texttt{squareList} that is being executed
+over different sets of data.  The \texttt{concat} function merges the results back into one list.
+
+One benefit of data parallelism is that it maps well onto a variety of different compute architectures, such as
+FPGAs, GPUs, and compute clusters.  In massive triplestores, it may not be feasible to perform computations on
+Images in a reasonable amount of time using only single-threaded semantics, as in these triplestores,
+an Image could contain millions of Image tuples.  Fortunately, each Image tuple exists independent of other Image tuples, and 
+the semantic functions could be rewritten in a data-parallel way similar to how the above example was rewritten
+in order to scale across the available hardware threads in a system.  In doing so, the door would be open for implementing
+the semantics on GPUs as well.
 
 
 \subsection{Conceptual spaces}
 
-
 One promising approach in processing large amounts of data is Conceptual Spaces \cite{cs}, which has already seen some use in performing queries in the Semantic Web \cite{usesofcs}.  It may be possible to develop a new event-based semantics that uses Conceptual Spaces (and by extension Conceptual Geometry) to perform queries on larger datasets.
 
-Another approach could be to ``fuse'' the combinators together when possible, in order to generate
-one triplestore request instead of two when possible.
+
 
 \end{document}
