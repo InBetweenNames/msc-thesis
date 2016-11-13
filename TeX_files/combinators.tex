@@ -4,9 +4,35 @@
 
 \chapter{Parser Combinators}
 
-The parser combinators as described in this thesis differ from their original implementations
-in \cite{frost2014demonstration} \cite{frostagboola2014}.  The most significant change that I made is that the combinators are now monadic in nature rather than being strictly pure functions.  This change was required in order to safely handle streaming information from external triplestores in Haskell. In addition to the changes to the combinators, the parser used \cite{frosthafiz2008} was also extensively modified to properly handle monadic values.
+\section{Handling non-referentially transparent functions}
 
+The parser combinators as described in this Thesis differ from their original implementations
+in \cite{frosthafiz2008}.  The most significant change that we made is that the combinators are now {\em monadic} in nature rather than being strictly pure functions.
+Briefly, monads in the {\em Haskell} programming language are types that are instances of the {\em Monad} typeclass that obey the
+{\em monad laws}.  In the Haskell programming language, functions that are not {\em referentially transparent} are represented using computations in the {\em IO monad}.
 
+In the original semantics, the function \texttt{unsafePerformIO} was used to treat functions that performed an {\em IO action} as ``pure'' functions.
+In particular, the \texttt{getts\_*} functions which operated on remote triplestores were treated as pure functions using this feature.  This allowed
+the original pure version of the parser to call the \texttt{getts\_*} functions despite those functions not actually being referentially transparent.  The problem
+with \texttt{unsafePerformIO} is that it subverts the type system of the language.  Code that is built using it is therefore not on
+solid theoretical ground within the constructs of the language, and surprising effects can occur as a result.  The use of \texttt{unsafePerformIO}, while
+legitimate in some cases, is heavily discouraged within the Haskell community.
+
+By modifying the parser to work with monadic rather than pure values, the restriction that the semantics themselves must also be pure was lifted, and
+\texttt{unsafePerformIO} is no longer needed to ``trick'' the type system into accepting a function is referentially transparent.
+Therefore, streaming information from external triplestores can be handled safely in the semantics as a result, and the semantics themselves
+operate in the IO monad.
+
+The parser works in the IO monad currently, however if other monads were desired, only minimal changes would be required to the parser in order to accommodate
+other instances of the Monad typeclass.
+
+\section{Summary of the Parser Combinators}
+
+Aside from the differences noted above, the combinators function the same as they did originally in \cite{frosthafiz2008}.  They are summarized as follows:
+
+\begin{itemize}
+	\item \texttt{(<|>)} -- a combinator that represents an alternative.  In the expression ``\texttt{a <|> b}'', first matching \texttt{a} would be tried, and if that parse failed, then matching \texttt{b} would be tried.
+	\item \texttt{(*>)} -- a combinator that represents a sequence.  In the expression ``\texttt{a *> b}'', the parser would try to match \texttt{a} followed by \texttt{b}.  Both must be matched in order for the parse to succeed.
+\end{itemize}
 
 \end{document}

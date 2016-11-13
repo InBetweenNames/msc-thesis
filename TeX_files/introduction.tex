@@ -11,10 +11,12 @@
 Gone are the days where we could assume that a toaster was just a toaster, a refrigerator was just a refrigerator, or a kettle was just a kettle.
 Increasingly, Internet-aware ``smart'' devices are becoming the norm, silently replacing their ordinary counterparts with versions that contain microprocessors,
 sensors, network adapters, and other electronic hardware. These devices are what comprise the {\em Internet of Things}, a revolutionary change in how we interact with devices and appliances around us.  One benefit of this change is that these devices are able to be operated remotely and through alternative interfaces, drastically
-improving accessibility for those who have disabilities.
+improving accessibility for those who have disabilities.  Natural Language Interfaces, in particular, could carry tremendous value to these users.
 
-The Internet of Things is built on {\em The Semantic Web}, a body of open standards that allows these devices to ``speak the same language'' to one another, much
-like how the {\em World Wide Web} operates today.
+The Internet of Things, or {\em IoT}, is built on {\em The Semantic Web}, a body of open standards that allows these devices to ``speak the same language'' to one another, much
+like how the {\em World Wide Web} operates today.  If it were possible to design a framework for building Natural Language Interfaces to the Semantic Web,
+Natural Language Interfaces could in turn be designed for these IoT-enabled devices.
+
 
 %TODO: Add more here?  Tie in Semantic Web with Natural Language, and talk about how NLP interfaces could be used to control IoT devices
 
@@ -35,9 +37,20 @@ that comprise it.  Having a canonical name for a given object helps agents to re
 	A 3-tuple that has the form $(\text{\em subject}, \text{\em predicate}, \text{\em object})$, where {\em subject}, {\em predicate}, and {\em object} are Uniform Resource Identifiers \cite{w3csemanticweb}.
 \end{definition}
 
-
-Fundamentally, The Semantic Web is a network of online databases that store facts in the form of {\em triples}.  
+Fundamentally, The Semantic Web is a network of online databases that store facts in the form of {\em triples}.
 These {\em triples} compose the basic elements of the Resource Description Framework data model that underlies the Semantic Web, and databases that contain them are commonly referred to as {\em triplestores} or {\em RDF triplestores}.
+
+Traditionally, triplestores describe facts in terms of {\em entities}.
+
+\begin{definition}[Entity]
+	``A thing capable of an independent existence that can be uniquely identified'' \cite{kent2015era}
+\end{definition}
+
+We call triplestores whose information is organized around entities {\em entity-based triplestores}.
+
+\begin{definition}[Entity-based Triplestore]
+	A triplestore where the {\em subject} and {\em object} of the triples contained within it refer only to {\em entities}
+\end{definition}
 
 In this Thesis Report, we use the syntax $(\text{\em s}, \text{\em v}, \text{\em o})$ to describe a triple.  However, in practice, different encodings are used
 to represent triples.  For instance, in {\em N-Triples} syntax \cite{w3cntriples}, the triple $(\text{\em s}, \text{\em v}, \text{\em o})$ would be represented using
@@ -84,9 +97,9 @@ The work presented in this thesis draws on two main concepts: executable attribu
 
 Executable attribute grammars are a natural way to implement Natural Language processors \cite{?}, and since they allow top-down rather than bottom-up parsing, they are highly modular \cite{frosthafiz2008}.  This makes them well suited to the natural specification of semantic rules.
 
-Event-based denotational semantics operate on event-based triplestores\cite{frost2014demonstration} rather than traditional triplestores.  Triplestores describe entities and their relations to other entities, but a problem exists in how to add contextual information to a particular triple.  In an event-based triplestore, triples describe events rather than entities, and information about entities and their relationships to one another may be gleaned from the events in which they occur.  Additional information about an event may be added by simply adding a new triple to the triplestore.
+Event-based denotational semantics operate on event-based triplestores\cite{frost2014demonstration} rather than entity-based triplestores.  Triplestores describe entities and their relations to other entities, but a problem exists in how to add contextual information to a particular triple.  In an event-based triplestore, triples describe events rather than entities, and information about entities and their relationships to one another may be gleaned from the events in which they occur.  Additional information about an event may be added by simply adding a new triple to the triplestore.
 
-As an example, the sentence ``Jane bought a pencil'' could be represented in a traditional triplestore with the triple
+As an example, the sentence ``Jane bought a pencil'' could be represented in an entity-based triplestore with the triple
 
 
 \begin{code}

@@ -6,9 +6,15 @@
 
 \section{Event-Based Triplestores}
 
-One problem with traditional triplestores is that it is difficult to add contextual information to a triple.  Two common examples of contextual information are time and location.  Many approaches that allow this use a method called {\em reification} \cite{?}.
+One problem with entity-based triplestores is that it is difficult to add contextual information to a triple.  Two common examples of contextual information are time and location.  Many approaches that allow this use a method called {\em reification} \cite{?}.
 
-Another approach, however, is organize information into {\em events}.  For example, the triple \texttt{(sally, met, susan)} in a traditional triplestore could be represented by three triples:
+Another approach, however, is organize information into {\em events}.
+
+\begin{definition}[Event]
+	A point in time and the physical occurrences that are associated with it
+\end{definition}
+
+For example, the triple \texttt{(sally, met, susan)} in an entity-based triplestore could be represented by three triples:
 
 \begin{code}
 	(event1, type, meet)
@@ -25,27 +31,19 @@ These triples describe the event in which ``Sally met Susan'' rather than direct
 
 Triplestores that organize their information in this fashion are called {\em Event-based Triplestores}.
 
-\begin{definition}[Event]
-	A point in time and the physical occurrences that are associated with it
-\end{definition}
-
 \begin{definition}[Event-Based Triplestore]
-	A special case of a triplestore where the \texttt{subject} of the triples contained within it refer to Events\cite{frostagboola2014}
+	A triplestore where the \texttt{subject} of the triples contained within it refer to Events\cite{frostagboola2014}
 \end{definition}
-
-The {\em objects} that triples refer to are called {\em entities}.
-
-\begin{definition}[Entity]
-	``A thing capable of an independent existence that can be uniquely identified'' \cite{kent2015era}
-\end{definition}
-
-In the example above, both \texttt{susan} and \texttt{sally} would be entities.  \texttt{windsor} and the year \texttt{1955} would also be considered entities.
 
 The key motivation behind using Event-based triplestores in this Thesis is that they directly support reification on triples\cite{frostagboola2014}.
+
+\section{Original Event-Based Denotational Semantics}
 
 \section{Improvements over Original Semantics}
 
 The improvements from the original semantics presented in \cite{frost2014demonstration} \cite{frostagboola2014} are detailed below.
+
+\subsection{Type safety}
 
 \subsection{The implicit `and' problem}
 
