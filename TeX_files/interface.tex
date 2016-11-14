@@ -6,10 +6,13 @@
 
 \section{Structure}
 
+A graph representing the structure of the modules in the XSaiga package in relation to one another is presented in Figure \ref{fig:modulegraph}.  Briefly, there exists an arrow from module \texttt{A} to module \texttt{B} in the graph if and only if module \texttt{A} imports module \texttt{B} in the source code.
+
 \begin{figure}[h]
 	\centering
-	\includegraphics[width=\textwidth]{modules}
+	\frame{\includegraphics[width=\columnwidth]{modules2}}
 	\caption{Module graph of the XSaiga package}
+	\label{fig:modulegraph}
 \end{figure}
 
 \section{Getts module}
@@ -108,7 +111,7 @@ The parser is defined in the \texttt{AGParser2} module.
 
 \begin{figure}[h]
 	\centering
-	\includegraphics[width=\textwidth]{semanticsslide3}
+	\frame{\includegraphics[width=\textwidth]{semanticsslide3}}
 	\caption{Parser operation: how an English sentence is mapped to semantic functions for evaluation \cite{graphmqslide}}
 \end{figure}
 

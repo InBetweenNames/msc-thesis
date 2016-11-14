@@ -8,10 +8,10 @@
 
 One problem with entity-based triplestores is that it is difficult to add contextual information to a triple.  Two common examples of contextual information are time and location.  Many approaches that allow this use a method called {\em reification} \cite{?}.
 
-Another approach, however, is organize information into {\em events}.
+One form of reification is to organize information into {\em events}.
 
 \begin{definition}[Event]
-	A point in time and the physical occurrences that are associated with it
+	A point in time and the physical occurrences that are associated with it \cite{?} -- TODO: find better definition
 \end{definition}
 
 For example, the triple \texttt{(sally, met, susan)} in an entity-based triplestore could be represented by three triples:
@@ -39,9 +39,19 @@ The key motivation behind using Event-based triplestores in this Thesis is that 
 
 \section{Original Event-Based Denotational Semantics}
 
+The semantics in this Thesis is based on work that was originally described in \cite{frost2013event}.  That work was later improved upon in \cite{frostagboola2014}.
+
+
+\begin{definition}[Image]
+\end{definition}
+
 \section{Improvements over Original Semantics}
 
 The improvements from the original semantics presented in \cite{frost2014demonstration} \cite{frostagboola2014} are detailed below.
+
+\subsection{Naming and definition of ``Images''}
+
+Originally, semantic functions were defined using {\em Images} as their arguments and return values.
 
 \subsection{Type safety}
 
@@ -50,8 +60,6 @@ The improvements from the original semantics presented in \cite{frost2014demonst
 \subsection{The use of `by' as a preposition}
 
 \subsection{Efficiency}
-
-\subsection{Naming of ``Images''}
 
 The ``collect'' operation now has a worst-case time complexity of O$(n$ log $n)$ time.
 

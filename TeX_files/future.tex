@@ -39,9 +39,7 @@ support {\em query fusion}, fusing smaller queries together into larger queries 
 
 In the {\em Parser Combinators} chapter of this Thesis Report, it was explained that the parser now operates in the IO monad, and that with a small amount of work, it could
 work in other monads as well.  To support query fusion in the semantics, a new monad could be devised that the semantic functions would use instead of the IO monad.  Let us
-call this hypothetical monad \texttt{QueryFusion}.  This monad would be pure, functioning much like the State monad as it exists in the Haskell language currently: threading
-an implicit ``state'' argument through the combinators and semantic functions and keeping the details of that state neatly abstracted away.  The goal of this would be
-to obtain a value of type \texttt{QueryFusion a}, which with the help of a function, say, \texttt{runQueryFusion}, that would convert the query into an IO action.
+call this hypothetical monad \texttt{QueryFusion}.  This monad would be pure, functioning much like the monad \texttt{State} as it exists in the Haskell language currently: threading an implicit {\em state} argument through the combinators and semantic functions and keeping the details of that state neatly abstracted away.  The goal of this would be to obtain a value of type \texttt{QueryFusion a}, which with the help of a function, say, \texttt{runQueryFusion}, that would convert the query into an IO action.
 
 One nice side effect of this is that it would allow the semantics to once again be defined as pure functions.
 
@@ -63,7 +61,7 @@ The actual optimization itself would occur in the \texttt{runQueryFusion} functi
 
 A basic form of query fusion exists in the Solarman source code currently that relies on {\em memoization}.  The SPARQL backend in the Getts module remembers the
 results of previous queries, and so if another query is made for the same information, the previous result is returned.  This optimization was made
-under the assumption that the triples would not change in the span of time that the query was being made.  More sophisticated query fusions
+under the assumption that the triples in the triplestore would not change in the span of time that the query was being made.  More sophisticated query fusions
 would be implementable with the above scheme.
 
 \subsection{Data parallelism}
