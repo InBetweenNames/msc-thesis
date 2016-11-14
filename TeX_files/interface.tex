@@ -4,4 +4,158 @@
 
 \chapter{The Query Program}
 
+\section{Structure}
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=\textwidth]{modules}
+	\caption{Module graph of the XSaiga package}
+\end{figure}
+
+\section{Getts module}
+	The actual triplestore functions that the semantics use are defined in this module.
+	
+	The \texttt{TripleStore} typeclass provides a general interface to triplestores.  This enables our semantics to be separated from
+	the underlying triplestore representation and query mechanisms.  New triplestores and query mechanisms could be supported by creating
+	a new instance of this typeclass.
+	
+	\begin{code}
+		class TripleStore m where
+		getts_1 :: m -> (Event, String, String) -> IO [String]
+		getts_2 :: m -> (Event, String, String) -> IO [String]
+		getts_3 :: m -> (Event, String, String) -> IO [String]
+
+		getts_image :: m -> String -> String -> IO Image
+		getts_preimage :: m -> String -> [Event] -> IO Image
+		getts_members :: m -> String -> IO Image
+	\end{code}
+
+	Default implementations of \texttt{getts\_image} \texttt{getts\_preimage} and \texttt{getts\_members} are provided as well.  They 
+are defined in terms of the \texttt{getts\_*} functions.
+	
+	\begin{code}
+		getts_image ev_data ev_type entity_type = do
+			evs <- getts_1 ev_data ("?", "type", ev_type)
+			getts_preimage ev_data entity_type evs
+		
+		getts_preimage ev_data entity_type evs = do
+			pairs <- liftM concat $ mapM (\ev -> do
+			ents <- getts_3 ev_data (ev, entity_type,"?")
+			return $ zip ents (repeat ev)) evs
+			return $ collect pairs
+
+		getts_members ev_data set = do
+			evs_with_set_as_object <- getts_1 ev_data ("?", "object", set)
+			evs_with_type_membership <- getts_1 ev_data ("?", "type", "membership")
+			getts_preimage ev_data "subject" $ intersect evs_with_set_as_object evs_with_type_membership
+	\end{code}
+
+	The \texttt{collect} function used above is defined as:
+
+	\begin{code}
+		collect = Map.toList . Map.fromListWith (++) . map (\(x, y) -> (x, [y]))
+	\end{code}
+	
+	where Map is defined in the Data.Map.Strict module in the Haskell standard library.
+	Briefly, the \texttt{collect} function takes a binary relation as an argument and converts it into an Image.
+	
+	If the binary relation is already sorted, then the \texttt{condense} function can be used instead computes the Image in O$(n)$ time.
+	
+	\begin{code}
+		condense = map (\list -> (fst $ head list, map snd list)) . List.groupBy cmp
+		where
+		cmp x y = (fst x) == (fst y)
+	\end{code}
+	
+	
+	An instance for in-program triplestores
+	is provided where a triplestore is a list of triples, as well as an instance that can communicate with remote SPARQL endpoints.  A new instance
+	of \texttt{TripleStore} must at minimum define the \texttt{getts\_*} functions, however implementors may define more efficient versions of
+	\texttt{getts\_image} \texttt{getts\_preimage} and \texttt{getts\_members} too if they wish.  The semantics are defined in terms of those three functions,
+	so any efficiency gains in them will directly impact the semantics.
+	
+	For reference, the in-program implementation of a triplestore is provided below:
+
+	\begin{code}	
+		instance TripleStore [Triple] where
+			getts_1 ev_data ("?", b, c) = return [x | (x,y,z) <- ev_data, b == y, c == z]
+			getts_2 ev_data (a, "?", c) = return [y | (x,y,z) <- ev_data, a == x, c == z]
+			getts_3 ev_data (a, b, "?") = return [z | (x,y,z) <- ev_data, a == x, b == y]
+	\end{code}
+
+	The SPARQL instance is called \texttt{SPARQLBackend} and allows remote SPARQL endpoints to be treated as triplestores.
+	Optimized implementations are provided for \texttt{getts\_image} \texttt{getts\_preimage} and \texttt{getts\_members}.
+	In addition to this, a basic form of query fusion has been implemented in the form of memoization.  Briefly, queries and their results
+	are stored in {\em key-value stores}.  When a query is performed, it is first checked against the appropriate key-value store to see
+	if the same triplestore query has been made previously.  If it has, the previous result is returned.  Otherwise, the request is made to the remote
+	triplestore and its result is saved into the appropriate key-value store.  Multiple requests for the same information to the remote triplestore are therefore fused together.
+	
+	The key-value stores are held in top-level mutable variables.  Defining top-level mutable variables in Haskell is a subject that has been explored in depth, with many proposals in how to provide an idiomatic method in the language to express it.  According to the Haskell community, the accepted way of doing this for now is with the following pattern:
+	
+	\begin{itemize}
+		\item A top-level mutable variable \texttt{v} is defined using \texttt{v = unsafePerformIO \$ newIORef value} 
+		\item \texttt{v} must be annotated with the compiler pragma \texttt{\{\--\# NOINLINE v \#\--\}}
+	\end{itemize}
+	
+	
+\section{SolarmanTriplestore module}
+
+The semantic functions themselves are defined in the \texttt{SolarmanTriplestore} module.  These use the \texttt{getts\_image} \texttt{getts\_preimage} and \texttt{getts\_members} functions defined in the \texttt{Getts} module for triplestore access.
+
+\section{AGParser2 module}
+
+The parser is defined in the \texttt{AGParser2} module.
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=\textwidth]{semanticsslide3}
+	\caption{Parser operation: how an English sentence is mapped to semantic functions for evaluation \cite{graphmqslide}}
+\end{figure}
+
+The changes made to the original parser to accommodate monadic code are summarized below:
+
+\section{TypeAg2 module}
+
+The types of the semantic functions in \texttt{SolarmanTriplestore} are defined in this module.  
+
+\section{Main module}
+
+The \texttt{Main} module implements a CGI interface for evaluating Natural Language queries using the \texttt{SolarmanTriplestore} module.
+
+\section{Interactive module}
+
+The \texttt{Interactive} module is used by the Direct Query Interface to directly evaluate semantic functions.  It is intended to be used with SafeHaskell
+in order to restrict the evaluation of functions to a trusted subset, suitable for online interfaces.
+
+In \texttt{SolarmanTriplestore}, a dictionary is defined that maps words to semantic functions.  This module defines variables that are named
+after those words such that those functions can be directly accessed in a Haskell interpreter.  This enables, for instance,
+
+\begin{code}
+	hall $ discovered phobos
+\end{code}
+
+to be directly evaluated at a Haskell prompt.
+
+A Haskell file InteractiveGenerator.hs is used to generate this module using the dictionary in \texttt{SolarmanTriplestore}.
+
+\section{LocalData module}
+
+This module contains an in-program version of the triplestore located on our SPARQL endpoint.  As the \texttt{Getts} module provides
+a general interface to triplestores in the form of a typeclass, we are able to support both in-program triplestores as well as remote triplestores.
+The module exports the list of triples as the variable \texttt{localData}:
+
+\begin{code}
+	localData = [("event1000", "object", "sol"),
+	("event1000", "subject", "mercury"),
+	("event1000", "type", "orbit_ev"),
+	("event1001", "object", "sol"),
+	("event1001", "subject", "venus"),
+	("event1001", "type", "orbit_ev"),
+	("event1002", "object", "sol"),
+	("event1002", "subject", "earth"),
+	("event1002", "type", "orbit_ev"),
+	("event1003", "object", "sol"),
+	... ]
+\end{code}
+
 \end{document}

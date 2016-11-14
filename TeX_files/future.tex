@@ -108,15 +108,12 @@ Suppose we have $n$ hardware threads of execution available to use.  Let us defi
 \begin{code}
 	partition n = foldr buildPart (empty n) . split n
 	
-	split :: Int -> [Int] -> [[Int]]
 	split n [] = []
 	split n list = (take n list) : (split n \$ drop n list )
 	
-	empty :: Int -> [[Int]]
 	empty 0 = []
 	empty n = [] : (empty (n - 1))
 	
-	buildPart :: [Int] -> [[Int]] -> [[Int]]
 	buildPart x partition = (zipWith (:) x partition) ++ drop (length x) partition
 	
 \end{code}
