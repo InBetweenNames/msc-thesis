@@ -41,9 +41,31 @@ The key motivation behind using Event-based triplestores in this Thesis is that 
 
 The semantics in this Thesis is based on work that was originally described in \cite{frost2013event}.  That work was later improved upon in \cite{frostagboola2014}.
 
+One key feature of the original semantics is that they were not tied to any particular implementation of an event-based triplestore,
+removing the need to directly convert queries into corresponding triplestore queries.
+This was achieved by defining the semantic functions in terms of an abstract triplestore {\em interface}.
+The original semantic functions themselves were defined in pure math notation, suitable for implementation in any sufficiently powerful programming language.
+
+In \cite{frostagboola2014}, a Miranda implementation of the semantics was demonstrated.
+
+\subsection{Triplestore interface}
+
+Triplestore access was implemented through the following functions:
+
+\begin{code}
+
+
+\end{code}
+
+\subsection{Semantic functions}
+
 
 \begin{definition}[Image]
 \end{definition}
+
+\subsection{Haskell implementation}
+
+Later, in \cite{agboola2014thesis}, the semantics were implemented with Haskell with some efficiency improvements.  In particular, the asymptotic time complexity of the \texttt{collect} function was improved to O$(n$ log $n)$ time.
 
 \section{Improvements over Original Semantics}
 
@@ -61,6 +83,156 @@ Originally, semantic functions were defined using {\em Images} as their argument
 
 \subsection{Efficiency}
 
-The ``collect'' operation now has a worst-case time complexity of O$(n$ log $n)$ time.
+The \texttt{collect} function as defined in \cite{agboola2014thesis} used a key-value store from the \texttt{Data.Map.Lazy} module in Haskell to efficiently construct Images from relations represented as association lists.  Because all key-value pairs of the \texttt{Map} will eventually be traversed, in this Thesis the \texttt{Data.Map.Strict} module was used instead.  The asymptotic time complexity of both methods are identical, however the \texttt{Strict} version uses less memory and is slightly faster as it does not attempt to store partially evaluated areas of the Map as {\em thunks}.
+
+The worst-case upper bound for \texttt{collect} is O($n$ lg $n$) \cite{agboola2014thesis}.
+
+%\begin{theorem}
+%	\texttt{collect} is optimal.
+%\end{theorem}
+
+%Proof: Suppose a function \texttt{collect'} exists that converts a relation into an Image in faster than O($n$ lg $n$) time.
+
+%Let $unsorted$ be an unsorted list whose list elements are an instance of the \texttt{Comparable} typeclass.
+%That is, the list elements can be compared with one another using the comparison operators.
+
+%Define the function \texttt{sort'} as follows:
+
+%\begin{code}
+%	sort' = uncollect . collect'
+%	where
+%	uncollect = map (\(ent, evs) -> map (\ev -> (ent, ev)) evs)
+%\end{code}
+
+\subsubsection{Constructing Images from grouped association lists}
+In addition, a new function, \texttt{condense}, is defined to efficiently construct Images from relations implemented using association lists that are grouped according to the first element in each pair.
+
+\begin{code}
+	condense = map (\list -> (fst $ head list, map snd list)) . List.groupBy cmp
+	where
+	cmp x y = (fst x) == (fst y)
+\end{code}
+
+\begin{theorem}
+	\texttt{condense} has $O(n)$ worst-case upper-bound asymptotic time complexity, with comparison on the first element in the association list pairs being the key operation.
+\end{theorem}
+
+Proof:
+
+\texttt{cmp} is the function that compares two association list pairs by their first element.  
+
+%\begin{proposition}
+%	\texttt{cmp} has $O(1)$ worst-case upper-bound asymptotic time complexity, with comparison being the key operation.
+%\end{proposition}
+
+%Proof:
+
+%In the Haskell standard library source code, \texttt{fst} is defined as follows \cite{hstdlib}:
+
+%\begin{code}
+%	fst (x,_) = x
+%\end{code}
+
+%This function has trivially $\theta(1)$ worst-case tight bound time complexity for any key operation.
+
+%Since Haskell is a pass-by-reference language with lazy evaluation, this function will return in a constant amount of time regardless of the size of \texttt{x},
+%as \texttt{x} will not be copied on return of the function.  Therefore \texttt{fst} has $\theta(1)$ worst-case tight bound time complexity.
+
+%The operator \texttt{(==)} for the \texttt{String} type (triples are represented as 3-tuples of \texttt{Strings} in our code) has a worst-case upper bound time %complexity of O$(n)$, because in the worst case, both \texttt{Strings} being compared have length $n$ and are equal, forcing each character in both strings to be %evaluated and compared.
+
+%Only one comparison on the first elements of the pairs \texttt{x} and \texttt{y} is performed for \texttt{cmp x y}.
+%Therefore, the worst-case upper-bound asymptotic time complexity of \texttt{cmp} is O$(1)$.
+
+%Since the $O(n)$ term dominates for large $n$, \texttt{cmp} therefore has a worst-case tight-bound asymptotic time complexity of $O(n)$. \qedsymbol
+
+\begin{proposition}
+	The function \texttt{List.groupBy cmp} has O$(n)$ worst-case upper-bound asymptotic time complexity, with comparisons on the elements of the input list using \texttt{cmp} being the key operation.
+\end{proposition}
+
+Proof:
+
+In the Haskell standard library source code, \texttt{Data.List.groupBy} is defined as follows: \cite{hstdlib}:
+
+\begin{code}
+	groupBy _  []           =  []
+	groupBy eq (x:xs)       =  (x:ys) : groupBy eq zs
+	where (ys,zs) = span (eq x) xs
+\end{code}
+
+\texttt{span} is defined as follows \cite{hstdlib}:
+
+\begin{code}
+	span _ xs@[]            =  (xs, xs)
+	span p xs@(x:xs')
+	| p x          =  let (ys,zs) = span p xs' in (x:ys,zs)
+	| otherwise    =  ([],xs)
+\end{code}
+
+%\begin{subproposition}
+%	\texttt{span} has O$(n)$ worst case tight bound asymptotic time complexity, with evaluations of predicate \texttt{p} being the key operation.
+%\end{subproposition}
+
+%Proof:
+
+%In the worst case, \texttt{p} will evaluate to \texttt{True} for all elements in the input list \texttt{xs}, forcing
+%the evaluation of \texttt{span} on all suffixes of \texttt{xs}.  Since there are $n + 1$ suffixes of \texttt{xs}, 
+%and \texttt{p} is evaluated for each suffix, it follows that $n + 1$ evaluations of \texttt{p} are performed.
+%Therefore, \texttt{span} has a worst-case lower-bound asymptotic time complexity of O$(n + 1) = $O$(n)$. \qedsymbol
+
+%--
+
+Here, \text{eq = cmp}, with \texttt{eq x = cmp x} being the predicate function used in \texttt{span}. %for elements of the list \text{(x:xs)}.
+
+Let $m$ be the number of contiguous groups of elements in the list \texttt{(x:xs)}.
+
+Let $C$ be the list containing the number of elements in each contiguous group of elements in the list \texttt{(x:xs)}.
+
+\texttt{groupBy} evaluates \texttt{span (eq x)} on each contiguous group of elements in the list \texttt{(x:xs)} by recursing
+using the second list returned by \texttt{span (eq x) xs}, which are the elements of \texttt{(x:xs)} that do not belong to the first contiguous group of elements in the list \texttt{(x:xs)}.  Therefore \texttt{groupBy} recurses once for each contiguous group of elements in \texttt{(x:xs)}, a total of $m$ times, performing $C[0] + C[1] + ... + C[m] = n$ comparisons using \texttt{cmp}.
+
+Therefore the worst-case upper-bound asymptotic time complexity of \texttt{List.groupBy cmp} is O$(n)$, with comparisons using \texttt{cmp} being the key operation.
+\qedsymbol
+
+--
+
+The lambda provided to \texttt{map} performs no comparisons and therefore has a worst-case tight-bound time complexity of
+$\theta(1)$ with comparisons being the key operation.
+
+The same applies to the composition function $\circ$.
+
+--
+
+%Let \texttt{groupPair list = (fst \$ head list, map snd list)}.
+
+%\begin{proposition}
+%	groupPair has O$(n)$ time complexity
+%\end{proposition}
+
+%Proof:
+
+%\texttt{head list} has a worst-case tight-bound time complexity of $\theta(1)$.
+
+%\texttt{snd} has a worst-case tight-bound time complexity of $\theta(1)$.
+
+%\texttt{map} evaluates \texttt{snd} on every element of \texttt{list}, with
+%a worst-case tight-bound time complexity of $\theta(n)*\theta(1) = \theta(n)$ .
+%--
+
+%\texttt{groupPair} and the lambda used in \texttt{map} used above have an identical definition and therefore have
+%the same asymptotic time complexity.
+
+The \texttt{map} function is composed with the \texttt{List.groupBy cmp} function to produce a new function:
+\begin{code}
+	\x -> map (\list -> (fst $ head list, map snd list)) (List.groupBy cmp x)
+\end{code}
+
+The \texttt{map} function evaluates the lambda over every contiguous group of elements in (List.groupBy cmp x).  Since
+neither the map, the lambda, nor the function composition perform any comparisons, they do not contribute to the number
+of key operations performed.
+
+Therefore the worst-case upper bound time complexity of \texttt{condense} is $O(1) + O(1) + O(1) + O(n) = O(n)$.
+\qedsymbol
+
+%Since \texttt{condense} has a worst-case tight bound asymptotic time complexity of $\theta(n)$, it is optimal. \qedsymbol 
 
 \end{document}

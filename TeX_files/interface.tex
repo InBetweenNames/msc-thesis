@@ -62,7 +62,7 @@ are defined in terms of the \texttt{getts\_*} functions.
 	where Map is defined in the Data.Map.Strict module in the Haskell standard library.
 	Briefly, the \texttt{collect} function takes a binary relation as an argument and converts it into an Image.
 	
-	If the binary relation is already sorted, then the \texttt{condense} function can be used instead computes the Image in O$(n)$ time.
+	If the binary relation is already sorted, then the \texttt{condense} function can be used instead to compute the Image in O$(n)$ time.
 	
 	\begin{code}
 		condense = map (\list -> (fst $ head list, map snd list)) . List.groupBy cmp
