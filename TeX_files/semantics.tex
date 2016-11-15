@@ -98,7 +98,7 @@ Proper nouns were defined as ``functions that take a set of entities as an argum
 	torrio setofents  = "torrio" `member` setofents
 \end{code}
 
-The definitions of
+The definitions of -- TODO: finish
 
 \begin{definition}[Image]
 
@@ -225,16 +225,40 @@ In the Haskell standard library source code, \texttt{Data.List.groupBy} is defin
 
 %--
 
-Here, \text{eq = cmp}, with \texttt{eq x = cmp x} being the predicate function used in \texttt{span}. %for elements of the list \text{(x:xs)}.
+Here, \text{eq = cmp} in \texttt{groupBy}, with \texttt{eq x = cmp x = p} being the predicate function used in \texttt{span}. %for elements of the list \text{(x:xs)}.
 
-Let $m$ be the number of contiguous groups of elements in the list \texttt{(x:xs)}.
+%The $0$th contiguous group of elements in a list \texttt{qs} according to a predicate \texttt{pred} is the longest prefix \texttt{pre} of \texttt{qs} where
+%\texttt{pred} is \texttt{True} for all elements in \texttt{pre}.
 
-Let $C$ be the list containing the number of elements in each contiguous group of elements in the list \texttt{(x:xs)}.
+%The $i$th contiguous group of elements in a list \texttt{qs} according to a predicate \texttt{pred} is the $0$th contiguous group of elements of
+%the list obtained by removing all previous contiguous groups of elements from \texttt{qs}. 
 
-\texttt{groupBy} evaluates \texttt{span (eq x)} on each contiguous group of elements in the list \texttt{(x:xs)} by recursing
-using the second list returned by \texttt{span (eq x) xs}, which are the elements of \texttt{(x:xs)} that do not belong to the first contiguous group of elements in the list \texttt{(x:xs)}.  Therefore \texttt{groupBy} recurses once for each contiguous group of elements in \texttt{(x:xs)}, a total of $m$ times, performing $C[0] + C[1] + ... + C[m] = n$ comparisons using \texttt{cmp}.
+%The $i$th contiguous group of elements in a list \texttt{qs} according to a predicate \texttt{pred} is the longest prefix \texttt{pre} of the list \texttt{rs}
+%where \texttt{rs} is the list obtained by removing all previous contiguous groups of elements from \texttt{qs}, and \texttt{pred} is \texttt{True} for all elements
+%of \texttt{pre}.
 
-Therefore the worst-case upper-bound asymptotic time complexity of \texttt{List.groupBy cmp} is O$(n)$, with comparisons using \texttt{cmp} being the key operation.
+%A contiguous group of elements in a list \texttt{qs} under a predicate \texttt{pred} is a contiguous sublist of \texttt{qs} such that \texttt{pred}
+%is \texttt{True} for all elements in the sublist.
+
+%Let $m$ be the number of contiguous groups of elements in the list \texttt{(x:xs)}.
+
+%Let $C$ be the list containing the number of elements in each contiguous group of elements in the list \texttt{(x:xs)}.  \texttt{C[i]} denotes the \texttt{i}th element in \texttt{C}.
+
+Let $n$ denote the number of elements in \texttt{(x:xs)}.
+
+The function \texttt{span} returns a partition \texttt{(ys, zs)} of the input list \texttt{xs}, where \texttt{ys} is the longest prefix of \texttt{xs} such that predicate \texttt{p} is \texttt{True} on all elements in the prefix, and \texttt{zs} are the remaining elements in \texttt{xs}.  It follows that \texttt{p} is evaluated at least $s$ times and at most $s + 1$ times, where $s$ is the length of \texttt{pre} (it will only be evaluated $s$ times if \texttt{pre = xs}).
+
+By recursing into the second list returned by \texttt{span}, no previous elements of \texttt{(x:xs)} are revisited, and no elements are skipped, so \texttt{groupBy} partitions the input list \texttt{(x:xs)} into $m$ lists.  Call this partition \texttt{part}.  Note that the sum of the lengths of all lists in \texttt{part} is $n$.
+
+For each list \texttt{i} in \texttt{part} except the last, \texttt{(length i - 1) + 1 = length i} comparisons will have been made (\texttt{groupBy} calls span on \texttt{xs}, not \texttt{x:xs}).  For the last list $last$ in \texttt{part}, \texttt{(length last - 1)} comparisons will have been made (the longest prefix is \texttt{xs} in this case).  Therefore, the total number of comparisons made can be expressed by:
+
+\begin{code}
+length part[0] + length part[1] + ... + length part[m - 2] + (length part[m - 1] - 1)
+= (length part[0] + length part[1] + ... + length part[m - 1]) - 1
+= n - 1
+\end{code}
+
+Hence, the worst-case upper-bound asymptotic time complexity of \texttt{List.groupBy cmp} is O$(n - 1)$ = O$(n)$, with comparisons using \texttt{cmp} being the key operation.
 \qedsymbol
 
 --
@@ -270,11 +294,12 @@ The \texttt{map} function is composed with the \texttt{List.groupBy cmp} functio
 	\x -> map (\list -> (fst $ head list, map snd list)) (List.groupBy cmp x)
 \end{code}
 
-The \texttt{map} function evaluates the lambda over every contiguous group of elements in (List.groupBy cmp x).  Since
+The \texttt{map} function evaluates the lambda over every list in the partition returned by (List.groupBy cmp x).  Since
 neither the map, the lambda, nor the function composition perform any comparisons, they do not contribute to the number
 of key operations performed.
 
-Therefore the worst-case upper bound time complexity of \texttt{condense} is $O(1) + O(1) + O(1) + O(n) = O(n)$.
+Therefore the worst-case upper bound time complexity of \texttt{condense} is $O(1) + n*(O(1) + O(1)) + O(n) = O(n)$ with comparison on the first element in
+the association list pairs (\texttt{cmp}) being the key operation.
 \qedsymbol
 
 %Since \texttt{condense} has a worst-case tight bound asymptotic time complexity of $\theta(n)$, it is optimal. \qedsymbol 
