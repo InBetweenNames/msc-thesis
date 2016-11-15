@@ -46,34 +46,80 @@ removing the need to directly convert queries into corresponding triplestore que
 This was achieved by defining the semantic functions in terms of an abstract triplestore {\em interface}.
 The original semantic functions themselves were defined in pure math notation, suitable for implementation in any sufficiently powerful programming language.
 
-In \cite{frostagboola2014}, a Miranda implementation of the semantics was demonstrated.
+In \cite{frostagboola2014}, a Miranda implementation of the semantics was demonstrated, and in \cite{frost2014denotational} a Haskell
+implementation was produced as well.  A summary of the Haskell implementation is provided below:
 
 \subsection{Triplestore interface}
 
-Triplestore access was implemented through the following functions:
+Triplestore access was implemented for in-program triplestores through the following functions:
 
 \begin{code}
+	getts_1 ("?",b,c)   = [x | (x,y,z) <- ev_data, y == b, z == c]
+	getts_2 (a,"?",c)   = [x | (x,y,z) <- ev_data, x == a, z == c]
+	getts_3 (a,b,"?")   = [z | (x,y,z) <- ev_data, x == a, y == b]
+\end{code}
 
+Other useful triplestore functions were defined in terms of these functions:
 
+\begin{code}
+	get_subj_for_ev ev       = getts_3 (ev,  "subject","?")
+	get_subjs_for_events evs = concatMap (get_subj_for_event evs)
+	
+	get_members set = get_subjs_for_evs evs
+	where
+		evs = intersect evs_of_type_membership evs_with_set_as_object
+		evs_of_type_membership   = getts_1 ("?", "type", "membership")
+		evs_with_set_as_object   = getts_1 ("?",  "object",  set)
+		
+	get_subjs_of_event_type et  = get_subjs_for_evs evs
+	where
+		evs = getts_1 ("?",  "type",  et)
 \end{code}
 
 \subsection{Semantic functions}
 
+Common nouns were defined as ``the set of entities that are members of the set associated with that noun'' \cite{frost2014denotational}.
+These were implemented using the \texttt{get\_members} function.
+
+\begin{code}
+	person = get_members "person"
+\end{code}
+
+Intransitive verbs were defined as ``the set of entities that are subjects of an event of the type associated with that verb'' \cite{frost2014denotational}.
+They were implemented using the \texttt{get\_subjs\_of\_event\_type} function.
+
+\begin{code}
+	steal = get_subjs_of_event_type "steal_ev"
+\end{code}
+
+Proper nouns were defined as ``functions that take a set of entities as an argument and which return True if a particular entity is a member of that set''\cite{frost2014denotational}.
+
+\begin{code}
+	torrio setofents  = "torrio" `member` setofents
+\end{code}
+
+The definitions of
 
 \begin{definition}[Image]
+
 \end{definition}
 
 \subsection{Haskell implementation}
 
-Later, in \cite{agboola2014thesis}, the semantics were implemented with Haskell with some efficiency improvements.  In particular, the asymptotic time complexity of the \texttt{collect} function was improved to O$(n$ log $n)$ time.
+Later, in \cite{agboola2015extensible}, the semantics were implemented with Haskell with some efficiency improvements.  In particular, the asymptotic time complexity of the \texttt{collect} function was improved to O$(n$ log $n)$ time.
 
 \section{Improvements over Original Semantics}
 
 The improvements from the original semantics presented in \cite{frost2014demonstration} \cite{frostagboola2014} are detailed below.
 
+
 \subsection{Naming and definition of ``Images''}
 
 Originally, semantic functions were defined using {\em Images} as their arguments and return values.
+
+\subsection{Semantic consistency}
+
+NOTE: definition of get\_members, etc, different! get\_members returns an Image, not a list of entities!
 
 \subsection{Type safety}
 
@@ -83,9 +129,7 @@ Originally, semantic functions were defined using {\em Images} as their argument
 
 \subsection{Efficiency}
 
-The \texttt{collect} function as defined in \cite{agboola2014thesis} used a key-value store from the \texttt{Data.Map.Lazy} module in Haskell to efficiently construct Images from relations represented as association lists.  Because all key-value pairs of the \texttt{Map} will eventually be traversed, in this Thesis the \texttt{Data.Map.Strict} module was used instead.  The asymptotic time complexity of both methods are identical, however the \texttt{Strict} version uses less memory and is slightly faster as it does not attempt to store partially evaluated areas of the Map as {\em thunks}.
-
-The worst-case upper bound for \texttt{collect} is O($n$ lg $n$) \cite{agboola2014thesis}.
+The \texttt{collect} function as defined in \cite{agboola2015extensible} used a key-value store from the \texttt{Data.Map.Lazy} module in Haskell to efficiently construct Images from relations represented as association lists.  Because all key-value pairs of the \texttt{Map} will eventually be traversed, in this Thesis the \texttt{Data.Map.Strict} module was used instead.  The asymptotic time complexity of both methods are identical, however the \texttt{Strict} version uses less memory and is slightly faster as it does not attempt to store partially evaluated areas of the Map as {\em thunks}.
 
 %\begin{theorem}
 %	\texttt{collect} is optimal.
