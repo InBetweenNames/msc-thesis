@@ -47,11 +47,18 @@ This was achieved by defining the semantic functions in terms of an abstract tri
 The original semantic functions themselves were defined in pure math notation, suitable for implementation in any sufficiently powerful programming language.
 
 In \cite{frostagboola2014}, a Miranda implementation of the semantics was demonstrated, and in \cite{frost2014denotational} a Haskell
-implementation was produced as well.  A summary of the Haskell implementation is provided below:
+implementation was produced as well.  In both the Miranda and Haskell versions, the sets used in the semantics were represented using
+singly-linked lists, called {\em lists}.  Lists are composed using the \texttt{(:)} operator, where the left argument of \texttt{(:)} is an element
+and the right argument is a list.  The \texttt{(:)} operator is {\em right-associative} prepends the left operand to the right operand.  The empty list is denoted with
+\texttt{[]}.  The syntax \texttt{[x\_1, x\_2, ... x\_n]}, \texttt{(x\_1 : x\_2 : ... : x\_n : [])} and \texttt{(x\_1 : (x\_2 : ... : (x\_n : [])))} are equivalent.
+Lists are homogeneous in that types of all elements in the list must be identical.
+
+A summary of the original semantics and the Haskell implementation is provided below:
 
 \subsection{Triplestore interface}
 
-Triplestore access was implemented for in-program triplestores through the following functions:
+Triplestore access was implemented for in-program triplestores through the following functions, where
+\texttt{ev\_data} is an in-program triplestore represented as a list of 3-tuples, each 3-tuple representing a triple:
 
 \begin{code}
 	getts_1 ("?",b,c)   = [x | (x,y,z) <- ev_data, y == b, z == c]
@@ -59,7 +66,7 @@ Triplestore access was implemented for in-program triplestores through the follo
 	getts_3 (a,b,"?")   = [z | (x,y,z) <- ev_data, x == a, y == b]
 \end{code}
 
-Other useful triplestore functions were defined in terms of the \texttt{getts_*}
+Other useful triplestore functions were defined in terms of the \texttt{getts\_*}
 functions:
 
 \begin{code}
@@ -82,6 +89,7 @@ functions:
 Common nouns were defined as ``the set of entities that are members of the set associated with that noun'' \cite{frost2014denotational}.
 These were implemented using the \texttt{get\_members} function.
 
+NOTE: Should the code examples be rewritten to not use anything from \cite{frost2014denotational}?
 \begin{code}
 	person = get_members "person"
 \end{code}
@@ -114,7 +122,7 @@ list intersection:
   every nph vbph     = subset  nph vbph
 \end{code}
 
-Conjoiners for common nouns were defined similarly:
+Conjoiners for common nouns were implemented similarly:
 
 \begin{code}
   nounand s t  = intersect s t
@@ -122,8 +130,10 @@ Conjoiners for common nouns were defined similarly:
   that         = nounand
 \end{code}
 
-Conjoiners for proper nouns and determiner phrases (a determiner
-with a common noun applied to it) were implemented differently:
+
+A {\em determiner phrase} was defined as being a determiner with a common noun applied to it \cite{frost2014denotational}.
+A {\em termphrase} was defined as being either a a proper noun or a determiner phrase \cite{frost2014denotational}.
+Conjoiners for termphrases were implemented differently:
 
 \begin{code}
   termand tmph1 tmph2 setofents =  (tmph1 setofents) && (tmph2 setofevs)
@@ -134,44 +144,51 @@ This was necessary because common nouns were sets of entities, but
 proper nouns and determiner phrases were functions that acted on sets
 of entities.
 
-Transitive verbs were defined in terms of {\em images}.  Briefly, images
+Transitive verbs were defined in terms of {\em images} \cite{frost2014denotational}.  Briefly, images
 are constructed from binary relations with the \texttt{collect} function.
 
 \begin{definition}[Collect function]
 The function collect is defined such that it takes a binary relation as an
 argument, joinrel, and ``returns a new binary relation, containing one binary tuple
 (x, image\_x) for each member of the projection of the left-hand column of joinrel
-, where image\_x is the mathematical image of x under the relation joinrel''
+, where image\_x is the mathematical image of x under the relation joinrel'' \cite{frost2014denotational}
 \end{definition}
 
 \begin{definition}[Image]
   A function that maps elements in the domain to sets
 \end{definition}
 
-Intuitively speaking, the \texttt{collect} function converts arbitary binary
+Intuitively speaking, the \texttt{collect} function converts arbitrary binary
 relations into functions.  $\forall x$ All pairs $(x, y_1), (x, y_2), ..., (x,
 y_n)$ are grouped into one pair $(x, {y_1, y_2, ..., y_n})$ in the new binary
 relation.
 
-In the Haskell implementation, binary relations are represented with association
-lists.
+In the Haskell implementation, binary relations and images were represented using {\em association
+lists}, which are lists of pairs\cite{frost2014denotational}.
+
+\texttt{collect} was implemented as follows:
+
+\begin{code}
+collect [] = []
+collect ((x,y):t) = (x, y:[e2 |(e1, e2)<-t,e1 == x]): collect [(e1, e2) | (e1, e2) <- t, e1 /= x ]
+\end{code}
+
+According to \cite{agboola2015extensible}, this implementation of \texttt{collect} has a worst-case asymptotic time complexity of
+O$(n^2)$.
 
 \begin{definition}[Entity-event relation]
   A binary relation from entities in a triplestore to events in that triplestore
 \end{definition}
 
-The function \texttt{make\_image} creates
-an entity-event relation from a given event type and then converts it to an
-image using \texttt{collect}:
+The function \texttt{make\_image} creates an entity-event relation from a given event type and then converts it to an image using \texttt{collect}:
 
 \begin{code}
   make_image et = collect [(subj, ev) | ev <- evs, subj <- getts_3 (ev, "subject","?") ]
     where evs = getts_1 ("?", "type",  et)
 \end{code}
 
-Transitive verbs are defined by {\em filtering} tuples in the image of the event
-type that corresponds to the verb based on a termphrase (proper noun or
-determiner phrase) provided.  The only tuples remaining in the image are those
+Transitive verbs were defined by {\em filtering} pairs in the image of the event
+type that corresponds to the verb using the termphrase provided.  The only pairs remaining in the image are those
 for which the termphrase predicate returns \texttt{True}.  An example is the
 ``join'' verb:
 
@@ -201,7 +218,7 @@ follows:
       filter_ev ev preps])]
 \end{code}
 
-where \texttt{filter\_ev} is defined as follows:
+where \texttt{filter\_ev} is defined as follows \cite{frost2014denotational}:
 
 \begin{code}
   filter_ev ev [] = True
@@ -212,22 +229,22 @@ where \texttt{filter\_ev} is defined as follows:
 \subsection{Haskell implementation for SPARQL}
 
 Later, in \cite{agboola2015extensible}, the Haskell implementation was modified
-to support SPARQL endpoints with some efficiency improvements.  In particular, the asymptotic time complexity of the \texttt{collect} function was improved to O$(n$ log $n)$ time.
+to support SPARQL endpoints, with some efficiency improvements.  In particular, the asymptotic time complexity of the \texttt{collect} function was improved to O$(n$ log $n)$ time.
 
 \section{Improvements over Original Semantics}
 
 The improvements from the original semantics presented in \cite{frost2014demonstration} \cite{frostagboola2014} are detailed below.
 
-
 \subsection{Naming and definition of ``Images''}
 
-Originally, some semantic functions were defined in terms of {\em images}.
-
-In this Thesis, we refer to these structures as... 
+Originally, transitive verbs were defined in terms of {\em images}.
+In this Thesis, we use the term...
 
 \subsection{Semantic consistency}
 
 NOTE: definition of get\_members, etc, different! get\_members returns an Image, not a list of entities!
+
+In the original semantics...
 
 \subsection{Type safety}
 
