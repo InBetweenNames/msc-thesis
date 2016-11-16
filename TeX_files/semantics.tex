@@ -237,16 +237,46 @@ The improvements from the original semantics presented in \cite{frost2014demonst
 
 \subsection{Naming and definition of ``Images''}
 
-Originally, transitive verbs were defined in terms of {\em images}.
-In this Thesis, we use the term...
+Originally, transitive verbs were defined in terms of {\em images} \cite{frost2014denotational}.
+In this Thesis, we use the term {\em function defined by the relation} instead of {\em image}, as {\em image} is a term that already exists throughout mathematics and has
+a different meaning.
+
+\begin{definition}[Function defined by the relation $r$]
+	The function defined by the binary relation $r$ is the set $\{(x, image_x) : x $ is a member of the domain of $r$ and $image_x$ is the image of $x$ under $r\}$
+\end{definition}
+
+The function defined by a relation is referred to throughout this thesis by the shorthand {\em FDBR}.  It is represented with an association list in the Haskell code,
+as {\em images} were represented in the original semantics.  The function defined by the relation $r$ is denoted with the syntax $FDBR(r)$.
 
 \subsection{Semantic consistency}
 
-NOTE: definition of get\_members, etc, different! get\_members returns an Image, not a list of entities!
+NOTE: definition of get\_members, etc, different! get\_members returns an FDBR, not a list of entities!
 
 In the original semantics...
 
 \subsection{Type safety}
+
+The original semantics were implemented as {\em pure functions} in Haskell, which was acceptable for the in-program triplestores they were used on.
+
+In \cite{agboola2015extensible}, the \texttt{getts\_*} functions were modified to retrieve triples from external SPARQL endpoints, enabling the original
+semantics to work with SPARQL triplestores.  For SPARQL triplestores, however, the \texttt{getts\_*} functions as defined in \cite{agboola2015extensible} are not actually guaranteed to be referentially transparent. In particular, SPARQL triplestores are able to change over time with triples being potentially added, removed, or modified.
+For example, consider the query ``which people discovered a moon that was discovered by a person''.
+``people'' and ``person'' are synonyms in our semantics and therefore the same query would be performed twice.  If the SPARQL triplestore changed in between these evaluations,
+then these queries could return different results, violating referential transparency.
+
+In order to maintain compatibility with the original semantics, the function \texttt{unsafeDupablePerformIO} was used in \cite{agboola2015extensible} to force Haskell to treat the \texttt{getts\_*} functions as pure functions.
+
+The problem with \texttt{unsafeDupablePerformIO} is that it subverts the type system of Haskell.  Code that is built using it is therefore not on
+solid theoretical ground within the constructs of the language, and surprising effects can occur as a result.  The use of \texttt{unsafeDupablePerformIO}, while
+legitimate in some cases, is heavily discouraged within the Haskell community \cite{noUnsafePerformIO}.
+
+In this Thesis, we chose a different approach to handling external triplestore queries by representing the triplestore functions and semantics in terms of {\em monadic functions}.
+Briefly, monads in the {\em Haskell} programming language are types that are instances of the {\em Monad} typeclass that obey the
+{\em monad laws}.  In the Haskell programming language, functions that are not {\em referentially transparent} are represented using computations in the monad \texttt{IO}, commonly referred to as the {\em IO monad}.  By expressing the semantics and triplestore functions monadically, we stay safely within the confines of Haskell's type system, avoiding
+the need to use \texttt{unsafeDupablePerformIO} in order to perform queries to external triplestores as a result.  Another key benefit of this approach is that it preserves the compositional nature of the original semantics.
+
+The semantics are defined in the IO monad currently, however if other monads were desired, only minimal changes would be required in order to accommodate
+other instances of the Monad typeclass for the semantics.  In {\em Future Work}, one potential application of this functionality is discussed.
 
 \subsection{The implicit `and' problem}
 
@@ -298,8 +328,8 @@ The \texttt{collect} function as defined in \cite{agboola2015extensible} used a 
 %	uncollect = map (\(ent, evs) -> map (\ev -> (ent, ev)) evs)
 %\end{code}
 
-\subsubsection{Constructing Images from grouped association lists}
-In addition, a new function, \texttt{condense}, is defined to efficiently construct Images from relations implemented using association lists that are grouped according to the first element in each pair.
+\subsubsection{Constructing FDBRs from grouped association lists}
+In addition, a new function, \texttt{condense}, has been created to efficiently construct $FDBR(r)$ such that $r$ is represented by an association list that is grouped according to the first element in each pair.
 
 \begin{code}
 	condense = map (\list -> (fst $ head list, map snd list)) . List.groupBy cmp
