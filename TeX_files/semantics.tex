@@ -59,7 +59,8 @@ Triplestore access was implemented for in-program triplestores through the follo
 	getts_3 (a,b,"?")   = [z | (x,y,z) <- ev_data, x == a, y == b]
 \end{code}
 
-Other useful triplestore functions were defined in terms of these functions:
+Other useful triplestore functions were defined in terms of the \texttt{getts_*}
+functions:
 
 \begin{code}
 	get_subj_for_ev ev       = getts_3 (ev,  "subject","?")
@@ -92,21 +93,126 @@ They were implemented using the \texttt{get\_subjs\_of\_event\_type} function.
 	steal = get_subjs_of_event_type "steal_ev"
 \end{code}
 
-Proper nouns were defined as ``functions that take a set of entities as an argument and which return True if a particular entity is a member of that set''\cite{frost2014denotational}.
+Proper nouns were defined as ``functions that take a set of entities as an
+argument and which return True if a particular entity is a member of that
+set''\cite{frost2014denotational}.  They were implemented using the
+\texttt{member} function which tests list membership.
 
 \begin{code}
 	torrio setofents  = "torrio" `member` setofents
 \end{code}
 
-The definitions of -- TODO: finish
+Determiners were defined as functions taking two sets of entities, called
+a nounphrase and verbphrase respectively.  Each of these functions
+is defined in terms of set intersection.  They were implemented using
+list intersection:
 
-\begin{definition}[Image]
+\begin{code}
+  a     nph vbph     = length (intersect nph vbph) /= 0
+  one   nph vbph     = length (intersect nph vbph)  == 1
+  two   nph vbph     = length (intersect nph vbph)  == 2
+  every nph vbph     = subset  nph vbph
+\end{code}
 
+Conjoiners for common nouns were defined similarly:
+
+\begin{code}
+  nounand s t  = intersect s t
+  nounor  s t  = mkset (s ++ t) -- behaves like set union
+  that         = nounand
+\end{code}
+
+Conjoiners for proper nouns and determiner phrases (a determiner
+with a common noun applied to it) were implemented differently:
+
+\begin{code}
+  termand tmph1 tmph2 setofents =  (tmph1 setofents) && (tmph2 setofevs)
+  termor  tmph1 tmph2 setofents =  (tmph1 setofents) || (tmph2 setofevs)
+\end{code}
+
+This was necessary because common nouns were sets of entities, but
+proper nouns and determiner phrases were functions that acted on sets
+of entities.
+
+Transitive verbs were defined in terms of {\em images}.  Briefly, images
+are constructed from binary relations with the \texttt{collect} function.
+
+\begin{definition}[Collect function]
+The function collect is defined such that it takes a binary relation as an
+argument, joinrel, and ``returns a new binary relation, containing one binary tuple
+(x, image\_x) for each member of the projection of the left-hand column of joinrel
+, where image\_x is the mathematical image of x under the relation joinrel''
 \end{definition}
 
-\subsection{Haskell implementation}
+\begin{definition}[Image]
+  A function that maps elements in the domain to sets
+\end{definition}
 
-Later, in \cite{agboola2015extensible}, the semantics were implemented with Haskell with some efficiency improvements.  In particular, the asymptotic time complexity of the \texttt{collect} function was improved to O$(n$ log $n)$ time.
+Intuitively speaking, the \texttt{collect} function converts arbitary binary
+relations into functions.  $\forall x$ All pairs $(x, y_1), (x, y_2), ..., (x,
+y_n)$ are grouped into one pair $(x, {y_1, y_2, ..., y_n})$ in the new binary
+relation.
+
+In the Haskell implementation, binary relations are represented with association
+lists.
+
+\begin{definition}[Entity-event relation]
+  A binary relation from entities in a triplestore to events in that triplestore
+\end{definition}
+
+The function \texttt{make\_image} creates
+an entity-event relation from a given event type and then converts it to an
+image using \texttt{collect}:
+
+\begin{code}
+  make_image et = collect [(subj, ev) | ev <- evs, subj <- getts_3 (ev, "subject","?") ]
+    where evs = getts_1 ("?", "type",  et)
+\end{code}
+
+Transitive verbs are defined by {\em filtering} tuples in the image of the event
+type that corresponds to the verb based on a termphrase (proper noun or
+determiner phrase) provided.  The only tuples remaining in the image are those
+for which the termphrase predicate returns \texttt{True}.  An example is the
+``join'' verb:
+
+\begin{code}
+  join tmph = [subj | (subj, evs) <- make_image "join_ev",
+       tmph (concat [getts_3 (ev,  "object", "?") | ev <- evs])]
+\end{code}
+
+Prepositional phrases were defined through an extension of the above
+mechanism.  Before passing an entity list to a termphrase, the events
+those entities were drawn from would be first filtered through a series
+of prepositions.
+
+Prepositions were defined as a pair consisting of the name of a property
+of an event and a termphrase.  Chained prepositional phrases were defined
+as a list of prepositions.
+
+An example chained prepositional phrase: \texttt{[("with\_implement", a
+telescope), ("year", year "1877")]}
+
+\texttt{join} could be modified to support prepositions as
+follows:
+
+\begin{code}
+  join’ tmph preps = [subj | (subj, evs) <- make_image "join_ev", 
+    tmph (concat [getts_3 (ev,"object","?") | ev <- evs,
+      filter_ev ev preps])]
+\end{code}
+
+where \texttt{filter\_ev} is defined as follows:
+
+\begin{code}
+  filter_ev ev [] = True
+  filter_ev ev (prep:list_of_preps) = ((snd (prep)) (getts_3 (ev,fst (prep),"?")))
+                                      && filter_ev ev list_of_preps
+\end{code}
+
+\subsection{Haskell implementation for SPARQL}
+
+Later, in \cite{agboola2015extensible}, the Haskell implementation was modified
+to support SPARQL endpoints with some efficiency improvements.  In particular, the asymptotic time complexity of the \texttt{collect} function was improved to O$(n$ log $n)$ time.
 
 \section{Improvements over Original Semantics}
 
@@ -115,7 +221,9 @@ The improvements from the original semantics presented in \cite{frost2014demonst
 
 \subsection{Naming and definition of ``Images''}
 
-Originally, semantic functions were defined using {\em Images} as their arguments and return values.
+Originally, some semantic functions were defined in terms of {\em images}.
+
+In this Thesis, we refer to these structures as... 
 
 \subsection{Semantic consistency}
 
@@ -125,7 +233,32 @@ NOTE: definition of get\_members, etc, different! get\_members returns an Image,
 
 \subsection{The implicit `and' problem}
 
+In the original semantics there was a problem with how prepositional phrases were implemented.  Namely, an implicit ``and'' was placed in between
+each preposition, transforming sentences such as ``who discovered a moon with a telescope in 1877 at us\_naval\_observatory'' into ``who discovered a moon with a telescope and in 1932 and at us\_naval\_observatory''.
+
+In the above example, the meanings of both sentences are identical, however when determiners such as ``one'', ``two'', and ``every'' are used, the meaning changes:
+
+%TODO: Fix
+TODO: Fix example
+``who discovered a moon with two telescopes in 1877''.  In this example, ``hall'' both discovered a moon with two telescopes and also discovered a moon
+in 1877, but the two moons were not the same moon.  Therefore the result set should be empty, however because the sentence was treated as
+``who discovered a moon with two telescopes and in 1877'', it was nonempty, leading to a misleading result.
+
+It turns out there was a specific property that enabled a determiner to work:
+
+This was fixed by modifying \texttt{filter\_ev} as follows:
+
+This worked because all termphrases are based on the function \texttt{intersect\_entevimages}, which acts as a list intersection.
+Therefore, each termphrase returns exactly the events which are relevant.  So the resultant list obtained from \texttt{tmph list}
+can be used against the remaining prepositions, recursively.
+
+
 \subsection{The use of `by' as a preposition}
+
+One item of note is that in our semantics we treat the word ``by'', as in ``discovered\_by'', as a preposition.
+
+We noticed that the function to process the word ``by'' and the function to filter events based on prepositions were nearly 
+identical, with the former being a special case of the latter.
 
 \subsection{Efficiency}
 
@@ -300,7 +433,7 @@ of key operations performed.
 
 Therefore the worst-case upper bound time complexity of \texttt{condense} is $O(1) + n*(O(1) + O(1)) + O(n) = O(n)$ with comparison on the first element in
 the association list pairs (\texttt{cmp}) being the key operation.
-\qedsymbol
+$\blacksquare$
 
 %Since \texttt{condense} has a worst-case tight bound asymptotic time complexity of $\theta(n)$, it is optimal. \qedsymbol 
 
