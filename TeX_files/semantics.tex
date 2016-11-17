@@ -254,6 +254,8 @@ NOTE: definition of get\_members, etc, different! get\_members returns an FDBR, 
 
 In the original semantics...
 
+Mention new definition for prepositions, use of ``in''
+
 \subsection{Type safety}
 
 The original semantics were implemented as {\em pure functions} in Haskell, which was acceptable for the in-program triplestores they were used on.
@@ -278,27 +280,47 @@ the need to use \texttt{unsafeDupablePerformIO} in order to perform queries to e
 The semantics are defined in the IO monad currently, however if other monads were desired, only minimal changes would be required in order to accommodate
 other instances of the Monad typeclass for the semantics.  In {\em Future Work}, one potential application of this functionality is discussed.
 
-\subsection{The implicit `and' problem}
+\subsection{The implicit `and' problem and the problem of `every'}
 
-In the original semantics there was a problem with how prepositional phrases were implemented.  Namely, an implicit ``and'' was placed in between
-each preposition, transforming sentences such as ``who discovered a moon with a telescope in 1877 at us\_naval\_observatory'' into ``who discovered a moon with a telescope and in 1932 and at us\_naval\_observatory''.
+In the original semantics there were two problems with how prepositional phrases were implemented.
 
-In the above example, the meanings of both sentences are identical, however when determiners such as ``one'', ``two'', and ``every'' are used, the meaning changes:
+First, a query such as ``the sun is orbited by every planet'' would have returned \texttt{False} due to the way \texttt{filter\_ev} was implemented.
 
-%TODO: Fix
-TODO: Fix example
-``who discovered a moon with two telescopes in 1877''.  In this example, ``hall'' both discovered a moon with two telescopes and also discovered a moon
-in 1877, but the two moons were not the same moon.  Therefore the result set should be empty, however because the sentence was treated as
-``who discovered a moon with two telescopes and in 1877'', it was nonempty, leading to a misleading result.
+This was because in $FDBR($\texttt{orbit\_}$)$, where \texttt{orbit\_} is the entity-event relation defined by the event type ``orbit\_ev'' in the triplestore, with the \texttt{objects} of those events forming the entities,
+the pair for \texttt{sun} would look like: \texttt{(sun, [event1000, event1001, ..., event1008])}, where each event would denote a separate \texttt{orbit} event corresponding to each planet.
+\texttt{filter\_ev} applied each preposition's termphrase to each event separately, meaning that no information provided by other events could be used by the predicate.  Therefore \texttt{every planet}
+would have returned \texttt{False} on each individual event, and \texttt{filter\_ev} would have discarded the pair for \texttt{sun} in $FDBR($\texttt{orbit\_}$)$.  If there were one singular orbit event in which all of the
+planets were listed as orbiting the sun, then this query would have worked, however, it may not be reasonable to expect event-based triplestores to organize their information in this fashion in practice--especially if there are properties unique to each planet that are being described in each orbit event.
+This was fixed by modifying \texttt{filter\_ev} to first collect all of the relevant properties for each preposition from all events,  and then evaluating the termphrase over those properties.
+ 
+Second, an implicit ``and'' was placed in between each preposition, transforming sentences such as ``who discovered something with two telescopes in 1914'' into ``who discovered something with two telescopes and in 1914''.
 
-It turns out there was a specific property that enabled a determiner to work:
+Although the above sentence is ambiguous in that it could be asking whether someone used two telescopes to discover one particular object, or whether
+someone discovered potentially different objects with two telescopes, the asker most certainly did not intend for an implicit ``and'' to be inserted in between the prepositions.
 
-This was fixed by modifying \texttt{filter\_ev} as follows:
+The reason this happens is because in the original \texttt{filter\_ev} function, the event lists were not actually ``honed down'' before being passed to subsequent predicates in the preposition chain.
 
-This worked because all termphrases are based on the function \texttt{intersect\_entevimages}, which acts as a list intersection.
-Therefore, each termphrase returns exactly the events which are relevant.  So the resultant list obtained from \texttt{tmph list}
-can be used against the remaining prepositions, recursively.
+Both of these problems were solved by modifying \texttt{filter\_ev} as follows:
 
+\begin{code}
+	filter_ev :: (TripleStore m) => m -> [([String], IO FDBR -> IO FDBR)] -> [Event] -> IO Bool
+	filter_ev _ [] _ = return True
+	filter_ev ev_data ((names,pred):list) evs = do
+		relevant_list <- mapM (\name -> getts_preimage ev_data name evs) names
+		res <- pred $ return $ concat $ relevant_list
+		let relevant_evs = List.nub $ concatMap snd res
+		if res /= [] then filter_ev ev_data list relevant_evs else return False
+\end{code}
+
+Briefly, \texttt{filter\_ev} creates an FBDR out of the provided event list \texttt{evs} by using the \texttt{getts\_preimage} function
+to ``pull out'' the desired property names from an event list (prepositions may have multiple property names).  All of these are merged into one FDBR
+which the termphrase associated with the preposition is then evaluated on.  Termphrases always return only the elements of an FBDR that are ``relevant'',
+as all termphrases are defined in terms of the function \texttt{intersect\_entevimages}, which behaves like a list intersection except for FDBRs.
+So the resultant list \texttt{res} can be used against the remaining prepositions, recursively, ``honing down'' the relevant events on each preposition
+in the chain.
+
+The ambiguity noted above with the use of ``every'' could potentially be solved in the future by introducing a new word ``using''.  ``who discovered something with two telescopes in 1914'' would then
+mean that someone discovered could have discovered multiple objects with two telescopes, and ``who discovered something using two telescopes in 1914'' would mean that someone discovered one particular object using two telescopes.
 
 \subsection{The use of `by' as a preposition}
 
@@ -328,7 +350,7 @@ The \texttt{collect} function as defined in \cite{agboola2015extensible} used a 
 %	uncollect = map (\(ent, evs) -> map (\ev -> (ent, ev)) evs)
 %\end{code}
 
-\subsubsection{Constructing FDBRs from grouped association lists}
+\subsubsection{Efficiently constructing FDBRs from grouped association lists}
 In addition, a new function, \texttt{condense}, has been created to efficiently construct $FDBR(r)$ such that $r$ is represented by an association list that is grouped according to the first element in each pair.
 
 \begin{code}
