@@ -33,42 +33,26 @@ A graph representing the structure of the modules in the XSaiga package in relat
 		getts_members :: m -> String -> IO Image
 	\end{code}
 
-	Default implementations of \texttt{getts\_image} \texttt{getts\_preimage} and \texttt{getts\_members} are provided as well.  They 
-are defined in terms of the \texttt{getts\_*} functions.
-	
-	\begin{code}
-		getts_image ev_data ev_type entity_type = do
-			evs <- getts_1 ev_data ("?", "type", ev_type)
-			getts_preimage ev_data entity_type evs
-		
-		getts_preimage ev_data entity_type evs = do
-			pairs <- liftM concat $ mapM (\ev -> do
-			ents <- getts_3 ev_data (ev, entity_type,"?")
-			return $ zip ents (repeat ev)) evs
-			return $ collect pairs
-
-		getts_members ev_data set = do
-			evs_with_set_as_object <- getts_1 ev_data ("?", "object", set)
-			evs_with_type_membership <- getts_1 ev_data ("?", "type", "membership")
-			getts_preimage ev_data "subject" $ intersect evs_with_set_as_object evs_with_type_membership
-	\end{code}
-
-	The \texttt{collect} function used above is defined as:
+	The \texttt{collect} is also defined in this module as:
 
 	\begin{code}
 		collect = Map.toList . Map.fromListWith (++) . map (\(x, y) -> (x, [y]))
 	\end{code}
 	
 	where Map is defined in the Data.Map.Strict module in the Haskell standard library.
-	Briefly, the \texttt{collect} function takes a binary relation as an argument and converts it into an Image.
 	
-	If the binary relation is already sorted, then the \texttt{condense} function can be used instead to compute the Image in O$(n)$ time.
+
 	
+
+	
+	The \texttt{condense} function is also defined in this module:
 	\begin{code}
 		condense = map (\list -> (fst $ head list, map snd list)) . List.groupBy cmp
 		where
 		cmp x y = (fst x) == (fst y)
 	\end{code}
+	
+	If a binary relation $r$ is already sorted, then the \texttt{condense} function can be used instead to compute $FDBR(r)$ in O$(n)$ time.
 	
 	
 	An instance for in-program triplestores
@@ -86,8 +70,8 @@ are defined in terms of the \texttt{getts\_*} functions.
 			getts_3 ev_data (a, b, "?") = return [z | (x,y,z) <- ev_data, a == x, b == y]
 	\end{code}
 
-	The SPARQL instance is called \texttt{SPARQLBackend} and allows remote SPARQL endpoints to be treated as triplestores.
-	Optimized implementations are provided for \texttt{getts\_image} \texttt{getts\_preimage} and \texttt{getts\_members}.
+	The SPARQL instance is the type \texttt{SPARQLBackend} and allows remote SPARQL endpoints to be treated as triplestores.
+	Optimized implementations of \texttt{getts\_image} \texttt{getts\_preimage} and \texttt{getts\_members} are provided in \texttt{TripleStore SPARQLBackend}.
 	In addition to this, a basic form of query fusion has been implemented in the form of memoization.  Briefly, queries and their results
 	are stored in {\em key-value stores}.  When a query is performed, it is first checked against the appropriate key-value store to see
 	if the same triplestore query has been made previously.  If it has, the previous result is returned.  Otherwise, the request is made to the remote

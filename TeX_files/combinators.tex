@@ -12,7 +12,8 @@ By modifying the parser to work with monadic rather than pure values, the restri
 \texttt{unsafeDupablePerformIO} is no longer needed to ``trick'' the type system into accepting a function is referentially transparent.
 
 The parser works in the IO monad currently, however if other monads were desired, only minimal changes would be required to the parser in order to accommodate
-other instances of the Monad typeclass.  In {\em Future Work}, one potential application of this functionality is discussed.
+other instances of the Monad typeclass.  In the chapter {\em Future Work}, one potential application of this functionality is discussed.
+
 
 \section{Summary of the Parser Combinators}
 
