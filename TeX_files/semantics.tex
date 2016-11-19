@@ -239,6 +239,16 @@ to support SPARQL endpoints, with some efficiency improvements.  In particular, 
 
 The improvements from the original semantics presented in \cite{frost2014demonstration} \cite{frostagboola2014} are detailed below.
 
+In the following section, {\em function currying} \cite{currying} is used to simplify the description of the semantics.
+Briefly, a function $f$ with $n$ arguments can be {\em curried} into a chain of $n$ functions, each accepting one argument and returning the next function
+in a chain, effectively ``fixing'' the current argument in the returned function.  If the end of the chain is reached, the value that $f$
+would have produced had it been directly called with all $n$ arguments is returned.  This is a key feature of many functional programming languages \cite{haskell}.
+
+We use the syntax $f$ $x_1$ $x_2$ ... $x_n$ to denote a function or function call with $n$ arguments.  If this syntax is used
+and only a partial number of arguments are provided, then a function of the remaining arguments is returned.  Otherwise,
+this syntax is equivalent to $f(x_1, x_2, ..., x_n)$.
+
+
 \subsection{Multiple-property prepositions and terminology}
 
 Prepositions were previously defined as a pair consisting of the name of a property of an event and a termphrase.  This meant that prepositions could
@@ -320,7 +330,6 @@ Although the above sentence is ambiguous in that it could be asking whether some
 someone discovered potentially different objects with two telescopes, the asker most certainly did not intend for an implicit ``and'' to be inserted in between the prepositions.
 The reason this happens is because in the original \texttt{filter\_ev} function, the event lists were not actually ``honed down'' before being passed to subsequent predicates in the preposition chain.
 
-%TODO: define filter_ev here instead of in transitive verbs
 Both these problems were solved by defining \texttt{filter\_ev} in our
 semantics as follows:
 
@@ -339,24 +348,19 @@ semantics as follows:
 \end{split}
 \end{gather*}
 
-Informally, \texttt{filter\_ev} collects all of the relevant properties for
-each preposition from all events, and evaluates the termphrase over the
-FDBRs.  It then computes the intersection of those
+Informally, \texttt{filter\_ev} computes an FDBR of the relevant properties for
+each preposition from all events, and evaluates the termphrases of each
+preposition on each corresponding FDBR, solving the first problem.  The second
+problem is solved by using the intersections of all events in all FDBRs as a way
+of ``honing down'' the events.  If there are no events in common with any
+preposition, then the return value is \texttt{False}, otherwise at least
+one event satisfies all prepositions and the return value is \texttt{True}.
 
 
 \subsection{Semantic consistency}
 
 One goal of the new semantics is to unify concepts in the original semantics.  A significant refactoring was done in order to 
 accomplish this task.
-
-In the following section, {\em function currying} \cite{currying} is used to simplify the description of the semantics.
-Briefly, a function $f$ with $n$ arguments can be {\em curried} into a chain of $n$ functions, each accepting one argument and returning the next function
-in a chain, effectively ``fixing'' the current argument in the returned function.  If the end of the chain is reached, the value that $f$
-would have produced had it been directly called with all $n$ arguments is returned.  This is a key feature of many functional programming languages \cite{haskell}.
-
-We use the syntax $f$ $x_1$ $x_2$ ... $x_n$ to denote a function or function call with $n$ arguments.  If this syntax is used
-and only a partial number of arguments are provided, then a function of the remaining arguments is returned.  Otherwise,
-this syntax is equivalent to $f(x_1, x_2, ..., x_n)$.
 
 \subsubsection{Triplestore utility functions}
 
@@ -464,7 +468,8 @@ we provide two functions, \texttt{make\_trans\_active'} and \texttt{make\_trans\
 \end{gather*}
 
 The \texttt{filter} function takes a function that returns a boolean value and returns a new set containing only the elements of the original set for which that function returned \texttt{True}.
-\texttt{filter\_ev} is used as a predicate for filtering FDBRs and is defined as follows:
+\texttt{filter\_ev} is used to filter FDBRs such that only FDBR-pairs that match
+the prepositions are returned.
 
 We also provide two more functions, \texttt{make\_trans\_active} and \texttt{make\_trans\_passive}, transitive verbs without prepositional phrases:
 
