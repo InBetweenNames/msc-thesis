@@ -35,6 +35,9 @@ Triplestores that organize their information in this fashion are called {\em Eve
 	A triplestore where the \texttt{subject} of the triples contained within it refer to Events\cite{frostagboola2014}
 \end{definition}
 
+We say that a triple {\em belongs} to an event if the \texttt{subject} of the triple is the name of the event.  For example,
+the triples above belong to \texttt{event1}.
+
 The key motivation behind using Event-based triplestores in this Thesis is that they directly support reification on triples\cite{frostagboola2014}.
 
 \section{Original Event-Based Denotational Semantics}
@@ -235,6 +238,35 @@ to support SPARQL endpoints, with some efficiency improvements.  In particular, 
 
 The improvements from the original semantics presented in \cite{frost2014demonstration} \cite{frostagboola2014} are detailed below.
 
+\subsection{Multiple-property prepositions and terminology}
+
+Prepositions were previously defined as a pair consisting of the name of a property of an event and a termphrase.
+To support prepositions such as ``in'', which could refer to either a location or a point in time, we had to introduce a new definition
+for prepositions in our semantics.  First, some new terminology:
+
+\begin{definition}[Property]
+	A \texttt{predicate} of a triple in an event-based triplestore.
+\end{definition}
+
+For example, in the triple \texttt{(event1000, with\_implement, refractor\_telescope\_1)}, \texttt{with\_implement} is a property.  Since the triple belongs to \texttt{event1000}, we say that \texttt{with\_implement} is a property of \texttt{event1000}.
+
+In general, there is no restriction on the number of entities in an event that share the same property.
+
+\begin{definition}[Preposition]
+	A pair consisting of a set of properties and a predicate.
+\end{definition}
+
+By using a set of properties rather than a single property as in the original semantics, we are able to support prepositions that could refer to multiple properties.
+For example, the preposition \texttt{in'} in our semantics is defined as:
+
+\begin{code}
+	in' tmph = ({"location", "year"}, tmph)
+\end{code}
+
+When referring to the entities with property \texttt{prop} of an event, we are referring to the \texttt{objects} of the triples of the event that have the predicate \texttt{prop}.
+We may use the phrase ``the \texttt{prop}s of an event'' as a shorthand for ``the entities with property \texttt{prop} of an event''.
+For example, the \texttt{subjects} or \texttt{objects} of an event are the entities with property \texttt{subject} or \texttt{object} of that event, respectively.
+
 \subsection{Naming and definition of ``Images''}
 
 Originally, transitive verbs were defined in terms of {\em images} \cite{frost2014denotational}.
@@ -249,13 +281,21 @@ The function defined by a relation is referred to throughout this thesis by the 
 as {\em images} were represented in the original semantics.  The function defined by the relation $r$ is denoted with the syntax $FDBR(r)$.
 We call an element $(x, image_x)$ in an FDBR an {\em FDBR-pair}.
 
-\subsection{Multiple-property prepositions}
+We also define the {\em ENTEVPROP} relation.  Informally, {\em ENTEVPROP}$(evs, prop)$ is the entity-event relation defined by the set of events {\em evs} under the property {\em prop}, with {\em prop} being ``pulled out'' of the event list {\em evs}, forming a relation between the properties and events.
 
-Prepositions were previously defined as a pair consisting of the name of a property of an event and a termphrase.  We modify this definition
-to use a list of property names instead of a single name in order to support prepositions such as ``in'', which may refer to either a location or a point in time.
+\begin{definition}[ENTEVPROP(evs, prop) relation]
+	\[\text{ENTEVPROP(evs, prop) = }\{\text{(ent, ev) : ent } \in \text{ getts(ev, prop, ANY) \& ev} \in \text{evs} \}\]
+\end{definition}
 
-\begin{definition}[Preposition]
-	A pair consisting of a list of property names and a predicate.
+In addition to this, we define the {\em ENTEVTYPE} relation.  Informally, this behaves like the ENTEVPROP relation except it accepts an event type as an argument
+rather than a set of events, obtaining the set of events by gathering all triples of type $ev_type$ using the \texttt{getts} function.
+
+\begin{definition}[ENTEVTYPE(ev\_type, prop) relation]
+	\begin{equation}
+	\begin{split}
+	\text{ENTEVTYPE(ev\_type, prop) = ENTEVPROP(evs, prop)} \\ \text{where evs = getts(ANY, type, ev\_type)}
+	\end{split}
+	\end{equation}
 \end{definition}
 
 \subsection{Type safety}
