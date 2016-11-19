@@ -306,6 +306,43 @@ In the original semantics, the \texttt{make\_trans} function could be defined as
 
 These relations form the basis on which our new semantics are defined.
 
+\subsection{The implicit `and' problem and the problem of `every'}
+
+In the original semantics there were two problems with how prepositional phrases were implemented.
+
+First, a query such as ``the sun is orbited by every planet'' would have returned \texttt{False} due to the way \texttt{filter\_ev} was implemented.
+
+This was because in $FDBR($\texttt{orbit\_}$)$, where \texttt{orbit\_ = ENTEVPROP\_TYPE(orbit\_ev, object)}, the FDBR-pair for \texttt{sun} would have the form: \texttt{(sun, [event1000, event1001, ..., event1008])}, where each event would denote a separate \texttt{orbit} event corresponding to each planet that orbits the sun.  \texttt{filter\_ev} applied each preposition's termphrase to each event separately, meaning that no information provided by other events could be used by the predicate.  Hence \texttt{every planet} would have returned \texttt{False} for each individual event's associated \texttt{object}, and \texttt{filter\_ev} would have discarded the pair for \texttt{sun} in $FDBR($\texttt{orbit\_}$)$.  If there were one singular orbit event in which all of the planets were listed as orbiting the sun, then this query would have worked.  However, if there are properties unique to the planets being described in each orbit event, then it is not possible to describe all orbits in one singular event.  Therefore there was a need for a method to filter events in FDBRs that allowed termphrases to view the objects of {\em all} events in an FBDR-pair rather than just one.  
+
+Second, an implicit ``and'' was placed in between each preposition, transforming sentences such as ``who discovered something with two telescopes in 1914'' into ``who discovered something with two telescopes and in 1914''.
+
+Although the above sentence is ambiguous in that it could be asking whether someone used two telescopes to discover one particular object, or whether
+someone discovered potentially different objects with two telescopes, the asker most certainly did not intend for an implicit ``and'' to be inserted in between the prepositions.
+The reason this happens is because in the original \texttt{filter\_ev} function, the event lists were not actually ``honed down'' before being passed to subsequent predicates in the preposition chain.
+
+%TODO: define filter_ev here instead of in transitive verbs
+Both these problems were solved by defining \texttt{filter\_ev} in our
+semantics as follows:
+
+\begin{gather*}
+\text{filter\_ev preps evs} =
+\begin{cases}
+\texttt{False}, \text{ if filtered = } \emptyset \\
+\texttt{True}, \text{ otherwise}
+\end{cases} \\
+\text{\indent where} \\
+\text{\indent\indent filtered} = \left\{ ev : \left( \forall \text{propFDBR} \in
+\text{propertyFDBRs} \right) ev \in \text{(snd propFDBR)} \right\}  \\
+\begin{split}
+\text{\indent\indent propertyFDBRs} = \left\{ \text{pred}\left(\bigcup_{pName \in propNames} FDBR(ENTEVPROP(evs, pName)) \right) : \right. \\
+\left. (\text{propNames}, \text{pred}) \in \text{preps} \vphantom{\bigcup_{pName \in propNames}} \right\}
+\end{split}
+\end{gather*}
+
+Informally, \texttt{filter\_ev} collects all of the relevant properties for
+each preposition from all events, and evaluates the termphrase over the
+FDBRs.  It then computes the intersection of those
+
 
 \subsection{Semantic consistency}
 
@@ -429,21 +466,6 @@ we provide two functions, \texttt{make\_trans\_active'} and \texttt{make\_trans\
 The \texttt{filter} function takes a function that returns a boolean value and returns a new set containing only the elements of the original set for which that function returned \texttt{True}.
 \texttt{filter\_ev} is used as a predicate for filtering FDBRs and is defined as follows:
 
-\begin{gather*}
-\text{filter\_ev preps evs} =
-\begin{cases}
-\texttt{False}, \text{ if filtered = } \emptyset \\
-\texttt{True}, \text{ otherwise}
-\end{cases} \\
-\text{\indent where} \\
-\text{\indent\indent filtered} = \left\{ ev : \left( \forall \text{propFDBR} \in
-\text{propertyFDBRs} \right) ev \in \text{(snd propFDBR)} \right\}  \\
-\begin{split}
-\text{\indent\indent propertyFDBRs} = \left\{ \text{pred}\left(\bigcup_{pName \in propNames} FDBR(ENTEVPROP(evs, pName)) \right) : \right. \\
-\left. (\text{propNames}, \text{pred}) \in \text{preps} \vphantom{\bigcup_{pName \in propNames}} \right\}
-\end{split}
-\end{gather*}
-
 We also provide two more functions, \texttt{make\_trans\_active} and \texttt{make\_trans\_passive}, transitive verbs without prepositional phrases:
 
 \begin{gather*}
@@ -510,25 +532,6 @@ By letting \texttt{by tmph = (\{"subject"\}, tmph)}, we can include \texttt{by}
 directly in chains of prepositional phrases as a {\em virtual preposition}, simplifying the grammar
 with no loss of functionality.  With this approach, ``by'' can appear anywhere in a chain of prepositions, for example ``in 1877 by hall'', instead
 of needing to be directly next to the verb.
-
-
-\subsection{The implicit `and' problem and the problem of `every'}
-
-In the original semantics there were two problems with how prepositional phrases were implemented.
-
-First, a query such as ``the sun is orbited by every planet'' would have returned \texttt{False} due to the way \texttt{filter\_ev} was implemented.
-
-This was because in $FDBR($\texttt{orbit\_}$)$, where \texttt{orbit\_ = ENTEVPROP\_TYPE(orbit\_ev, object)}, the FDBR-pair for \texttt{sun} would have the form: \texttt{(sun, [event1000, event1001, ..., event1008])}, where each event would denote a separate \texttt{orbit} event corresponding to each planet that orbits the sun.  \texttt{filter\_ev} applied each preposition's termphrase to each event separately, meaning that no information provided by other events could be used by the predicate.  Hence \texttt{every planet} would have returned \texttt{False} for each individual event's associated \texttt{object}, and \texttt{filter\_ev} would have discarded the pair for \texttt{sun} in $FDBR($\texttt{orbit\_}$)$.  If there were one singular orbit event in which all of the planets were listed as orbiting the sun, then this query would have worked.  However, if there are properties unique to the planets being described in each orbit event, then it is not possible to describe all orbits in one singular event.  Therefore there was a need for a method to filter events in FDBRs that allowed termphrases to view the objects of {\em all} events in an FBDR-pair rather than just one.  This was fixed by modifying \texttt{filter\_ev} to first collect all of the relevant properties for each preposition from all events,  and then evaluating the termphrase over those properties.
-
-Second, an implicit ``and'' was placed in between each preposition, transforming sentences such as ``who discovered something with two telescopes in 1914'' into ``who discovered something with two telescopes and in 1914''.
-
-Although the above sentence is ambiguous in that it could be asking whether someone used two telescopes to discover one particular object, or whether
-someone discovered potentially different objects with two telescopes, the asker most certainly did not intend for an implicit ``and'' to be inserted in between the prepositions.
-The reason this happens is because in the original \texttt{filter\_ev} function, the event lists were not actually ``honed down'' before being passed to subsequent predicates in the preposition chain.
-
-The new \texttt{filter\_ev} function introduced in the previous section solves
-both these problems.
-
 
 \section{Improvements over Original Haskell Implementations}
 
