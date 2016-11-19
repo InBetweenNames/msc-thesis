@@ -298,6 +298,114 @@ The {\em ENTEVPROP\_TYPE} relation is similar, accepting an event type as an arg
 	\end{equation}
 \end{definition}
 
+\subsection{The implicit `and' problem and the problem of `every'}
+
+In the original semantics there were two problems with how prepositional phrases were implemented.
+
+First, a query such as ``the sun is orbited by every planet'' would have returned \texttt{False} due to the way \texttt{filter\_ev} was implemented.
+
+TODO: newterm
+This was because in $FDBR($\texttt{orbit\_}$)$, where \texttt{orbit\_} is the entity-event relation defined by the event type ``orbit\_ev'' in the triplestore with the \texttt{objects} of those events forming the entities, the FDBR-pair for \texttt{sun} would look like: \texttt{(sun, [event1000, event1001, ..., event1008])}, where each event would denote a separate \texttt{orbit} event corresponding to each planet that orbits the sun.  \texttt{filter\_ev} applied each preposition's termphrase to each event separately, meaning that no information provided by other events could be used by the predicate.  Hence \texttt{every planet} would have returned \texttt{False} for each individual event's associated \texttt{object}, and \texttt{filter\_ev} would have discarded the pair for \texttt{sun} in $FDBR($\texttt{orbit\_}$)$.  If there were one singular orbit event in which all of the planets were listed as orbiting the sun, then this query would have worked.  However, if there are properties unique to the planets being described in each orbit event, then it is not possible to describe all orbits in one singular event.  Therefore there was a need for a method to filter events in FDBRs that allowed termphrases to view the objects of {\em all} events in an FBDR-pair rather than just one.  This was fixed by modifying \texttt{filter\_ev} to first collect all of the relevant properties for each preposition from all events,  and then evaluating the termphrase over those properties.
+
+Second, an implicit ``and'' was placed in between each preposition, transforming sentences such as ``who discovered something with two telescopes in 1914'' into ``who discovered something with two telescopes and in 1914''.
+
+Although the above sentence is ambiguous in that it could be asking whether someone used two telescopes to discover one particular object, or whether
+someone discovered potentially different objects with two telescopes, the asker most certainly did not intend for an implicit ``and'' to be inserted in between the prepositions.
+The reason this happens is because in the original \texttt{filter\_ev} function, the event lists were not actually ``honed down'' before being passed to subsequent predicates in the preposition chain.
+
+Both of these problems were solved by modifying \texttt{filter\_ev} as follows:
+
+\begin{code}
+filter_ev :: (TripleStore m) => m -> [([String], IO FDBR -> IO FDBR)] -> [Event] -> IO Bool
+filter_ev _ [] _ = return True
+filter_ev ev_data ((names,pred):list) evs = do
+relevant_list <- mapM (\name -> getts_preimage ev_data name evs) names
+res <- pred $ return $ concat $ relevant_list
+let relevant_evs = List.nub $ concatMap snd res
+if res /= [] then filter_ev ev_data list relevant_evs else return False
+\end{code}
+
+Briefly, \texttt{filter\_ev} creates an FBDR out of the provided event list \texttt{evs} by using the \texttt{getts\_preimage} function
+to ``pull out'' the desired properties from a list of events.  All of these are merged into one FDBR,
+which the termphrase associated with the preposition is then evaluated on.  Termphrases always return only the elements of an FBDR that are ``relevant'',
+as all termphrases are defined in terms of the function \texttt{intersect\_entevimages}, which behaves like a list intersection except for FDBRs.
+Hence the resultant list, \texttt{res}, contains only the events relevant to the current preposition and can be used against the remaining prepositions, recursively, to ``hone down'' the relevant events on each preposition in the chain.
+
+\subsection{Semantic consistency}
+
+\subsubsection{Triplestore utility functions}
+
+All triplestore utility functions have been modified from their original definitions.
+
+First and foremost, a new function is introduced, \texttt{getts\_preimage}:
+
+\begin{code}
+getts_preimage ev_data entity_type evs = do
+pairs <- liftM concat $ mapM (\ev -> do
+ents <- getts_3 ev_data (ev, entity_type,"?")
+return $ zip ents (repeat ev)) evs
+return $ collect pairs
+\end{code}
+
+
+
+
+\subsubsection{Semantic functions}
+
+All semantic functions have been modified to accept FDBRs and return FDBRs, with the exception of ``query'' functions
+\texttt{whatobj}, \texttt{where'}, \texttt{how'}, \texttt{when'}, and \texttt{what}.
+
+\texttt{what} and \texttt{whatobj} are differentiated to obtain the \texttt{subjects} and \texttt{objects} of FDBRs, respectively, with the
+\texttt{objects} being obtained through the events in FDBR. 
+
+
+
+
+NOTE: definition of get\_members, etc, different! get\_members returns an FDBR, not a list of entities!
+
+\begin{itemize}
+	\item Prepositions can list multiple property names instead of having to use just one
+	\item getts\_preimage
+	\item This is used for the preposition ``in'', to allow ``in'' to mean both a location or a point in time
+	\item All semantic functions and triplestore utility functions accept FDBRs as arguments and return FDBRs as results
+\end{itemize}
+
+The triplestore utility functions were modified to return FDBRs.
+
+\begin{code}
+get_subj_for_ev ev       = getts_3 (ev,  "subject","?")
+get_subjs_for_events evs = concatMap (get_subj_for_event evs)
+
+get_members set = get_subjs_for_evs evs
+where
+evs = intersect evs_of_type_membership evs_with_set_as_object
+evs_of_type_membership   = getts_1 ("?", "type", "membership")
+evs_with_set_as_object   = getts_1 ("?",  "object",  set)
+
+get_subjs_of_event_type et  = get_subjs_for_evs evs
+where
+evs = getts_1 ("?",  "type",  et)
+\end{code}
+
+
+\subsubsection{The use of `by' as a preposition}
+
+TODO: rename make\_inverted\_filtered\_relation
+One item of note is that in our semantics we treat the word ``by'', as in ``discovered by'', as a preposition.
+
+We differentiate between the uses of active and passive voices for transitive verbs.  For passive verbs, the function
+\texttt{make\_inverted\_filtered\_relation} is used to construct $FDBR(\texttt{relation\_})$ where \texttt{relation\_} is
+the entity-event relation defined by the event type associated with the given verb, for example \texttt{discover\_ev}, and the
+entities are the \texttt{objects} of the events in the relation.
+
+Initially, the termphrase after ``by'' was applied to $FDBR(\texttt{relation\_})$ in order to filter FDBR-pairs for those matching
+the termphrase.  However, this is exactly the same task that \texttt{filter\_ev} already performs when evaluating chains of prepositional phrases.
+By letting \texttt{by tmph = (["subject"], tmph)}, we can include \texttt{by} directly in chains of prepositional phrases, simplifying the grammar
+with no loss of functionality.  With this approach, ``by'' can appear anywhere in a chain of prepositions, for example ``in 1877 by hall'', instead
+of needing to be directly next to the verb.
+
+\section{Improvements over Original Haskell Implementations}
+
 \subsection{Type safety}
 
 The original semantics were implemented as {\em pure functions} in Haskell, which was acceptable for the in-program triplestores they were used on.
@@ -366,108 +474,8 @@ Only the three \texttt{getts\_*} functions must be defined for the new type of t
 of all functions in the typeclass may be provided if desired.  We provide a backend using a SPARQL endpoint as a triplestore using the
 \texttt{SPARQLBackend} type and a backend for in-program triplestores using the \texttt{[Triple]} type as instances of \texttt{TripleStore}.
 
-\subsection{Semantic consistency}
-
-\subsubsection{Triplestore utility functions}
-
-All triplestore utility functions have been modified from their original definitions.
-
-First and foremost, a new function is introduced, \texttt{getts\_preimage}:
-
-\begin{code}
-	getts_preimage ev_data entity_type evs = do
-		pairs <- liftM concat $ mapM (\ev -> do
-			ents <- getts_3 ev_data (ev, entity_type,"?")
-			return $ zip ents (repeat ev)) evs
-		return $ collect pairs
-\end{code}
 
 
-
-
-\subsubsection{Semantic functions}
-
-All semantic functions have been modified to accept FDBRs and return FDBRs, with the exception of ``query'' functions
-\texttt{whatobj}, \texttt{where'}, \texttt{how'}, \texttt{when'}, and \texttt{what}.
-
-\texttt{what} and \texttt{whatobj} are differentiated to obtain the \texttt{subjects} and \texttt{objects} of FDBRs, respectively, with the
-\texttt{objects} being obtained through the events in FDBR. 
-
-
-
-
-NOTE: definition of get\_members, etc, different! get\_members returns an FDBR, not a list of entities!
-
-\begin{itemize}
-	\item Prepositions can list multiple property names instead of having to use just one
-	\item getts\_preimage
-	\item This is used for the preposition ``in'', to allow ``in'' to mean both a location or a point in time
-	\item All semantic functions and triplestore utility functions accept FDBRs as arguments and return FDBRs as results
-\end{itemize}
-
-The triplestore utility functions were modified to return FDBRs.
-
-\begin{code}
-	get_subj_for_ev ev       = getts_3 (ev,  "subject","?")
-	get_subjs_for_events evs = concatMap (get_subj_for_event evs)
-	
-	get_members set = get_subjs_for_evs evs
-		where
-			evs = intersect evs_of_type_membership evs_with_set_as_object
-			evs_of_type_membership   = getts_1 ("?", "type", "membership")
-			evs_with_set_as_object   = getts_1 ("?",  "object",  set)
-	
-	get_subjs_of_event_type et  = get_subjs_for_evs evs
-		where
-			evs = getts_1 ("?",  "type",  et)
-\end{code}
-
-\subsection{The implicit `and' problem and the problem of `every'}
-
-In the original semantics there were two problems with how prepositional phrases were implemented.
-
-First, a query such as ``the sun is orbited by every planet'' would have returned \texttt{False} due to the way \texttt{filter\_ev} was implemented.
-
-This was because in $FDBR($\texttt{orbit\_}$)$, where \texttt{orbit\_} is the entity-event relation defined by the event type ``orbit\_ev'' in the triplestore with the \texttt{objects} of those events forming the entities, the FDBR-pair for \texttt{sun} would look like: \texttt{(sun, [event1000, event1001, ..., event1008])}, where each event would denote a separate \texttt{orbit} event corresponding to each planet that orbits the sun.  \texttt{filter\_ev} applied each preposition's termphrase to each event separately, meaning that no information provided by other events could be used by the predicate.  Hence \texttt{every planet} would have returned \texttt{False} for each individual event's associated \texttt{object}, and \texttt{filter\_ev} would have discarded the pair for \texttt{sun} in $FDBR($\texttt{orbit\_}$)$.  If there were one singular orbit event in which all of the planets were listed as orbiting the sun, then this query would have worked.  However, if there are properties unique to the planets being described in each orbit event, then it is not possible to describe all orbits in one singular event.  Therefore there was a need for a method to filter events in FDBRs that allowed termphrases to view the objects of {\em all} events in an FBDR-pair rather than just one.  This was fixed by modifying \texttt{filter\_ev} to first collect all of the relevant properties for each preposition from all events,  and then evaluating the termphrase over those properties.
- 
-Second, an implicit ``and'' was placed in between each preposition, transforming sentences such as ``who discovered something with two telescopes in 1914'' into ``who discovered something with two telescopes and in 1914''.
-
-Although the above sentence is ambiguous in that it could be asking whether someone used two telescopes to discover one particular object, or whether
-someone discovered potentially different objects with two telescopes, the asker most certainly did not intend for an implicit ``and'' to be inserted in between the prepositions.
-The reason this happens is because in the original \texttt{filter\_ev} function, the event lists were not actually ``honed down'' before being passed to subsequent predicates in the preposition chain.
-
-Both of these problems were solved by modifying \texttt{filter\_ev} as follows:
-
-\begin{code}
-	filter_ev :: (TripleStore m) => m -> [([String], IO FDBR -> IO FDBR)] -> [Event] -> IO Bool
-	filter_ev _ [] _ = return True
-	filter_ev ev_data ((names,pred):list) evs = do
-		relevant_list <- mapM (\name -> getts_preimage ev_data name evs) names
-		res <- pred $ return $ concat $ relevant_list
-		let relevant_evs = List.nub $ concatMap snd res
-		if res /= [] then filter_ev ev_data list relevant_evs else return False
-\end{code}
-
-Briefly, \texttt{filter\_ev} creates an FBDR out of the provided event list \texttt{evs} by using the \texttt{getts\_preimage} function
-to ``pull out'' the desired properties from a list of events.  All of these are merged into one FDBR,
-which the termphrase associated with the preposition is then evaluated on.  Termphrases always return only the elements of an FBDR that are ``relevant'',
-as all termphrases are defined in terms of the function \texttt{intersect\_entevimages}, which behaves like a list intersection except for FDBRs.
-Hence the resultant list, \texttt{res}, contains only the events relevant to the current preposition and can be used against the remaining prepositions, recursively, to ``hone down'' the relevant events on each preposition in the chain.
-
-\subsection{The use of `by' as a preposition}
-
-One item of note is that in our semantics we treat the word ``by'', as in ``discovered by'', as a preposition.
-
-We differentiate between the uses of active and passive voices for transitive verbs.  For passive verbs, the function
-\texttt{make\_inverted\_filtered\_relation} is used to construct $FDBR(\texttt{relation\_})$ where \texttt{relation\_} is
-the entity-event relation defined by the event type associated with the given verb, for example \texttt{discover\_ev}, and the
-entities are the \texttt{objects} of the events in the relation.
-
-Initially, the termphrase after ``by'' was applied to $FDBR(\texttt{relation\_})$ in order to filter FDBR-pairs for those matching
-the termphrase.  However, this is exactly the same task that \texttt{filter\_ev} already performs when evaluating chains of prepositional phrases.
-By letting \texttt{by tmph = (["subject"], tmph)}, we can include \texttt{by} directly in chains of prepositional phrases, simplifying the grammar
-with no loss of functionality.  With this approach, ``by'' can appear anywhere in a chain of prepositions, for example ``in 1877 by hall'', instead
-of needing to be directly next to the verb.
 
 \subsection{Efficiency}
 
