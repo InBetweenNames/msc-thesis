@@ -372,50 +372,33 @@ don't contribute anything to the result--often times, these are membership event
 
 With this in mind, determiners have been defined as follows:
 
-\begin{equation*}
-\begin{split}
+\begin{gather*}
 \text{a nph vbph} = \text{intersect\_fdbr nph vbph} \\
 \text{any nph vbph} = \text{a nph vbph}   \\
 \text{the nph vbph} = \text{a nph vbph}  \\
 \text{some nph vbph} = \text{a nph vbph}   \\
 \text{an nph vbph} = \text{a nph vbph}   \\
-\end{split}
-\end{equation*}
-	
-\begin{equation*}
-\begin{split}
-\text{every}(\text{nph}, \text{vbph}) =
+\text{every nph vbph} =
 \begin{cases}
-	\text{intersect\_fdbr}(\text{nph},\text{vbph}), \text{if nph\_entities } \subseteq \text{ vbph\_entities} \\
+	\text{intersect\_fdbr nph vbph}, \text{ if nph\_entities } \subseteq \text{ vbph\_entities} \\
 	\emptyset, \text{otherwise}
 \end{cases} \\
-\text{where} \\
-\text{nph\_entities = map fst nph} \\
-\text{vbph\_entities = map fst vbph} \\
-\end{split}
-\end{equation*}
-
-\begin{equation*}
-\begin{split}
-\text{one}(\text{nph}, \text{vbph}) =
+\text{\indent where} \\
+\text{\indent\indent nph\_entities = map fst nph} \\
+\text{\indent\indent vbph\_entities = map fst vbph} \\
+\text{one nph vbph} =
 \begin{cases}
-	\text{intersect\_fdbr}(\text{nph},\text{vbph}), \text{if } \left\vert\text{intersect\_fdbr}(\text{nph},\text{vbph})\right\vert = 1 \\
+	\text{intersect\_fdbr nph vbph}, \text{ if } \left\vert\text{intersect\_fdbr}(\text{nph},\text{vbph})\right\vert = 1 \\
 	\emptyset, \text{otherwise}
 \end{cases} \\
-\end{split}
-\end{equation*}
-
-\begin{equation*}
-\begin{split}
-\text{two}(\text{nph}, \text{vbph}) =
+\text{two nph vbph} =
 \begin{cases}
-\text{intersect\_fdbr}(\text{nph},\text{vbph}), \text{if }\left\vert\text{intersect\_fdbr}(\text{nph},\text{vbph})\right\vert = 2 \\
+\text{intersect\_fdbr nph vbph}, \text{ if }\left\vert\text{intersect\_fdbr}(\text{nph},\text{vbph})\right\vert = 2 \\
 \emptyset, \text{otherwise}
-\end{cases} \\
-\end{split}
-\end{equation*}
+\end{cases}
+\end{gather*}
 
-\texttt{fst} is a function that returns the first component from in a pair.  The \texttt{map} function computes the image of a function $f$ over a set $s$.  
+\texttt{fst} is a function that returns the first component from in a pair.  The \texttt{map} function computes the image of a function $f$ over the elements of a set $s$.  
 Therefore the function \texttt{map fst} obtains all of the entities in an FDBR.
 
 This change was actually motivated by our changes to how prepositional phrases are handed in our semantics, and is the basis through which
@@ -426,30 +409,56 @@ This change was actually motivated by our changes to how prepositional phrases a
 In the original semantics, the function \texttt{make\_trans} was used to construct an FDBR out of an event type.
 
 In our semantics, we distinguish between the active and passive voices of transitive verbs.  For example, in the sentence ``Hall discovered a moon'', the active voice is being used.
-In the sentence ``A moon was discovered by Hall'', the passive voice is being used.  
-We provide two functions, \texttt{make\_trans\_active'} and \texttt{make\_trans\_passive'} to construct an FDBR representing the active and passive voice of a transitive verb, respectfully.
+In the sentence ``A moon was discovered by Hall'', the passive voice is being used.  This voice of a verb changes what the verb is ``acting on''.  To express this in the semantics,
+we provide two functions, \texttt{make\_trans\_active'} and \texttt{make\_trans\_passive'} to construct an FDBR denoting the active and passive voice of a transitive verb, respectfully.
+
+%TODO: for prepositions, does order matter? should be converted to use a list?
+
+\begin{gather*}
+\text{make\_trans\_active' ev\_type tmph preps} = \\
+	\text{\indent filter (prepFilter (\{(\{``object''\}, tmph)\}} \cup \text{preps) (\text{fdbr\_active})} \\
+\text{make\_trans\_passive' ev\_type preps} = \text{filter (prepFilter preps) (\text{fdbr\_passive})} \\
+\text{\indent where} \\
+\text{\indent\indent prepFilter} ((\_, evs)) = \text{filter\_ev preps evs} \\
+\text{\indent\indent fdbr\_active} = \text{FDBR}(\text{ENTEVPROP\_TYPE}(\text{ev\_type}, \text{``subject''})) \\
+\text{\indent\indent fdbr\_passive} = \text{FDBR}(\text{ENTEVPROP\_TYPE}(\text{ev\_type}, \text{``object''}))
+\end{gather*}
+
+The \texttt{filter} function takes a function that returns a boolean value and returns a new set containing only the elements of the original set for which that function returned \texttt{True}.
+\texttt{filter\_ev} is used for filtering FDBRs and is defined as follows:
+
+\begin{gather*}
+\text{filter\_ev preps evs} =
+\begin{cases}
+\texttt{False}, \text{ if filtered = } \emptyset \\
+\texttt{True}, \text{ otherwise}
+\end{cases} \\
+\text{\indent where} \\
+\text{\indent\indent filtered} = \{ev : ev \in evs \text{ \& }dog \}
+\end{gather*}
 
 \begin{code}
-	make_trans_active'
-	make_trans_passive'
+filter_ev _ [] _ = return True
+filter_ev ev_data ((names,pred):list) evs = do
+relevant_list <- mapM (\name -> getts_preimage ev_data name evs) names
+res <- pred $ return $ concat $ relevant_list
+let relevant_evs = List.nub $ concatMap snd res
+if res /= [] then filter_ev ev_data list relevant_evs else return False
 \end{code}
 
-\begin{equation*}
-\begin{split}
-\text{make\_trans\_active} = \text{make\_trans\_active' } \emptyset \\
-\text{make\_trans\_passive} = \text{make\_trans\_passive' } \emptyset
-\end{split}
-\end{equation*}
+We also provide two more functions, \texttt{make\_trans\_active} and \texttt{make\_trans\_passive}, transitive verbs without prepositional phrases:
 
+\begin{gather*}
+\text{make\_trans\_active ev\_type tmph} = \text{make\_trans\_active' ev\_type tmph }\emptyset\\
+\text{make\_trans\_passive ev\_type} = \text{make\_trans\_passive' ev\_type }\emptyset
+\end{gather*}
 
+The mechanism for filtering prepositional phrases is powerful enough that no extra work need be done for handling the termphrase associated with a transitive verb, for example
+\texttt{a moon} in \texttt{discover (a moon)}.  By adding a {\em pseudo-preposition} to the set of prepositions, \texttt{(\{(\{"object"\}, tmph)\}}, \texttt{filter\_ev} is able to subsume that functionality, simplifying the semantics.
 
-These two functions
-
-Therefore, both voices of transitive verbs are handled uniformly and transparently.
-
+Therefore, both voices of transitive verbs, and versions both with and without support for prepositional phrases, are handled uniformly and transparently.
 
 \paragraph{Adjectives, common nouns, and intransitive verbs}
-
 
 
 In the original semantics, intransitive verbs
@@ -463,6 +472,8 @@ Adjectives were not demonstrated in the original semantics, however are easily a
 
 For example: \texttt{a vaccuummous moon}
 
+
+\paragraph{Conjoiners}
 
 
 %TODO: rename getts_preimage
