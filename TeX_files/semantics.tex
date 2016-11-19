@@ -93,7 +93,7 @@ functions:
 Common nouns were defined as ``the set of entities that are members of the set associated with that noun'' \cite{frost2014denotational}.
 These were implemented using the \texttt{get\_members} function.
 
-NOTE: Should the code examples be rewritten to not use anything from \cite{frost2014denotational}?
+%NOTE: Should the code examples be rewritten to not use anything from \cite{frost2014denotational}?
 \begin{code}
 	person = get_members "person"
 \end{code}
@@ -291,12 +291,201 @@ The {\em ENTEVPROP\_TYPE} relation is similar, accepting an event type as an arg
 
 
 \begin{definition}[ENTEVPROP\_TYPE(ev\_type, prop) relation]
-	\begin{equation}
-	\begin{split}
+	\begin{multline}
 	\text{ENTEVPROP\_TYPE(ev\_type, prop) = ENTEVPROP(evs, prop)} \\ \text{where evs = getts(ANY, type, ev\_type)}
-	\end{split}
-	\end{equation}
+	\end{multline}
 \end{definition}
+
+In the original semantics, the \texttt{make\_trans} function could be defined as:
+
+\begin{code}
+	make_trans event_type = FDBR(ENTEVPROP_TYPE(event_type, "subject"))
+\end{code}
+
+These relations form the basis on which our new semantics are defined.
+
+
+\subsection{Semantic consistency}
+
+One goal of the new semantics is to unify concepts in the original semantics.  A significant refactoring was done in order to 
+accomplish this task.
+
+In the following section, {\em function currying} \cite{currying} is used to simplify the description of the semantics.
+Briefly, a function $f$ with $n$ arguments can be {\em curried} into a chain of $n$ functions, each accepting one argument and returning the next function
+in a chain, effectively ``fixing'' the current argument in the returned function.  If the end of the chain is reached, the value that $f$
+would have produced had it been directly called with all $n$ arguments is returned.  This is a key feature of many functional programming languages \cite{haskell}.
+
+We use the syntax $f x_1 x_2 .. x_n$ to denote a function or function call with $n$ arguments.  If this syntax is used
+and only a partial number of arguments are provided, then a function of the remaining arguments is returned.  Otherwise,
+this syntax is equivalent to $f(x_1, x_2, ..., x_n)$.
+
+\subsubsection{Triplestore utility functions}
+
+The \texttt{getts} functions are identical to how they were in \cite{frost2013event}, however
+all other triplestore utility functions have been modified from their original definitions.
+In particular, the functions \texttt{get\_subjs\_for\_event}, \texttt{get\_subjs\_for\_events},
+\texttt{get\_subjs\_for\_event\_type}, and \texttt{get\_members} return FDBRs rather than entity lists.  They are defined as follows:
+
+\texttt{get\_subjs\_for\_events evs = FDBR(ENTEVPROP(evs, "subject"))}
+
+\texttt{get\_subjs\_for\_event ev = get\_subjs\_for\_events \{ev\}}
+
+\texttt{get\_subjs\_for\_event\_type ev\_type = FDBR(ENTEVPROP\_TYPE(ev\_type, "subject"))}
+
+The definition of \texttt{get\_members} is identical to the original except that it uses the new \texttt{get\_subjs\_for\_events} function.
+
+By returning FDBRs, information about the entire entity-event relation is provided rather than only information about entities
+belonging to those events.  This change simplifies the definitions of the triplestore utility functions and also makes their function
+more uniform.
+
+
+\subsubsection{Semantic functions}
+
+All semantic functions have been modified to accept FDBRs and return FDBRs, with the exception of ``query'' functions
+\texttt{whatobj}, \texttt{where'}, \texttt{how'}, \texttt{when'}, and \texttt{what}.
+
+\texttt{what} and \texttt{whatobj} are differentiated to obtain the \texttt{subjects} and \texttt{objects} of FDBRs, respectively, with the
+\texttt{objects} being obtained through the events in FDBR. 
+
+\paragraph{Predicates}
+Previously, predicates accepted arguments in the form of entity lists and returned boolean values.
+
+In our new semantics, we modified the definition of predicates such that predicates accept FDBRs and return FDBRs.  A returned FDBR that is non-empty is 
+considered to be \texttt{True}.  A returned FDBR that is empty is considered to be \texttt{False}.
+
+\begin{definition}[Predicate]
+	A function from FDBRs to FDBRs.
+\end{definition}
+
+Specifically, all predicates are now defined in terms of a function \texttt{intersect\_fdbr}.
+
+\begin{definition}[intersect\_fdbr function]
+	\begin{multline}
+	\text{intersect\_fdbr fdbr1 fdbr2 = } \\ \{\text{(ent2, evs2) : (ent1, evs1) }\in \text{fdbr1 \& (ent2, evs2) } \in \text{fdbr2 \& ent1 = ent2}\}
+	\end{multline}
+\end{definition}
+
+Briefly, this function performs the intersection of two FDBRs using the entity name in each FDBR-pair.  The events from the second FDBR are preserved
+in the intersection, and the events from the first FDBR are discarded.  The reason it is defined this way is because when filtering, the FDBR being filtered
+is the second argument to \texttt{intsersect\_fdbr}, and therefore those events should be preserved.  Furthermore, the events of the first argument
+don't contribute anything to the result--often times, these are membership events, for instance in a termphrase like \texttt{a moon}.
+
+With this in mind, determiners have been defined as follows:
+
+\begin{equation*}
+\begin{split}
+\text{a nph vbph} = \text{intersect\_fdbr nph vbph} \\
+\text{any nph vbph} = \text{a nph vbph}   \\
+\text{the nph vbph} = \text{a nph vbph}  \\
+\text{some nph vbph} = \text{a nph vbph}   \\
+\text{an nph vbph} = \text{a nph vbph}   \\
+\end{split}
+\end{equation*}
+	
+\begin{equation*}
+\begin{split}
+\text{every}(\text{nph}, \text{vbph}) =
+\begin{cases}
+	\text{intersect\_fdbr}(\text{nph},\text{vbph}), \text{if nph\_entities } \subseteq \text{ vbph\_entities} \\
+	\emptyset, \text{otherwise}
+\end{cases} \\
+\text{where} \\
+\text{nph\_entities = map fst nph} \\
+\text{vbph\_entities = map fst vbph} \\
+\end{split}
+\end{equation*}
+
+\begin{equation*}
+\begin{split}
+\text{one}(\text{nph}, \text{vbph}) =
+\begin{cases}
+	\text{intersect\_fdbr}(\text{nph},\text{vbph}), \text{if } \left\vert\text{intersect\_fdbr}(\text{nph},\text{vbph})\right\vert = 1 \\
+	\emptyset, \text{otherwise}
+\end{cases} \\
+\end{split}
+\end{equation*}
+
+\begin{equation*}
+\begin{split}
+\text{two}(\text{nph}, \text{vbph}) =
+\begin{cases}
+\text{intersect\_fdbr}(\text{nph},\text{vbph}), \text{if }\left\vert\text{intersect\_fdbr}(\text{nph},\text{vbph})\right\vert = 2 \\
+\emptyset, \text{otherwise}
+\end{cases} \\
+\end{split}
+\end{equation*}
+
+\texttt{fst} is a function that returns the first component from in a pair.  The \texttt{map} function computes the image of a function $f$ over a set $s$.  
+Therefore the function \texttt{map fst} obtains all of the entities in an FDBR.
+
+This change was actually motivated by our changes to how prepositional phrases are handed in our semantics, and is the basis through which
+``filtering'' occurs along preposition chains.
+
+\paragraph{Transitive verbs}
+
+In the original semantics, the function \texttt{make\_trans} was used to construct an FDBR out of an event type.
+
+In our semantics, we distinguish between the active and passive voices of transitive verbs.  For example, in the sentence ``Hall discovered a moon'', the active voice is being used.
+In the sentence ``A moon was discovered by Hall'', the passive voice is being used.  
+We provide two functions, \texttt{make\_trans\_active'} and \texttt{make\_trans\_passive'} to construct an FDBR representing the active and passive voice of a transitive verb, respectfully.
+
+\begin{code}
+	make_trans_active'
+	make_trans_passive'
+\end{code}
+
+\begin{equation*}
+\begin{split}
+\text{make\_trans\_active} = \text{make\_trans\_active' } \emptyset \\
+\text{make\_trans\_passive} = \text{make\_trans\_passive' } \emptyset
+\end{split}
+\end{equation*}
+
+
+
+These two functions
+
+Therefore, both voices of transitive verbs are handled uniformly and transparently.
+
+
+\paragraph{Adjectives, common nouns, and intransitive verbs}
+
+
+
+In the original semantics, intransitive verbs
+
+Adjectives, like common nouns, were defined as a set of entities.
+
+Since common nouns are FDBRs rather than entity lists now due to how \texttt{get\_members} is defined, they can be handled in exactly
+the same way that intransitive verbs are handled.
+
+Adjectives were not demonstrated in the original semantics, however are easily accommodated using the \texttt{intersect\_fdbr} function.
+
+For example: \texttt{a vaccuummous moon}
+
+
+
+%TODO: rename getts_preimage
+\begin{itemize}
+	\item getts\_preimage
+	\item All semantic functions and triplestore utility functions accept FDBRs as arguments and return FDBRs as results
+\end{itemize}
+
+\subsubsection{The use of `by' as a preposition}
+
+%TODO: rename make\_inverted\_filtered\_relation
+%TODO: newterm
+One item of note is that in our semantics we treat the word ``by'', as in ``discovered by'', as a preposition.
+
+We differentiate between the uses of active and passive voices for transitive verbs.  For passive verbs, the function
+\texttt{make\_inverted\_filtered\_relation rel} is used to construct \texttt{FDBR(ENTEVPROP\_TYPE(rel, "object"))}.
+
+Initially, the termphrase after ``by'' was applied to $FDBR(\texttt{relation\_})$ in order to filter FDBR-pairs for those matching
+the termphrase.  However, this is exactly the same task that \texttt{filter\_ev} already performs when evaluating chains of prepositional phrases.
+By letting \texttt{by tmph = (["subject"], tmph)}, we can include \texttt{by} directly in chains of prepositional phrases, simplifying the grammar
+with no loss of functionality.  With this approach, ``by'' can appear anywhere in a chain of prepositions, for example ``in 1877 by hall'', instead
+of needing to be directly next to the verb.
+
 
 \subsection{The implicit `and' problem and the problem of `every'}
 
@@ -304,8 +493,7 @@ In the original semantics there were two problems with how prepositional phrases
 
 First, a query such as ``the sun is orbited by every planet'' would have returned \texttt{False} due to the way \texttt{filter\_ev} was implemented.
 
-TODO: newterm
-This was because in $FDBR($\texttt{orbit\_}$)$, where \texttt{orbit\_} is the entity-event relation defined by the event type ``orbit\_ev'' in the triplestore with the \texttt{objects} of those events forming the entities, the FDBR-pair for \texttt{sun} would look like: \texttt{(sun, [event1000, event1001, ..., event1008])}, where each event would denote a separate \texttt{orbit} event corresponding to each planet that orbits the sun.  \texttt{filter\_ev} applied each preposition's termphrase to each event separately, meaning that no information provided by other events could be used by the predicate.  Hence \texttt{every planet} would have returned \texttt{False} for each individual event's associated \texttt{object}, and \texttt{filter\_ev} would have discarded the pair for \texttt{sun} in $FDBR($\texttt{orbit\_}$)$.  If there were one singular orbit event in which all of the planets were listed as orbiting the sun, then this query would have worked.  However, if there are properties unique to the planets being described in each orbit event, then it is not possible to describe all orbits in one singular event.  Therefore there was a need for a method to filter events in FDBRs that allowed termphrases to view the objects of {\em all} events in an FBDR-pair rather than just one.  This was fixed by modifying \texttt{filter\_ev} to first collect all of the relevant properties for each preposition from all events,  and then evaluating the termphrase over those properties.
+This was because in $FDBR($\texttt{orbit\_}$)$, where \texttt{orbit\_ = ENTEVPROP\_TYPE(orbit\_ev, object)}, the FDBR-pair for \texttt{sun} would have the form: \texttt{(sun, [event1000, event1001, ..., event1008])}, where each event would denote a separate \texttt{orbit} event corresponding to each planet that orbits the sun.  \texttt{filter\_ev} applied each preposition's termphrase to each event separately, meaning that no information provided by other events could be used by the predicate.  Hence \texttt{every planet} would have returned \texttt{False} for each individual event's associated \texttt{object}, and \texttt{filter\_ev} would have discarded the pair for \texttt{sun} in $FDBR($\texttt{orbit\_}$)$.  If there were one singular orbit event in which all of the planets were listed as orbiting the sun, then this query would have worked.  However, if there are properties unique to the planets being described in each orbit event, then it is not possible to describe all orbits in one singular event.  Therefore there was a need for a method to filter events in FDBRs that allowed termphrases to view the objects of {\em all} events in an FBDR-pair rather than just one.  This was fixed by modifying \texttt{filter\_ev} to first collect all of the relevant properties for each preposition from all events,  and then evaluating the termphrase over those properties.
 
 Second, an implicit ``and'' was placed in between each preposition, transforming sentences such as ``who discovered something with two telescopes in 1914'' into ``who discovered something with two telescopes and in 1914''.
 
@@ -313,6 +501,7 @@ Although the above sentence is ambiguous in that it could be asking whether some
 someone discovered potentially different objects with two telescopes, the asker most certainly did not intend for an implicit ``and'' to be inserted in between the prepositions.
 The reason this happens is because in the original \texttt{filter\_ev} function, the event lists were not actually ``honed down'' before being passed to subsequent predicates in the preposition chain.
 
+%TODO: PUREMATH
 Both of these problems were solved by modifying \texttt{filter\_ev} as follows:
 
 \begin{code}
@@ -325,84 +514,12 @@ let relevant_evs = List.nub $ concatMap snd res
 if res /= [] then filter_ev ev_data list relevant_evs else return False
 \end{code}
 
+%TODO: NEWNOTATION/PUREMATH
 Briefly, \texttt{filter\_ev} creates an FBDR out of the provided event list \texttt{evs} by using the \texttt{getts\_preimage} function
 to ``pull out'' the desired properties from a list of events.  All of these are merged into one FDBR,
 which the termphrase associated with the preposition is then evaluated on.  Termphrases always return only the elements of an FBDR that are ``relevant'',
-as all termphrases are defined in terms of the function \texttt{intersect\_entevimages}, which behaves like a list intersection except for FDBRs.
+as all termphrases are defined in terms of the function \texttt{intersect\_fdbr}, which behaves like a list intersection except for FDBRs.
 Hence the resultant list, \texttt{res}, contains only the events relevant to the current preposition and can be used against the remaining prepositions, recursively, to ``hone down'' the relevant events on each preposition in the chain.
-
-\subsection{Semantic consistency}
-
-\subsubsection{Triplestore utility functions}
-
-All triplestore utility functions have been modified from their original definitions.
-
-First and foremost, a new function is introduced, \texttt{getts\_preimage}:
-
-\begin{code}
-getts_preimage ev_data entity_type evs = do
-pairs <- liftM concat $ mapM (\ev -> do
-ents <- getts_3 ev_data (ev, entity_type,"?")
-return $ zip ents (repeat ev)) evs
-return $ collect pairs
-\end{code}
-
-
-
-
-\subsubsection{Semantic functions}
-
-All semantic functions have been modified to accept FDBRs and return FDBRs, with the exception of ``query'' functions
-\texttt{whatobj}, \texttt{where'}, \texttt{how'}, \texttt{when'}, and \texttt{what}.
-
-\texttt{what} and \texttt{whatobj} are differentiated to obtain the \texttt{subjects} and \texttt{objects} of FDBRs, respectively, with the
-\texttt{objects} being obtained through the events in FDBR. 
-
-
-
-
-NOTE: definition of get\_members, etc, different! get\_members returns an FDBR, not a list of entities!
-
-\begin{itemize}
-	\item Prepositions can list multiple property names instead of having to use just one
-	\item getts\_preimage
-	\item This is used for the preposition ``in'', to allow ``in'' to mean both a location or a point in time
-	\item All semantic functions and triplestore utility functions accept FDBRs as arguments and return FDBRs as results
-\end{itemize}
-
-The triplestore utility functions were modified to return FDBRs.
-
-\begin{code}
-get_subj_for_ev ev       = getts_3 (ev,  "subject","?")
-get_subjs_for_events evs = concatMap (get_subj_for_event evs)
-
-get_members set = get_subjs_for_evs evs
-where
-evs = intersect evs_of_type_membership evs_with_set_as_object
-evs_of_type_membership   = getts_1 ("?", "type", "membership")
-evs_with_set_as_object   = getts_1 ("?",  "object",  set)
-
-get_subjs_of_event_type et  = get_subjs_for_evs evs
-where
-evs = getts_1 ("?",  "type",  et)
-\end{code}
-
-
-\subsubsection{The use of `by' as a preposition}
-
-TODO: rename make\_inverted\_filtered\_relation
-One item of note is that in our semantics we treat the word ``by'', as in ``discovered by'', as a preposition.
-
-We differentiate between the uses of active and passive voices for transitive verbs.  For passive verbs, the function
-\texttt{make\_inverted\_filtered\_relation} is used to construct $FDBR(\texttt{relation\_})$ where \texttt{relation\_} is
-the entity-event relation defined by the event type associated with the given verb, for example \texttt{discover\_ev}, and the
-entities are the \texttt{objects} of the events in the relation.
-
-Initially, the termphrase after ``by'' was applied to $FDBR(\texttt{relation\_})$ in order to filter FDBR-pairs for those matching
-the termphrase.  However, this is exactly the same task that \texttt{filter\_ev} already performs when evaluating chains of prepositional phrases.
-By letting \texttt{by tmph = (["subject"], tmph)}, we can include \texttt{by} directly in chains of prepositional phrases, simplifying the grammar
-with no loss of functionality.  With this approach, ``by'' can appear anywhere in a chain of prepositions, for example ``in 1877 by hall'', instead
-of needing to be directly next to the verb.
 
 \section{Improvements over Original Haskell Implementations}
 
@@ -429,7 +546,7 @@ the need to use \texttt{unsafeDupablePerformIO} in order to perform queries to e
 The semantics are defined in the IO monad currently, however if other monads were desired, only minimal changes would be required in order to accommodate
 other instances of the Monad typeclass.  In the chapter {\em Future Work}, one potential application of this functionality is discussed.
 
-\subsection{An improved interface to triplestores using a typeclass}
+\subsection{An generic interface to triplestores using a typeclass}
 
 Typeclasses are used in Haskell to enable {\em ad-hoc polymorphism} in the definition of functions in the language.  This can be used
 to provide generic interfaces to different types, without callers needing to be aware of the differences between those types.
