@@ -158,13 +158,13 @@ argument, joinrel, and ``returns a new binary relation, containing one binary tu
 , where image\_x is the mathematical image of x under the relation joinrel'' \cite{frost2014denotational}
 \end{definition}
 
-\begin{definition}[Image]
+\begin{definition}[Image (original semantics)]
   A function that maps elements in the domain to sets
 \end{definition}
 
 Intuitively speaking, the \texttt{collect} function converts arbitrary binary
 relations into functions.  $\forall x$ All pairs $(x, y_1), (x, y_2), ..., (x,
-y_n)$ are grouped into one pair $(x, {y_1, y_2, ..., y_n})$ in the new binary
+y_n)$ are grouped into one pair $(x, \left\{y_1, y_2, ..., y_n\right\})$ in the new binary
 relation.
 
 In the Haskell implementation, binary relations and images were represented using {\em association
@@ -242,7 +242,8 @@ The improvements from the original semantics presented in \cite{frost2014demonst
 \subsection{Multiple-property prepositions and terminology}
 
 Prepositions were previously defined as a pair consisting of the name of a property of an event and a termphrase.  This meant that prepositions could
-only refer to one property of an event, making prepositions such as ``in'', which could refer to either a location or a range in time, impossible to express.
+only refer to one property of an event, making prepositions such as ``in''
+impossible to express, as it could refer to either a location or a range in time.
 To solve this, we extended the definition of preposition in our semantics.  First, some new terminology:
 
 \begin{definition}[Property]
@@ -298,9 +299,10 @@ The {\em ENTEVPROP\_TYPE} relation is similar, accepting an event type as an arg
 
 In the original semantics, the \texttt{make\_trans} function could be defined as:
 
-\begin{code}
-	make_trans event_type = FDBR(ENTEVPROP_TYPE(event_type, "subject"))
-\end{code}
+\begin{multline}
+  \text{make\_trans event\_type tmph} = \\ \text{tmph} (\text{map fst
+  FDBR}(\text{ENTEVPROP\_TYPE}(\text{event\_type}, \text{``subject''})))
+\end{multline}
 
 These relations form the basis on which our new semantics are defined.
 
@@ -315,7 +317,7 @@ Briefly, a function $f$ with $n$ arguments can be {\em curried} into a chain of 
 in a chain, effectively ``fixing'' the current argument in the returned function.  If the end of the chain is reached, the value that $f$
 would have produced had it been directly called with all $n$ arguments is returned.  This is a key feature of many functional programming languages \cite{haskell}.
 
-We use the syntax $f x_1 x_2 .. x_n$ to denote a function or function call with $n$ arguments.  If this syntax is used
+We use the syntax $f$ $x_1$ $x_2$ ... $x_n$ to denote a function or function call with $n$ arguments.  If this syntax is used
 and only a partial number of arguments are provided, then a function of the remaining arguments is returned.  Otherwise,
 this syntax is equivalent to $f(x_1, x_2, ..., x_n)$.
 
@@ -326,11 +328,11 @@ all other triplestore utility functions have been modified from their original d
 In particular, the functions \texttt{get\_subjs\_for\_event}, \texttt{get\_subjs\_for\_events},
 \texttt{get\_subjs\_for\_event\_type}, and \texttt{get\_members} return FDBRs rather than entity lists.  They are defined as follows:
 
-\texttt{get\_subjs\_for\_events evs = FDBR(ENTEVPROP(evs, "subject"))}
-
-\texttt{get\_subjs\_for\_event ev = get\_subjs\_for\_events \{ev\}}
-
-\texttt{get\_subjs\_for\_event\_type ev\_type = FDBR(ENTEVPROP\_TYPE(ev\_type, "subject"))}
+\begin{multline*}
+  \text{get\_subjs\_for\_events evs} = \text{FDBR}(\text{ENTEVPROP}(\text{evs}, \text{``subject''})) \\
+  \text{get\_subjs\_for\_event ev} = \text{get\_subjs\_for\_events}\left\{\text{ev}\right\} \\
+  \text{get\_subjs\_for\_event\_type ev\_type} = \text{FDBR}(\text{ENTEVPROP\_TYPE}(\text{ev\_type}, \text{``subject''}))
+\end{multline*}
 
 The definition of \texttt{get\_members} is identical to the original except that it uses the new \texttt{get\_subjs\_for\_events} function.
 
@@ -348,7 +350,7 @@ All semantic functions have been modified to accept FDBRs and return FDBRs, with
 \texttt{objects} being obtained through the events in FDBR. 
 
 \paragraph{Predicates}
-Previously, predicates accepted arguments in the form of entity lists and returned boolean values.
+Previously, predicates were functions from sets of entities to boolean values.
 
 In our new semantics, we modified the definition of predicates such that predicates accept FDBRs and return FDBRs.  A returned FDBR that is non-empty is 
 considered to be \texttt{True}.  A returned FDBR that is empty is considered to be \texttt{False}.
@@ -388,12 +390,12 @@ With this in mind, determiners have been defined as follows:
 \text{\indent\indent vbph\_entities = map fst vbph} \\
 \text{one nph vbph} =
 \begin{cases}
-	\text{intersect\_fdbr nph vbph}, \text{ if } \left\vert\text{intersect\_fdbr}(\text{nph},\text{vbph})\right\vert = 1 \\
+	\text{intersect\_fdbr nph vbph}, \text{ if } \left\vert\text{intersect\_fdbr nph vbph}\right\vert = 1 \\
 	\emptyset, \text{otherwise}
 \end{cases} \\
 \text{two nph vbph} =
 \begin{cases}
-\text{intersect\_fdbr nph vbph}, \text{ if }\left\vert\text{intersect\_fdbr}(\text{nph},\text{vbph})\right\vert = 2 \\
+\text{intersect\_fdbr nph vbph}, \text{ if }\left\vert\text{intersect\_fdbr nph vbph}\right\vert = 2 \\
 \emptyset, \text{otherwise}
 \end{cases}
 \end{gather*}
@@ -406,13 +408,13 @@ This change was actually motivated by our changes to how prepositional phrases a
 
 \paragraph{Transitive verbs}
 
-In the original semantics, the function \texttt{make\_trans} was used to construct an FDBR out of an event type.
+In the original semantics, the function \texttt{make\_trans} was used to
+construct an FDBR out of an event type.
 
 In our semantics, we distinguish between the active and passive voices of transitive verbs.  For example, in the sentence ``Hall discovered a moon'', the active voice is being used.
-In the sentence ``A moon was discovered by Hall'', the passive voice is being used.  This voice of a verb changes what the verb is ``acting on''.  To express this in the semantics,
+In the sentence ``A moon was discovered by Hall'', the passive voice is being
+used.  This voice of a verb changes what the verb is acting on in  a sentence.  To express this in the semantics,
 we provide two functions, \texttt{make\_trans\_active'} and \texttt{make\_trans\_passive'} to construct an FDBR denoting the active and passive voice of a transitive verb, respectfully.
-
-%TODO: for prepositions, does order matter? should be converted to use a list?
 
 \begin{gather*}
 \text{make\_trans\_active' ev\_type tmph preps} = \\
@@ -425,7 +427,7 @@ we provide two functions, \texttt{make\_trans\_active'} and \texttt{make\_trans\
 \end{gather*}
 
 The \texttt{filter} function takes a function that returns a boolean value and returns a new set containing only the elements of the original set for which that function returned \texttt{True}.
-\texttt{filter\_ev} is used for filtering FDBRs and is defined as follows:
+\texttt{filter\_ev} is used as a predicate for filtering FDBRs and is defined as follows:
 
 \begin{gather*}
 \text{filter\_ev preps evs} =
@@ -434,17 +436,13 @@ The \texttt{filter} function takes a function that returns a boolean value and r
 \texttt{True}, \text{ otherwise}
 \end{cases} \\
 \text{\indent where} \\
-\text{\indent\indent filtered} = \{ev : ev \in evs \text{ \& }dog \}
+\text{\indent\indent filtered} = \left\{ ev : \left( \forall \text{propFDBR} \in
+\text{propertyFDBRs} \right) ev \in \text{(snd propFDBR)} \right\}  \\
+\begin{split}
+\text{\indent\indent propertyFDBRs} = \left\{ \text{pred}\left(\bigcup_{pName \in propNames} FDBR(ENTEVPROP(evs, pName)) \right) : \right. \\
+\left. (\text{propNames}, \text{pred}) \in \text{preps} \vphantom{\bigcup_{pName \in propNames}} \right\}
+\end{split}
 \end{gather*}
-
-\begin{code}
-filter_ev _ [] _ = return True
-filter_ev ev_data ((names,pred):list) evs = do
-relevant_list <- mapM (\name -> getts_preimage ev_data name evs) names
-res <- pred $ return $ concat $ relevant_list
-let relevant_evs = List.nub $ concatMap snd res
-if res /= [] then filter_ev ev_data list relevant_evs else return False
-\end{code}
 
 We also provide two more functions, \texttt{make\_trans\_active} and \texttt{make\_trans\_passive}, transitive verbs without prepositional phrases:
 
@@ -454,46 +452,62 @@ We also provide two more functions, \texttt{make\_trans\_active} and \texttt{mak
 \end{gather*}
 
 The mechanism for filtering prepositional phrases is powerful enough that no extra work need be done for handling the termphrase associated with a transitive verb, for example
-\texttt{a moon} in \texttt{discover (a moon)}.  By adding a {\em pseudo-preposition} to the set of prepositions, \texttt{(\{(\{"object"\}, tmph)\}}, \texttt{filter\_ev} is able to subsume that functionality, simplifying the semantics.
+\texttt{a moon} in \texttt{discover (a moon)}.  By adding a {\em
+virtual preposition} to the set of prepositions, \texttt{(\{(\{"object"\},
+tmph)\}}, \texttt{filter\_ev} is able to subsume that functionality, simplifying
+the semantics.
 
 Therefore, both voices of transitive verbs, and versions both with and without support for prepositional phrases, are handled uniformly and transparently.
 
 \paragraph{Adjectives, common nouns, and intransitive verbs}
 
+In the original semantics, intransitive verbs and common nouns were defined as a set of entities.
 
-In the original semantics, intransitive verbs
-
-Adjectives, like common nouns, were defined as a set of entities.
-
-Since common nouns are FDBRs rather than entity lists now due to how \texttt{get\_members} is defined, they can be handled in exactly
-the same way that intransitive verbs are handled.
-
+Since \texttt{get\_subjs\_of\_event\_type} and \texttt{get\_members} return
+FDBRs, intransitive verbs and common nouns in our semantics are denoted by FDBRs.
+In addition, we also support adjectives in our semantics. 
 Adjectives were not demonstrated in the original semantics, however are easily accommodated using the \texttt{intersect\_fdbr} function.
 
-For example: \texttt{a vaccuummous moon}
+For example: ``vacuumous moon'', where \texttt{vacuumous} is an adjective
+and \texttt{moon} is a common noun, can be accomodated with
+\texttt{vacuumous `intersect\_fdbr` moon}.
 
 
 \paragraph{Conjoiners}
 
+Originally, conjoiners for common nouns were defined in terms of the intersections and unions
+of sets of entities.  In our semantics, conjoiners for common nouns are defined in terms
+of FDBRs.
 
-%TODO: rename getts_preimage
-\begin{itemize}
-	\item getts\_preimage
-	\item All semantic functions and triplestore utility functions accept FDBRs as arguments and return FDBRs as results
-\end{itemize}
+\begin{gather*}
+    \text{nounand} = \text{intersect\_fdbr} \\
+    \text{nounor nph1 nph2} = \text{nph1} \cup \text{nph2} \\
+    \text{that} = \text{nounand}
+\end{gather*}
+
+Similarly, the conjoiners for termphrases are also defined in terms of FDBRs:
+
+\begin{gather*}
+  \text{termand tmph1 tmph2 fdbr} =
+  \begin{cases}
+    \text{termor tmph1 tmph2 fdbr},\text{ if } \left(\text{tmph1 fdbr} \cup
+    \text{tmph2 fdbr}\right) \neq \emptyset \\
+    \emptyset,\text{ otherwise }
+  \end{cases} \\
+  \text{termor tmph1 tmph2 fdbr} = \text{nounor } (\text{tmph1 fdbr}) \text{ }
+  (\text{tmph2 fdbr})
+\end{gather*}
 
 \subsubsection{The use of `by' as a preposition}
 
-%TODO: rename make\_inverted\_filtered\_relation
 %TODO: newterm
 One item of note is that in our semantics we treat the word ``by'', as in ``discovered by'', as a preposition.
 
-We differentiate between the uses of active and passive voices for transitive verbs.  For passive verbs, the function
-\texttt{make\_inverted\_filtered\_relation rel} is used to construct \texttt{FDBR(ENTEVPROP\_TYPE(rel, "object"))}.
-
-Initially, the termphrase after ``by'' was applied to $FDBR(\texttt{relation\_})$ in order to filter FDBR-pairs for those matching
+When designing the new semantics orginally, the termphrase after ``by'' was
+applied to a passive transitive verb in order to filter FDBR-pairs for those matching
 the termphrase.  However, this is exactly the same task that \texttt{filter\_ev} already performs when evaluating chains of prepositional phrases.
-By letting \texttt{by tmph = (["subject"], tmph)}, we can include \texttt{by} directly in chains of prepositional phrases, simplifying the grammar
+By letting \texttt{by tmph = (\{"subject"\}, tmph)}, we can include \texttt{by}
+directly in chains of prepositional phrases as a {\em virtual preposition}, simplifying the grammar
 with no loss of functionality.  With this approach, ``by'' can appear anywhere in a chain of prepositions, for example ``in 1877 by hall'', instead
 of needing to be directly next to the verb.
 
@@ -512,25 +526,9 @@ Although the above sentence is ambiguous in that it could be asking whether some
 someone discovered potentially different objects with two telescopes, the asker most certainly did not intend for an implicit ``and'' to be inserted in between the prepositions.
 The reason this happens is because in the original \texttt{filter\_ev} function, the event lists were not actually ``honed down'' before being passed to subsequent predicates in the preposition chain.
 
-%TODO: PUREMATH
-Both of these problems were solved by modifying \texttt{filter\_ev} as follows:
+The new \texttt{filter\_ev} function introduced in the previous section solves
+both these problems.
 
-\begin{code}
-filter_ev :: (TripleStore m) => m -> [([String], IO FDBR -> IO FDBR)] -> [Event] -> IO Bool
-filter_ev _ [] _ = return True
-filter_ev ev_data ((names,pred):list) evs = do
-relevant_list <- mapM (\name -> getts_preimage ev_data name evs) names
-res <- pred $ return $ concat $ relevant_list
-let relevant_evs = List.nub $ concatMap snd res
-if res /= [] then filter_ev ev_data list relevant_evs else return False
-\end{code}
-
-%TODO: NEWNOTATION/PUREMATH
-Briefly, \texttt{filter\_ev} creates an FBDR out of the provided event list \texttt{evs} by using the \texttt{getts\_preimage} function
-to ``pull out'' the desired properties from a list of events.  All of these are merged into one FDBR,
-which the termphrase associated with the preposition is then evaluated on.  Termphrases always return only the elements of an FBDR that are ``relevant'',
-as all termphrases are defined in terms of the function \texttt{intersect\_fdbr}, which behaves like a list intersection except for FDBRs.
-Hence the resultant list, \texttt{res}, contains only the events relevant to the current preposition and can be used against the remaining prepositions, recursively, to ``hone down'' the relevant events on each preposition in the chain.
 
 \section{Improvements over Original Haskell Implementations}
 
