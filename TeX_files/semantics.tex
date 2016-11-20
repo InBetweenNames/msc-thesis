@@ -1,6 +1,11 @@
 \documentclass[../main.tex]{subfiles}
 
 \begin{document}
+	
+\setlength{\abovedisplayskip}{0pt}
+\setlength{\belowdisplayskip}{12pt}
+\setlength{\abovedisplayshortskip}{0pt}
+\setlength{\belowdisplayshortskip}{0pt} 
 
 \chapter {Event-Based Denotational Semantics}
 
@@ -242,9 +247,9 @@ Briefly, a function $f$ with $n$ arguments can be {\em curried} into a chain of 
 in a chain, effectively ``fixing'' the current argument in the returned function.  If the end of the chain is reached, the value that $f$
 would have produced had it been directly called with all $n$ arguments is returned.  This is a key feature of many functional programming languages \cite{haskell}.
 
-We use the syntax $f$ $x_1$ $x_2$ ... $x_n$ to denote a function or function call with $n$ arguments.  If this syntax is used
+We use the syntax $f$ $x_1$ $x_2$ $\dots$ $x_n$ to denote a function or function call with $n$ arguments.  If this syntax is used
 and only a partial number of arguments are provided, then a function of the remaining arguments is returned.  Otherwise,
-this syntax is equivalent to $f(x_1, x_2, ..., x_n)$.
+this syntax is equivalent to $f(x_1, x_2, \dots, x_n)$.
 
 The improvements from the original semantics presented in
 \cite{frost2014demonstration} \cite{frostagboola2014} are detailed below.
@@ -269,9 +274,9 @@ For example, in the triple \texttt{(event1000, with\_implement, refractor\_teles
 By using a set of properties rather than a single property as in the original semantics, we are able to support prepositions that could refer to multiple properties.
 For example, the preposition \texttt{in'} in our semantics is defined as:
 
-\begin{code}
-	in' tmph = ({"location", "year"}, tmph)
-\end{code}
+\begin{equation*}
+	\mathtt{in'} \  \mathtt{tmph} = \left(\left\{\text{``\texttt{location}''}, \text{``\texttt{year}''}\right\}, \mathtt{tmph}\right)
+\end{equation*}
 
 When referring to the entities with property \texttt{prop} of an event, we are referring to the \texttt{objects} of the triples of the event that have the predicate \texttt{prop}.
 We may use the phrase ``the \texttt{prop}s of an event'' as a shorthand for ``the entities with property \texttt{prop} of an event''.
@@ -284,35 +289,35 @@ In this Thesis, we use the term {\em function defined by the relation} instead o
 a different meaning.
 
 \begin{definition}[Function defined by the relation $r$]
-	The function defined by the binary relation $r$ is the set $\{(x, image_x) : x $ is a member of the domain of $r$ and $image_x$ is the image of $x$ under $r\}$
+	The function defined by the binary relation $r$ is the set $\{(\mathtt{x}, \mathtt{image_x}) : \mathtt{x}$ is a member of the domain of $\mathtt{r} \ \wedge \  \mathtt{image_x}$ is the image of $\mathtt{x}$ under $\mathtt{r} \}$
 \end{definition}
 
+%TODO: Move Haskell impl details to chapter 5
 The function defined by a relation is referred to throughout this thesis by the shorthand {\em FDBR}.  It is represented with an association list in the Haskell code,
-as {\em images} were represented in the original semantics.  The function defined by the relation $r$ is denoted with the syntax $FDBR(r)$.
-We call an element $(x, image_x)$ in an FDBR an {\em FDBR-pair}.
+as {\em images} were represented in the original semantics.  The function defined by the relation $r$ is denoted with the syntax $\mathtt{FDBR}(\mathtt{r})$.
+We call an element $\mathtt{(x, image_x)}$ of an FDBR an {\em FDBR-pair}.
 
-We also define the {\em ENTEVPROP} relation.  Informally, {\em ENTEVPROP}$(evs, prop)$ is the entity-event relation in which the \texttt{prop}s of the events \texttt{evs} are related to the events that they belong to.
+We also define the \texttt{ENTEVPROP} relation.  Informally, $\mathtt{ENTEVPROP}(\mathtt{evs}, \mathtt{prop})$ is the entity-event relation in which the \texttt{prop}s of the events \texttt{evs} are related to the events that they belong to.
 
-\begin{definition}[ENTEVPROP(evs, prop) relation]
-	\[\text{ENTEVPROP(evs, prop) = }\{\text{(ent, ev) : ent } \in \text{ getts(ev, prop, ANY) \& ev} \in \text{evs} \}\]
+\begin{definition}[\texttt{ENTEVPROP(evs, prop)} relation]
+	\[\mathtt{ENTEVPROP}(\mathtt{evs}, \mathtt{prop}) = \{(\mathtt{ent}, \mathtt{ev}) : \mathtt{ent} \in \mathtt{getts}(\mathtt{ev}, \mathtt{prop}, \mathtt{ANY}) \ \wedge \ \mathtt{ev} \in \mathtt{evs} \}\]
 \end{definition}
 
 The {\em ENTEVPROP\_TYPE} relation is similar, accepting an event type as an argument instead of a set of events.
 {\em ENTEVPROP\_TYPE}$(ev\_type, prop)$ obtains the set of events where the \texttt{type}s of those events are the desired event type.
 
 
-\begin{definition}[ENTEVPROP\_TYPE(ev\_type, prop) relation]
-	\begin{multline}
-	\text{ENTEVPROP\_TYPE(ev\_type, prop) = ENTEVPROP(evs, prop)} \\ \text{where evs = getts(ANY, type, ev\_type)}
-	\end{multline}
+\begin{definition}[\texttt{ENTEVPROP\_TYPE(ev\_type, prop)} relation]
+	\begin{multline*}
+	\mathtt{ENTEVPROP\_TYPE}(\mathtt{ev\_type}, \mathtt{prop}) = \mathtt{ENTEVPROP}(\mathtt{evs}, \mathtt{prop}) \\ \mathtt{where} \ \mathtt{evs} = \mathtt{getts}(\mathtt{ANY}, \mathtt{type}, \mathtt{ev\_type})
+	\end{multline*}
 \end{definition}
 
 In the original semantics, the \texttt{make\_trans} function could be defined as:
 
-\begin{multline}
-  \text{make\_trans event\_type tmph} = \\ \text{tmph} (\text{map fst
-  FDBR}(\text{ENTEVPROP\_TYPE}(\text{event\_type}, \text{``subject''})))
-\end{multline}
+\begin{multline*}
+  \mathtt{make\_trans} \ \mathtt{event\_type}\ \mathtt{tmph} = \\ \mathtt{tmph} (\mathtt{map} \ \mathtt{fst}\ \mathtt{FDBR}(\mathtt{ENTEVPROP\_TYPE}(\mathtt{event\_type}, \text{``\texttt{subject}''})))
+\end{multline*}
 
 These relations form the basis on which our new semantics are defined.
 
@@ -322,13 +327,13 @@ In the original semantics there were two problems with how prepositional phrases
 
 First, a query such as ``the sun is orbited by every planet'' would have returned \texttt{False} due to the way \texttt{filter\_ev} was implemented.
 
-This was because in $FDBR($\texttt{orbit\_}$)$, where \texttt{orbit\_ = ENTEVPROP\_TYPE(orbit\_ev, object)}, the FDBR-pair for \texttt{sun} would have the form: \texttt{(sun, [event1000, event1001, ..., event1008])}, where each event would denote a separate \texttt{orbit} event corresponding to each planet that orbits the sun.  \texttt{filter\_ev} applied each preposition's termphrase to each event separately, meaning that no information provided by other events could be used by the predicate.  Hence \texttt{every planet} would have returned \texttt{False} for each individual event's associated \texttt{object}, and \texttt{filter\_ev} would have discarded the pair for \texttt{sun} in $FDBR($\texttt{orbit\_}$)$.  If there were one singular orbit event in which all of the planets were listed as orbiting the sun, then this query would have worked.  However, if there are properties unique to the planets being described in each orbit event, then it is not possible to describe all orbits in one singular event.  Therefore there was a need for a method to filter events in FDBRs that allowed termphrases to view the objects of {\em all} events in an FBDR-pair rather than just one.  
+This was because in $\mathtt{FDBR}(\mathtt{orbit\_})$, where $\mathtt{orbit\_}\ =\ \mathtt{ENTEVPROP\_TYPE}(\mathtt{orbit\_ev},\allowbreak \text{``\texttt{object}''})$, the FDBR-pair for \texttt{sun} would have the form: $(\mathtt{sun}, [\mathtt{event1000}, \mathtt{event1001} , \allowbreak \dots , \mathtt{event1008} ])$, where each event would denote a separate \texttt{orbit} event corresponding to each planet that orbits the sun.  \texttt{filter\_ev} applied each preposition's termphrase to each event separately, meaning that no information provided by other events could be used by the predicate.  Hence \texttt{every planet} would have returned \texttt{False} for each individual event's associated \texttt{object}, and \texttt{filter\_ev} would have discarded the pair for \texttt{sun} in $FDBR($\texttt{orbit\_}$)$.  If there were one singular orbit event in which all of the planets were listed as orbiting the sun, then this query would have worked.  However, if there are properties unique to the planets being described in each orbit event, then it is not possible to describe all orbits in one singular event.  Therefore there was a need for a method to filter events in FDBRs that allowed termphrases to view the objects of {\em all} events in an FBDR-pair rather than just one.  
 
 Second, an implicit ``and'' was placed in between each preposition, transforming sentences such as ``who discovered something with two telescopes in 1914'' into ``who discovered something with two telescopes and in 1914''.
 
 Although the above sentence is ambiguous in that it could be asking whether someone used two telescopes to discover one particular object, or whether
 someone discovered potentially different objects with two telescopes, the asker most certainly did not intend for an implicit ``and'' to be inserted in between the prepositions.
-The reason this happens is because in the original \texttt{filter\_ev} function, the event lists were not actually ``honed down'' before being passed to subsequent predicates in the preposition chain.
+The reason this happens is because in the original \texttt{filter\_ev} function, the sets of events were not actually ``honed down'' before being passed to subsequent predicates in the preposition chain.
 
 In our semantics we define a new \texttt{filter\_ev} function that overcomes
 both these problems.  Its definition is deferred until the {\em Transitive Verbs}
@@ -344,12 +349,12 @@ accomplish this task.
 The \texttt{getts} functions are identical to how they were in \cite{frost2013event}, however
 all other triplestore utility functions have been modified from their original definitions.
 In particular, the functions \texttt{get\_subjs\_for\_event}, \texttt{get\_subjs\_for\_events},
-\texttt{get\_subjs\_for\_event\_type}, and \texttt{get\_members} return FDBRs rather than entity lists.  They are defined as follows:
+\texttt{get\_subjs\_for\_event\_type}, and \texttt{get\_members} return an FDBR rather than a set of entities.  They are defined as follows:
 
 \begin{multline*}
-  \text{get\_subjs\_for\_events evs} = \text{FDBR}(\text{ENTEVPROP}(\text{evs}, \text{``subject''})) \\
-  \text{get\_subjs\_for\_event ev} = \text{get\_subjs\_for\_events}\left\{\text{ev}\right\} \\
-  \text{get\_subjs\_for\_event\_type ev\_type} = \text{FDBR}(\text{ENTEVPROP\_TYPE}(\text{ev\_type}, \text{``subject''}))
+  \mathtt{get\_subjs\_for\_events}\enspace \mathtt{evs} = \mathtt{FDBR}(\mathtt{ENTEVPROP}(\mathtt{evs}, \text{``\texttt{subject}''})) \\
+  \mathtt{get\_subjs\_for\_event}\enspace \mathtt{ev} = \mathtt{get\_subjs\_for\_events}\left\{\mathtt{ev}\right\} \\
+  \mathtt{get\_subjs\_for\_event\_type}\enspace \mathtt{ev\_type} =\\ \mathtt{FDBR}(\mathtt{ENTEVPROP\_TYPE}(\mathtt{ev\_type}, \text{``\texttt{subject}''}))
 \end{multline*}
 
 The definition of \texttt{get\_members} is identical to the original except that it uses the new \texttt{get\_subjs\_for\_events} function.
@@ -380,9 +385,9 @@ considered to be \texttt{True}.  A returned FDBR that is empty is considered to 
 Specifically, all predicates are now defined in terms of a function \texttt{intersect\_fdbr}.
 
 \begin{definition}[intersect\_fdbr function]
-	\begin{multline}
-	\text{intersect\_fdbr fdbr1 fdbr2 = } \\ \{\text{(ent2, evs2) : (ent1, evs1) }\in \text{fdbr1 \& (ent2, evs2) } \in \text{fdbr2 \& ent1 = ent2}\}
-	\end{multline}
+	\begin{multline*}
+	\mathtt{intersect\_fdbr}\enspace \mathtt{fdbr1}\enspace \mathtt{fdbr2} = \\ \{\mathtt{(ent2, evs2) : (ent1, evs1) }\in \mathtt{fdbr1 \ \wedge\ (ent2, evs2) } \in \mathtt{fdbr2\ \wedge\ ent1 = ent2}\}
+	\end{multline*}
 \end{definition}
 
 Briefly, this function performs the intersection of two FDBRs using the entity name in each FDBR-pair.  The events from the second FDBR are preserved
@@ -390,33 +395,34 @@ in the intersection, and the events from the first FDBR are discarded.  The reas
 is the second argument to \texttt{intsersect\_fdbr}, and therefore those events should be preserved.  Furthermore, the events of the first argument
 don't contribute anything to the result--often times, these are membership events, for instance in a termphrase like \texttt{a moon}.
 
-With this in mind, determiners have been defined as follows:
-
+With this in mind, determiners have been defined as follows:\\
+{\setlength{\mathindent}{0cm}
 \begin{gather*}
-\text{a nph vbph} = \text{intersect\_fdbr nph vbph} \\
-\text{any nph vbph} = \text{a nph vbph}   \\
-\text{the nph vbph} = \text{a nph vbph}  \\
-\text{some nph vbph} = \text{a nph vbph}   \\
-\text{an nph vbph} = \text{a nph vbph}   \\
-\text{every nph vbph} =
+\mathtt{a} = \mathtt{intersect\_fdbr} \\
+\mathtt{any} = \mathtt{a} \\
+\mathtt{the} = \mathtt{a}  \\
+\mathtt{some} = \mathtt{a}   \\
+\mathtt{an} = \mathtt{a}   \\
+\mathtt{every} =
 \begin{cases}
-	\text{intersect\_fdbr nph vbph}, \text{ if nph\_entities } \subseteq \text{ vbph\_entities} \\
-	\emptyset, \text{otherwise}
+	\mathtt{intersect\_fdbr}\enspace \mathtt{nph}\enspace \mathtt{vbph},\ \mathtt{if}\enspace \mathtt{nph\_entities}\ \subseteq\ \mathtt{vbph\_entities} \\
+	\mathtt{\emptyset},\ \mathtt{otherwise}
 \end{cases} \\
-\text{\indent where} \\
-\text{\indent\indent nph\_entities = map fst nph} \\
-\text{\indent\indent vbph\_entities = map fst vbph} \\
-\text{one nph vbph} =
+\mathtt{\indent where} \\
+\mathtt{\indent\indent nph\_entities} = \mathtt{map}\enspace \mathtt{fst}\enspace \mathtt{nph} \\
+\mathtt{\indent\indent vbph\_entities} = \mathtt{map}\enspace \mathtt{fst}\enspace \mathtt{vbph} \\
+\mathtt{one}\enspace \mathtt{nph}\enspace \mathtt{vbph} =
 \begin{cases}
-	\text{intersect\_fdbr nph vbph}, \text{ if } \left\vert\text{intersect\_fdbr nph vbph}\right\vert = 1 \\
-	\emptyset, \text{otherwise}
+	\mathtt{intersect\_fdbr}\enspace \mathtt{nph}\enspace \mathtt{vbph},\ \mathtt{if}\ \left\vert\mathtt{intersect\_fdbr}\enspace \mathtt{nph}\enspace \mathtt{vbph}\right\vert = 1 \\
+	\emptyset,\ \mathtt{otherwise}
 \end{cases} \\
-\text{two nph vbph} =
+\mathtt{two}\enspace \mathtt{nph}\enspace \mathtt{vbph} =
 \begin{cases}
-\text{intersect\_fdbr nph vbph}, \text{ if }\left\vert\text{intersect\_fdbr nph vbph}\right\vert = 2 \\
-\emptyset, \text{otherwise}
-\end{cases}
+\mathtt{intersect\_fdbr}\enspace \mathtt{nph}\enspace \mathtt{vbph},\ \mathtt{if}\ \left\vert\mathtt{intersect\_fdbr}\enspace \mathtt{nph}\enspace \mathtt{vbph}\right\vert = 2 \\
+\emptyset,\ \mathtt{otherwise}
+\end{cases} \\
 \end{gather*}
+}
 
 \texttt{fst} is a function that returns the first component from in a pair.  The \texttt{map} function computes the image of a function $f$ over the elements of a set $s$.  
 Therefore the function \texttt{map fst} obtains all of the entities in an FDBR.
@@ -432,36 +438,40 @@ construct an FDBR out of an event type.
 In our semantics, we distinguish between the active and passive voices of transitive verbs.  For example, in the sentence ``Hall discovered a moon'', the active voice is being used.
 In the sentence ``A moon was discovered by Hall'', the passive voice is being
 used.  This voice of a verb changes what the verb is acting on in  a sentence.  To express this in the semantics,
-we provide two functions, \texttt{make\_trans\_active'} and \texttt{make\_trans\_passive'} to construct an FDBR denoting the active and passive voice of a transitive verb, respectfully.
-
+we provide two functions, \texttt{make\_trans\_active'} and \texttt{make\_trans\_passive'} to construct an FDBR denoting the active and passive voice of a transitive verb, respectfully.\\
+{\setlength{\mathindent}{0cm}
 \begin{gather*}
-\text{make\_trans\_active' ev\_type tmph preps} = \\
-	\text{\indent filter (prepFilter (\{(\{``object''\}, tmph)\}} \cup \text{preps) (\text{fdbr\_active})} \\
-\text{make\_trans\_passive' ev\_type preps} = \text{filter (prepFilter preps) (\text{fdbr\_passive})} \\
-\text{\indent where} \\
-\text{\indent\indent prepFilter} ((\_, evs)) = \text{filter\_ev preps evs} \\
-\text{\indent\indent fdbr\_active} = \text{FDBR}(\text{ENTEVPROP\_TYPE}(\text{ev\_type}, \text{``subject''})) \\
-\text{\indent\indent fdbr\_passive} = \text{FDBR}(\text{ENTEVPROP\_TYPE}(\text{ev\_type}, \text{``object''}))
+\mathtt{make\_trans\_active'}\enspace \mathtt{ev\_type}\enspace \mathtt{tmph}\enspace \mathtt{preps} = \\
+	\mathtt{\indent filter}\enspace \bigg(\mathtt{prepFilter}\enspace \Big(\{(\{\text{``\texttt{object}''}\}, \mathtt{tmph})\} \cup \mathtt{preps}\Big)\bigg)\enspace \bigg(\mathtt{fdbr\_active}\bigg) \\
+\mathtt{make\_trans\_passive'}\enspace \mathtt{ev\_type}\enspace \mathtt{preps} = \\
+	\mathtt{\indent filter}\enspace (\mathtt{prepFilter}\enspace \mathtt{preps})\enspace (\mathtt{fdbr\_passive}) \\
+\mathtt{ where} \\
+\mathtt{\indent prepFilter} ((\_, \mathtt{evs})) = \mathtt{filter\_ev}\enspace \mathtt{preps}\enspace \mathtt{evs} \\
+\mathtt{\indent fdbr\_active} = \mathtt{FDBR}(\mathtt{ENTEVPROP\_TYPE}(\mathtt{ev\_type}, \text{``\texttt{subject}''})) \\
+\mathtt{\indent fdbr\_passive} = \mathtt{FDBR}(\mathtt{ENTEVPROP\_TYPE}(\mathtt{ev\_type}, \text{``\texttt{object}''}))
 \end{gather*}
+}
 
 The \texttt{filter} function takes a function that returns a boolean value and returns a new set containing only the elements of the original set for which that function returned \texttt{True}.
 \texttt{filter\_ev} is used to filter FDBRs such that only FDBR-pairs that match
-the prepositions are kept. It is defined as follows:
+the prepositions are kept. It is defined as follows:\\
 
+{\setlength{\mathindent}{0cm}
 \begin{gather*}
-\text{filter\_ev preps evs} =
+\mathtt{filter\_ev}\enspace \mathtt{preps}\enspace \mathtt{evs} =
 \begin{cases}
-\texttt{False}, \text{ if filtered = } \emptyset \\
-\texttt{True}, \text{ otherwise}
+\mathtt{False},\ \mathtt{if}\enspace \mathtt{filtered} = \mathtt{\emptyset} \\
+\mathtt{True},\ \mathtt{otherwise}
 \end{cases} \\
-\text{\indent where} \\
-\text{\indent\indent filtered} = \left\{ ev : \left( \forall \text{propFDBR} \in
-\text{propertyFDBRs} \right) ev \in \text{(snd propFDBR)} \right\}  \\
+\mathtt{\indent where} \\
+\mathtt{\indent\indent filtered} = \left\{ \mathtt{ev} : \left( \forall \mathtt{propFDBR} \in
+\mathtt{propertyFDBRs} \right)\ \mathtt{ev} \in (\mathtt{snd}\enspace \mathtt{propFDBR}) \right\}  \\
 \begin{split}
-\text{\indent\indent propertyFDBRs} = \left\{ \text{pred}\left(\bigcup_{pName \in propNames} FDBR(ENTEVPROP(evs, pName)) \right) : \right. \\
-\left. (\text{propNames}, \text{pred}) \in \text{preps} \vphantom{\bigcup_{pName \in propNames}} \right\}
+\mathtt{\indent\indent propertyFDBRs} = \left\{ \mathtt{pred}\left(\bigcup_{\mathtt{pName} \in \mathtt{propNames}} \mathtt{FDBR}(\mathtt{ENTEVPROP}(\mathtt{evs}, \mathtt{pName})) \right) : \right. \\
+\left. (\mathtt{propNames}, \mathtt{pred}) \in \mathtt{preps} \vphantom{\bigcup_{\mathtt{pName} \in \mathtt{propNames}}} \right\}
 \end{split}
 \end{gather*}
+}
 
 Informally, \texttt{filter\_ev} computes an FDBR of the relevant properties for
 each preposition from all events, and evaluates the termphrases of each
@@ -476,8 +486,8 @@ original semantics.
 We also provide two more functions, \texttt{make\_trans\_active} and \texttt{make\_trans\_passive}, transitive verbs without prepositional phrases:
 
 \begin{gather*}
-\text{make\_trans\_active ev\_type tmph} = \text{make\_trans\_active' ev\_type tmph }\emptyset\\
-\text{make\_trans\_passive ev\_type} = \text{make\_trans\_passive' ev\_type }\emptyset
+\mathtt{make\_trans\_active}\enspace \mathtt{ev\_type}\enspace \mathtt{tmph} = \mathtt{make\_trans\_active'}\enspace \mathtt{ev\_type}\enspace \mathtt{tmph}\enspace \mathtt{\emptyset}\\
+\mathtt{make\_trans\_passive}\enspace \mathtt{ev\_type} = \mathtt{make\_trans\_passive'}\enspace \mathtt{ev\_type}\enspace \emptyset
 \end{gather*}
 
 The mechanism for filtering prepositional phrases is powerful enough that no extra work need be done for handling the termphrase associated with a transitive verb, for example
@@ -509,22 +519,21 @@ of sets of entities.  In our semantics, conjoiners for common nouns are defined 
 of FDBRs.
 
 \begin{gather*}
-    \text{nounand} = \text{intersect\_fdbr} \\
-    \text{nounor nph1 nph2} = \text{nph1} \cup \text{nph2} \\
-    \text{that} = \text{nounand}
+    \mathtt{nounand} = \mathtt{intersect\_fdbr} \\
+    \mathtt{nounor}\enspace \mathtt{nph1}\enspace \mathtt{nph2} = \mathtt{nph1} \cup \mathtt{nph2} \\
+    \mathtt{that} = \mathtt{nounand}
 \end{gather*}
 
 Similarly, the conjoiners for termphrases are also defined in terms of FDBRs:
 
 \begin{gather*}
-  \text{termand tmph1 tmph2 fdbr} =
+  \mathtt{termand}\enspace \mathtt{tmph1}\enspace \mathtt{tmph2}\enspace \mathtt{fdbr} = \\ \indent\indent
   \begin{cases}
-    \text{termor tmph1 tmph2 fdbr},\text{ if } \left(\text{tmph1 fdbr} \cup
-    \text{tmph2 fdbr}\right) \neq \emptyset \\
-    \emptyset,\text{ otherwise }
+    \mathtt{termor}\enspace \mathtt{tmph1}\enspace \mathtt{tmph2}\enspace \mathtt{fdbr},\ \mathtt{if} \enspace \left(\mathtt{tmph1}\enspace \mathtt{fdbr} \cup
+    \mathtt{tmph2}\enspace \mathtt{fdbr}\right) \neq \mathtt{\emptyset} \\
+    \emptyset,\ \mathtt{otherwise}
   \end{cases} \\
-  \text{termor tmph1 tmph2 fdbr} = \text{nounor } (\text{tmph1 fdbr}) \text{ }
-  (\text{tmph2 fdbr})
+  \mathtt{termor}\enspace \mathtt{tmph1} \enspace \mathtt{tmph2} \enspace \mathtt{fdbr} = \mathtt{nounor}\enspace (\mathtt{tmph1}\enspace \mathtt{fdbr}) \enspace (\mathtt{tmph2} \enspace \mathtt{fdbr})
 \end{gather*}
 
 \subsection{The use of `by' as a preposition}
