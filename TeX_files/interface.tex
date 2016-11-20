@@ -145,4 +145,255 @@ The module exports the list of triples as the variable \texttt{localData}:
 	... ]
 \end{code}
 
+\section{Improvements over Original Haskell Implementations}
+
+\subsection{Type safety}
+
+The original semantics were implemented as {\em pure functions} in Haskell, which was acceptable for the in-program triplestores they were used on.
+
+In \cite{agboola2015extensible}, the \texttt{getts\_*} functions were modified to retrieve triples from external SPARQL endpoints, enabling the original
+semantics to work with SPARQL triplestores.  For SPARQL triplestores, however, the \texttt{getts\_*} functions as defined in \cite{agboola2015extensible} are not actually guaranteed to be referentially transparent. In particular, SPARQL triplestores are able to change over time with triples being potentially added, removed, or modified.
+For example, consider the query ``which people discovered a moon that was discovered by a person''.
+``people'' and ``person'' are synonyms in our semantics and therefore the same query would be performed twice.  If the SPARQL triplestore changed in between these evaluations,
+then these queries could return different results, violating referential transparency.
+
+The function \texttt{unsafeDupablePerformIO} was used in \cite{agboola2015extensible} to force Haskell to treat the \texttt{getts\_*} functions as pure functions
+in order to maintain compatibility with the original semantics. The problem with \texttt{unsafeDupablePerformIO} is that it subverts the type system of Haskell.  Code that is built using it is therefore not on
+solid theoretical ground within the constructs of the language, and surprising effects can occur as a result.  The use of \texttt{unsafeDupablePerformIO}, while
+legitimate in some cases, is heavily discouraged within the Haskell community \cite{noUnsafePerformIO}.
+
+In this Thesis, we chose a different approach to handling external triplestore queries by representing the triplestore functions and semantics in terms of {\em monadic functions}.
+Briefly, monads in the Haskell programming language are types that are instances of the {\em Monad} typeclass that obey the
+{\em monad laws} \cite{monadlaws}.  In Haskell, functions that are not {\em referentially transparent} are represented using computations in the monad \texttt{IO}, commonly referred to as the {\em IO monad}.  By expressing the semantics and triplestore functions monadically, we stay safely within the confines of Haskell's type system, avoiding
+the need to use \texttt{unsafeDupablePerformIO} in order to perform queries to external triplestores as a result.  Another key benefit of this approach is that it preserves the compositional nature of the original semantics.
+
+The semantics are defined in the IO monad currently, however if other monads were desired, only minimal changes would be required in order to accommodate
+other instances of the Monad typeclass.  In the chapter {\em Future Work}, one potential application of this functionality is discussed.
+
+\subsection{An generic interface to triplestores using a typeclass}
+
+Typeclasses are used in Haskell to enable {\em ad-hoc polymorphism} in the definition of functions in the language.  This can be used
+to provide generic interfaces to different types, without callers needing to be aware of the differences between those types.
+We used this feature of the language to provide a generic interface for triplestores in the form of typeclass \texttt{TripleStore}.
+
+\texttt{TripleStore m} subsumes the functionality that the \texttt{getts\_*} functions provided in the original semantics.
+
+\begin{code}
+class TripleStore m where
+	getts_1 :: m -> (Event, String, String) -> IO [String]
+	getts_2 :: m -> (Event, String, String) -> IO [String]
+	getts_3 :: m -> (Event, String, String) -> IO [String]
+
+	getts_fdbr :: m -> String -> String -> IO FDBR
+	getts_fdbr ev_data ev_type entity_type = do
+		evs <- getts_1 ev_data ("?", "type", ev_type)
+		getts_preimage ev_data entity_type evs
+		
+	getts_preimage :: m -> String -> [Event] -> IO FDBR
+	getts_preimage ev_data entity_type evs = do
+		pairs <- liftM concat $ mapM (\ev -> do
+		ents <- getts_3 ev_data (ev, entity_type,"?")
+		return $ zip ents (repeat ev)) evs
+		return $ collect pairs
+
+	getts_members :: m -> String -> IO FDBR
+	getts_members ev_data set = do
+		evs_with_set_as_object <- getts_1 ev_data ("?", "object", set)
+		evs_with_type_membership <- getts_1 ev_data ("?", "type", "membership")
+		getts_preimage ev_data "subject" $ intersect evs_with_set_as_object evs_with_type_membership
+\end{code}
+
+First and foremost, the \texttt{getts\_*} functions defined in \texttt{TripleStore m} now properly return {\em IO actions}.
+Three new functions are introduced, \texttt{getts\_preimage}, \texttt{getts\_fdbr}, and \texttt{getts\_members}.
+\texttt{getts\_fdbr} serves the same purpose that \texttt{make\_image} had in the original semantics.
+
+TODO: \texttt{getts\_members} behaves like \texttt{get\_members} in the original semantics, except...
+
+TODO: \texttt{getts\_preimage} behaves like \texttt{getts\_fdbr}...
+
+Only the three \texttt{getts\_*} functions must be defined for the new type of triplestore at minimum, however efficient implementations
+of all functions in the typeclass may be provided if desired.  We provide a backend using a SPARQL endpoint as a triplestore using the
+\texttt{SPARQLBackend} type and a backend for in-program triplestores using the \texttt{[Triple]} type as instances of \texttt{TripleStore}.
+
+
+
+
+\subsection{Efficiency}
+
+The \texttt{collect} function as defined in \cite{agboola2015extensible} used a key-value store from the \texttt{Data.Map.Lazy} module in Haskell to efficiently construct Images from relations represented as association lists.  Because all key-value pairs of the \texttt{Map} will eventually be traversed, in this Thesis the \texttt{Data.Map.Strict} module was used instead.  The asymptotic time complexity of both methods are identical, however the \texttt{Strict} version uses less memory and is slightly faster as it does not attempt to store partially evaluated areas of the Map as {\em thunks}.
+
+%\begin{theorem}
+%	\texttt{collect} is optimal.
+%\end{theorem}
+
+%Proof: Suppose a function \texttt{collect'} exists that converts a relation into an Image in faster than O($n$ lg $n$) time.
+
+%Let $unsorted$ be an unsorted list whose list elements are an instance of the \texttt{Comparable} typeclass.
+%That is, the list elements can be compared with one another using the comparison operators.
+
+%Define the function \texttt{sort'} as follows:
+
+%\begin{code}
+%	sort' = uncollect . collect'
+%	where
+%	uncollect = map (\(ent, evs) -> map (\ev -> (ent, ev)) evs)
+%\end{code}
+
+\subsubsection{Efficiently constructing FDBRs from grouped association lists}
+In addition, a new function, \texttt{condense}, has been created to efficiently construct $FDBR(r)$ such that $r$ is represented by an association list that is grouped according to the first element in each pair.
+
+\begin{code}
+	condense = map (\list -> (fst $ head list, map snd list)) . List.groupBy cmp
+	where
+	cmp x y = (fst x) == (fst y)
+\end{code}
+
+\begin{theorem}
+	\texttt{condense} has $O(n)$ worst-case upper-bound asymptotic time complexity, with comparison on the first element in the association list pairs being the key operation.
+\end{theorem}
+
+Proof:
+
+\texttt{cmp} is the function that compares two association list pairs by their first element.  
+
+%\begin{proposition}
+%	\texttt{cmp} has $O(1)$ worst-case upper-bound asymptotic time complexity, with comparison being the key operation.
+%\end{proposition}
+
+%Proof:
+
+%In the Haskell standard library source code, \texttt{fst} is defined as follows \cite{hstdlib}:
+
+%\begin{code}
+%	fst (x,_) = x
+%\end{code}
+
+%This function has trivially $\theta(1)$ worst-case tight bound time complexity for any key operation.
+
+%Since Haskell is a pass-by-reference language with lazy evaluation, this function will return in a constant amount of time regardless of the size of \texttt{x},
+%as \texttt{x} will not be copied on return of the function.  Therefore \texttt{fst} has $\theta(1)$ worst-case tight bound time complexity.
+
+%The operator \texttt{(==)} for the \texttt{String} type (triples are represented as 3-tuples of \texttt{Strings} in our code) has a worst-case upper bound time %complexity of O$(n)$, because in the worst case, both \texttt{Strings} being compared have length $n$ and are equal, forcing each character in both strings to be %evaluated and compared.
+
+%Only one comparison on the first elements of the pairs \texttt{x} and \texttt{y} is performed for \texttt{cmp x y}.
+%Therefore, the worst-case upper-bound asymptotic time complexity of \texttt{cmp} is O$(1)$.
+
+%Since the $O(n)$ term dominates for large $n$, \texttt{cmp} therefore has a worst-case tight-bound asymptotic time complexity of $O(n)$. \qedsymbol
+
+\begin{proposition}
+	The function \texttt{List.groupBy cmp} has O$(n)$ worst-case upper-bound asymptotic time complexity, with comparisons on the elements of the input list using \texttt{cmp} being the key operation.
+\end{proposition}
+
+Proof:
+
+In the Haskell standard library source code, \texttt{Data.List.groupBy} is defined as follows: \cite{hstdlib}:
+
+\begin{code}
+	groupBy _  []           =  []
+	groupBy eq (x:xs)       =  (x:ys) : groupBy eq zs
+	where (ys,zs) = span (eq x) xs
+\end{code}
+
+\texttt{span} is defined as follows \cite{hstdlib}:
+
+\begin{code}
+	span _ xs@[]            =  (xs, xs)
+	span p xs@(x:xs')
+	| p x          =  let (ys,zs) = span p xs' in (x:ys,zs)
+	| otherwise    =  ([],xs)
+\end{code}
+
+%\begin{subproposition}
+%	\texttt{span} has O$(n)$ worst case tight bound asymptotic time complexity, with evaluations of predicate \texttt{p} being the key operation.
+%\end{subproposition}
+
+%Proof:
+
+%In the worst case, \texttt{p} will evaluate to \texttt{True} for all elements in the input list \texttt{xs}, forcing
+%the evaluation of \texttt{span} on all suffixes of \texttt{xs}.  Since there are $n + 1$ suffixes of \texttt{xs}, 
+%and \texttt{p} is evaluated for each suffix, it follows that $n + 1$ evaluations of \texttt{p} are performed.
+%Therefore, \texttt{span} has a worst-case lower-bound asymptotic time complexity of O$(n + 1) = $O$(n)$. \qedsymbol
+
+%--
+
+Here, \text{eq = cmp} in \texttt{groupBy}, with \texttt{eq x = cmp x = p} being the predicate function used in \texttt{span}. %for elements of the list \text{(x:xs)}.
+
+%The $0$th contiguous group of elements in a list \texttt{qs} according to a predicate \texttt{pred} is the longest prefix \texttt{pre} of \texttt{qs} where
+%\texttt{pred} is \texttt{True} for all elements in \texttt{pre}.
+
+%The $i$th contiguous group of elements in a list \texttt{qs} according to a predicate \texttt{pred} is the $0$th contiguous group of elements of
+%the list obtained by removing all previous contiguous groups of elements from \texttt{qs}. 
+
+%The $i$th contiguous group of elements in a list \texttt{qs} according to a predicate \texttt{pred} is the longest prefix \texttt{pre} of the list \texttt{rs}
+%where \texttt{rs} is the list obtained by removing all previous contiguous groups of elements from \texttt{qs}, and \texttt{pred} is \texttt{True} for all elements
+%of \texttt{pre}.
+
+%A contiguous group of elements in a list \texttt{qs} under a predicate \texttt{pred} is a contiguous sublist of \texttt{qs} such that \texttt{pred}
+%is \texttt{True} for all elements in the sublist.
+
+%Let $m$ be the number of contiguous groups of elements in the list \texttt{(x:xs)}.
+
+%Let $C$ be the list containing the number of elements in each contiguous group of elements in the list \texttt{(x:xs)}.  \texttt{C[i]} denotes the \texttt{i}th element in \texttt{C}.
+
+Let $n$ denote the number of elements in \texttt{(x:xs)}.
+
+The function \texttt{span} returns a partition \texttt{(ys, zs)} of the input list \texttt{xs}, where \texttt{ys} is the longest prefix of \texttt{xs} such that predicate \texttt{p} is \texttt{True} on all elements in the prefix, and \texttt{zs} are the remaining elements in \texttt{xs}.  It follows that \texttt{p} is evaluated at least $s$ times and at most $s + 1$ times, where $s$ is the length of \texttt{pre} (it will only be evaluated $s$ times if \texttt{pre = xs}).
+
+By recursing into the second list returned by \texttt{span}, no previous elements of \texttt{(x:xs)} are revisited, and no elements are skipped, so \texttt{groupBy} partitions the input list \texttt{(x:xs)} into $m$ lists.  Call this partition \texttt{part}.  Note that the sum of the lengths of all lists in \texttt{part} is $n$.
+
+For each list \texttt{i} in \texttt{part} except the last, \texttt{(length i - 1) + 1 = length i} comparisons will have been made (\texttt{groupBy} calls span on \texttt{xs}, not \texttt{x:xs}).  For the last list $last$ in \texttt{part}, \texttt{(length last - 1)} comparisons will have been made (the longest prefix is \texttt{xs} in this case).  Therefore, the total number of comparisons made can be expressed by:
+
+\begin{code}
+length part[0] + length part[1] + ... + length part[m - 2] + (length part[m - 1] - 1)
+= (length part[0] + length part[1] + ... + length part[m - 1]) - 1
+= n - 1
+\end{code}
+
+Hence, the worst-case upper-bound asymptotic time complexity of \texttt{List.groupBy cmp} is O$(n - 1)$ = O$(n)$, with comparisons using \texttt{cmp} being the key operation.
+\qedsymbol
+
+--
+
+The lambda provided to \texttt{map} performs no comparisons and therefore has a worst-case tight-bound time complexity of
+$\theta(1)$ with comparisons being the key operation.
+
+The same applies to the composition function $\circ$.
+
+--
+
+%Let \texttt{groupPair list = (fst \$ head list, map snd list)}.
+
+%\begin{proposition}
+%	groupPair has O$(n)$ time complexity
+%\end{proposition}
+
+%Proof:
+
+%\texttt{head list} has a worst-case tight-bound time complexity of $\theta(1)$.
+
+%\texttt{snd} has a worst-case tight-bound time complexity of $\theta(1)$.
+
+%\texttt{map} evaluates \texttt{snd} on every element of \texttt{list}, with
+%a worst-case tight-bound time complexity of $\theta(n)*\theta(1) = \theta(n)$ .
+%--
+
+%\texttt{groupPair} and the lambda used in \texttt{map} used above have an identical definition and therefore have
+%the same asymptotic time complexity.
+
+The \texttt{map} function is composed with the \texttt{List.groupBy cmp} function to produce a new function:
+\begin{code}
+	\x -> map (\list -> (fst $ head list, map snd list)) (List.groupBy cmp x)
+\end{code}
+
+The \texttt{map} function evaluates the lambda over every list in the partition returned by (List.groupBy cmp x).  Since
+neither the map, the lambda, nor the function composition perform any comparisons, they do not contribute to the number
+of key operations performed.
+
+Therefore the worst-case upper bound time complexity of \texttt{condense} is $O(1) + n*(O(1) + O(1)) + O(n) = O(n)$ with comparison on the first element in
+the association list pairs (\texttt{cmp}) being the key operation.
+$\blacksquare$
+
+%Since \texttt{condense} has a worst-case tight bound asymptotic time complexity of $\theta(n)$, it is optimal. \qedsymbol 
+
+
 \end{document}
