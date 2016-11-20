@@ -70,27 +70,27 @@ Triplestore access was implemented for in-program triplestores through the follo
 \texttt{ev\_data} is an in-program triplestore represented as a list of 3-tuples, each 3-tuple representing a triple:
 
 \begin{code}
-	getts_1 ("?",b,c)   = [x | (x,y,z) <- ev_data, y == b, z == c]
-	getts_2 (a,"?",c)   = [x | (x,y,z) <- ev_data, x == a, z == c]
-	getts_3 (a,b,"?")   = [z | (x,y,z) <- ev_data, x == a, y == b]
+  getts_1 ("?",b,c)   = [x | (x,y,z) <- ev_data, y == b, z == c]
+  getts_2 (a,"?",c)   = [x | (x,y,z) <- ev_data, x == a, z == c]
+  getts_3 (a,b,"?")   = [z | (x,y,z) <- ev_data, x == a, y == b]
 \end{code}
 
 Other useful utility triplestore functions were defined in terms of the \texttt{getts\_*}
 functions:
 
 \begin{code}
-	get_subj_for_ev ev       = getts_3 (ev,  "subject","?")
-	get_subjs_for_events evs = concatMap (get_subj_for_event evs)
+  get_subj_for_ev ev       = getts_3 (ev,  "subject","?")
+  get_subjs_for_events evs = concatMap (get_subj_for_event evs)
 	
-	get_members set = get_subjs_for_evs evs
-	where
-		evs = intersect evs_of_type_membership evs_with_set_as_object
-		evs_of_type_membership   = getts_1 ("?", "type", "membership")
-		evs_with_set_as_object   = getts_1 ("?",  "object",  set)
+  get_members set = get_subjs_for_evs evs
+  where
+    evs = intersect evs_of_type_membership evs_with_set_as_object
+    evs_of_type_membership   = getts_1 ("?", "type", "membership")
+    evs_with_set_as_object   = getts_1 ("?",  "object",  set)
 		
-	get_subjs_of_event_type et  = get_subjs_for_evs evs
-	where
-		evs = getts_1 ("?",  "type",  et)
+  get_subjs_of_event_type et  = get_subjs_for_evs evs
+  where
+    evs = getts_1 ("?",  "type",  et)
 \end{code}
 
 \subsection{Semantic functions}
@@ -143,12 +143,12 @@ Conjoiners for common nouns were implemented similarly:
 A {\em determiner phrase} was defined as being a determiner with a common noun applied to it \cite{frost2014denotational}.
 A {\em termphrase} was defined as being either a a proper noun or a determiner phrase \cite{frost2014denotational}.
 Conjoiners for termphrases were implemented differently:
-
+\vspace{1em}
 \begin{code}
-  termand tmph1 tmph2 setofents =  (tmph1 setofents) && (tmph2 setofevs)
-  termor  tmph1 tmph2 setofents =  (tmph1 setofents) || (tmph2 setofevs)
+ termand tmph1 tmph2 setofents = (tmph1 setofents) && (tmph2 setofevs)
+ termor  tmph1 tmph2 setofents = (tmph1 setofents) || (tmph2 setofevs)
 \end{code}
-
+\vspace{1em}
 This was necessary because common nouns were sets of entities, but
 proper nouns and determiner phrases were functions that acted on sets
 of entities.
@@ -178,8 +178,9 @@ lists}, which are lists of pairs\cite{frost2014denotational}.
 \texttt{collect} was implemented as follows:
 
 \begin{code}
-collect [] = []
-collect ((x,y):t) = (x, y:[e2 |(e1, e2)<-t,e1 == x]): collect [(e1, e2) | (e1, e2) <- t, e1 /= x ]
+	collect [] = []
+	collect ((x,y):t) = (x, y:[e2 |(e1, e2)<-t,e1 == x])
+		: collect [(e1, e2) | (e1, e2) <- t, e1 /= x ]
 \end{code}
 
 According to \cite{agboola2015extensible}, this implementation of \texttt{collect} has a worst-case asymptotic time complexity of
@@ -192,8 +193,9 @@ O$(n^2)$.
 The function \texttt{make\_image} creates an entity-event relation from a given event type and then converts it to an image using \texttt{collect}:
 
 \begin{code}
-  make_image et = collect [(subj, ev) | ev <- evs, subj <- getts_3 (ev, "subject","?") ]
-    where evs = getts_1 ("?", "type",  et)
+  make_image et = collect
+    [(subj, ev) | ev <- evs, subj <- getts_3 (ev, "subject","?") ]
+	  where evs = getts_1 ("?", "type",  et)
 \end{code}
 
 Transitive verbs were defined by {\em filtering} pairs in the image of the event
@@ -218,8 +220,7 @@ as a list of prepositions.
 An example chained prepositional phrase: \texttt{[("with\_implement", a
 telescope), ("year", year "1877")]}
 
-\texttt{join} could be modified to support prepositions as
-follows:
+\texttt{join} could be modified to support prepositions as follows:
 
 \begin{code}
   join’ tmph preps = [subj | (subj, evs) <- make_image "join_ev", 
@@ -231,8 +232,9 @@ where \texttt{filter\_ev} is defined as follows \cite{frost2014denotational}:
 
 \begin{code}
   filter_ev ev [] = True
-  filter_ev ev (prep:list_of_preps) = ((snd (prep)) (getts_3 (ev,fst (prep),"?")))
-                                      && filter_ev ev list_of_preps
+  filter_ev ev (prep:list_of_preps)
+    = ((snd (prep)) (getts_3 (ev,fst (prep),"?")))
+        && filter_ev ev list_of_preps
 \end{code}
 
 \subsection{Haskell implementation for SPARQL}
