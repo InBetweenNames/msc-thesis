@@ -4,147 +4,6 @@
 
 \chapter{The Query Program}
 
-\section{Structure}
-
-A graph representing the structure of the modules in the XSaiga package in relation to one another is presented in Figure \ref{fig:modulegraph}.  Briefly, there exists an arrow from module \texttt{A} to module \texttt{B} in the graph if and only if module \texttt{A} imports module \texttt{B} in the source code.
-
-\begin{figure}[h]
-	\centering
-	\frame{\includegraphics[width=\columnwidth]{modules2}}
-	\caption{Module graph of the XSaiga package}
-	\label{fig:modulegraph}
-\end{figure}
-
-\section{Getts module}
-	The actual triplestore functions that the semantics use are defined in this module.
-	
-	The \texttt{TripleStore} typeclass provides a general interface to triplestores.  This enables our semantics to be separated from
-	the underlying triplestore representation and query mechanisms.  New triplestores and query mechanisms could be supported by creating
-	a new instance of this typeclass.
-	
-	\begin{code}
-		class TripleStore m where
-		getts_1 :: m -> (Event, String, String) -> IO [String]
-		getts_2 :: m -> (Event, String, String) -> IO [String]
-		getts_3 :: m -> (Event, String, String) -> IO [String]
-
-		getts_image :: m -> String -> String -> IO Image
-		getts_fdbr_entevprop :: m -> String -> [Event] -> IO Image
-		getts_members :: m -> String -> IO Image
-	\end{code}
-
-	The \texttt{collect} is also defined in this module as:
-
-	\begin{code}
-		collect = Map.toList . Map.fromListWith (++) . map (\(x, y) -> (x, [y]))
-	\end{code}
-	
-	where Map is defined in the Data.Map.Strict module in the Haskell standard library.
-	
-
-	
-
-	
-	The \texttt{condense} function is also defined in this module:
-	\begin{code}
-		condense = map (\list -> (fst $ head list, map snd list)) . List.groupBy cmp
-		where
-		cmp x y = (fst x) == (fst y)
-	\end{code}
-	
-	If a binary relation $r$ is already sorted, then the \texttt{condense} function can be used instead to compute $FDBR(r)$ in O$(n)$ time.
-	
-	
-	An instance for in-program triplestores
-	is provided where a triplestore is a list of triples, as well as an instance that can communicate with remote SPARQL endpoints.  A new instance
-	of \texttt{TripleStore} must at minimum define the \texttt{getts\_*} functions, however implementors may define more efficient versions of
-	\texttt{getts\_image} \texttt{getts\_preimage} and \texttt{getts\_members} too if they wish.  The semantics are defined in terms of those three functions,
-	so any efficiency gains in them will directly impact the semantics.
-	
-	For reference, the in-program implementation of a triplestore is provided below:
-
-	\begin{code}	
-		instance TripleStore [Triple] where
-			getts_1 ev_data ("?", b, c) = return [x | (x,y,z) <- ev_data, b == y, c == z]
-			getts_2 ev_data (a, "?", c) = return [y | (x,y,z) <- ev_data, a == x, c == z]
-			getts_3 ev_data (a, b, "?") = return [z | (x,y,z) <- ev_data, a == x, b == y]
-	\end{code}
-
-	The SPARQL instance is the type \texttt{SPARQLBackend} and allows remote SPARQL endpoints to be treated as triplestores.
-	Optimized implementations of \texttt{getts\_image} \texttt{getts\_preimage} and \texttt{getts\_members} are provided in \texttt{TripleStore SPARQLBackend}.
-	In addition to this, a basic form of query fusion has been implemented in the form of memoization.  Briefly, queries and their results
-	are stored in {\em key-value stores}.  When a query is performed, it is first checked against the appropriate key-value store to see
-	if the same triplestore query has been made previously.  If it has, the previous result is returned.  Otherwise, the request is made to the remote
-	triplestore and its result is saved into the appropriate key-value store.  Multiple requests for the same information to the remote triplestore are therefore fused together.
-	
-	The key-value stores are held in top-level mutable variables.  Defining top-level mutable variables in Haskell is a subject that has been explored in depth, with many proposals in how to provide an idiomatic method in the language to express it.  According to the Haskell community, the accepted way of doing this for now is with the following pattern:
-	
-	\begin{itemize}
-		\item A top-level mutable variable \texttt{v} is defined using \texttt{v = unsafePerformIO \$ newIORef value} 
-		\item \texttt{v} must be annotated with the compiler pragma \texttt{\{\--\# NOINLINE v \#\--\}}
-	\end{itemize}
-	
-	
-\section{SolarmanTriplestore module}
-
-The semantic functions themselves are defined in the \texttt{SolarmanTriplestore} module.  These use the \texttt{getts\_image} \texttt{getts\_preimage} and \texttt{getts\_members} functions defined in the \texttt{Getts} module for triplestore access.
-
-\section{AGParser2 module}
-
-The parser is defined in the \texttt{AGParser2} module.
-
-\begin{figure}[h]
-	\centering
-	\frame{\includegraphics[width=\textwidth]{semanticsslide3}}
-	\caption{Parser operation: how an English sentence is mapped to semantic functions for evaluation \cite{graphmqslide}}
-\end{figure}
-
-The changes made to the original parser to accommodate monadic code are summarized below:
-
-\section{TypeAg2 module}
-
-The types of the semantic functions in \texttt{SolarmanTriplestore} are defined in this module.  
-
-\section{Main module}
-
-The \texttt{Main} module implements a CGI interface for evaluating Natural Language queries using the \texttt{SolarmanTriplestore} module.
-
-\section{Interactive module}
-
-The \texttt{Interactive} module is used by the Direct Query Interface to directly evaluate semantic functions.  It is intended to be used with SafeHaskell
-in order to restrict the evaluation of functions to a trusted subset, suitable for online interfaces.
-
-In \texttt{SolarmanTriplestore}, a dictionary is defined that maps words to semantic functions.  This module defines variables that are named
-after those words such that those functions can be directly accessed in a Haskell interpreter.  This enables, for instance,
-
-\begin{code}
-	hall $ discovered phobos
-\end{code}
-
-to be directly evaluated at a Haskell prompt.
-
-A Haskell file InteractiveGenerator.hs is used to generate this module using the dictionary in \texttt{SolarmanTriplestore}.
-
-\section{LocalData module}
-
-This module contains an in-program version of the triplestore located on our SPARQL endpoint.  As the \texttt{Getts} module provides
-a general interface to triplestores in the form of a typeclass, we are able to support both in-program triplestores as well as remote triplestores.
-The module exports the list of triples as the variable \texttt{localData}:
-
-\begin{code}
-	localData = [("event1000", "object", "sol"),
-	("event1000", "subject", "mercury"),
-	("event1000", "type", "orbit_ev"),
-	("event1001", "object", "sol"),
-	("event1001", "subject", "venus"),
-	("event1001", "type", "orbit_ev"),
-	("event1002", "object", "sol"),
-	("event1002", "subject", "earth"),
-	("event1002", "type", "orbit_ev"),
-	("event1003", "object", "sol"),
-	... ]
-\end{code}
-
 \section{Improvements over Original Haskell Implementations}
 
 \subsection{Type safety}
@@ -163,14 +22,13 @@ solid theoretical ground within the constructs of the language, and surprising e
 legitimate in some cases, is heavily discouraged within the Haskell community \cite{noUnsafePerformIO}.
 
 In this Thesis, we chose a different approach to handling external triplestore queries by representing the triplestore functions and semantics in terms of {\em monadic functions}.
-Briefly, monads in the Haskell programming language are types that are instances of the {\em Monad} typeclass that obey the
-{\em monad laws} \cite{monadlaws}.  In Haskell, functions that are not {\em referentially transparent} are represented using computations in the monad \texttt{IO}, commonly referred to as the {\em IO monad}.  By expressing the semantics and triplestore functions monadically, we stay safely within the confines of Haskell's type system, avoiding
+By expressing the semantics and triplestore functions monadically, we stay safely within the confines of Haskell's type system, avoiding
 the need to use \texttt{unsafeDupablePerformIO} in order to perform queries to external triplestores as a result.  Another key benefit of this approach is that it preserves the compositional nature of the original semantics.
 
 The semantics are defined in the IO monad currently, however if other monads were desired, only minimal changes would be required in order to accommodate
 other instances of the Monad typeclass.  In the chapter {\em Future Work}, one potential application of this functionality is discussed.
 
-\subsection{An generic interface to triplestores using a typeclass}
+\subsection{The Getts module: A generic interface to triplestores using a typeclass}
 
 Typeclasses are used in Haskell to enable {\em ad-hoc polymorphism} in the definition of functions in the language.  This can be used
 to provide generic interfaces to different types, without callers needing to be aware of the differences between those types.
@@ -186,43 +44,57 @@ getts_3 :: m -> (Event, String, String) -> IO [String]
 
 getts_fdbr_entevprop_type :: m -> String -> String -> IO FDBR
 getts_fdbr_entevprop_type ev_data ev_type entity_type = do
-  evs <- getts_1 ev_data ("?", "type", ev_type)
-  getts_fdbr_entevprop ev_data entity_type evs
-	
+evs <- getts_1 ev_data ("?", "type", ev_type)
+getts_fdbr_entevprop ev_data entity_type evs
+
 getts_fdbr_entevprop :: m -> String -> [Event] -> IO FDBR
 getts_fdbr_entevprop ev_data entity_type evs = do
-  pairs <- liftM concat $ mapM (\ev -> do
-  ents <- getts_3 ev_data (ev, entity_type,"?")
-  return $ zip ents (repeat ev)) evs
-  return $ collect pairs
+pairs <- liftM concat $ mapM (\ev -> do
+ents <- getts_3 ev_data (ev, entity_type,"?")
+return $ zip ents (repeat ev)) evs
+return $ collect pairs
 
 getts_members :: m -> String -> IO FDBR
 getts_members ev_data set = do
-  evs_with_set_as_object <- getts_1 ev_data ("?", "object", set)
-  evs_with_type_membership <- getts_1 ev_data
-    ("?", "type", "membership")
-  getts_fdbr_entevprop ev_data "subject" $
-    intersect evs_with_set_as_object evs_with_type_membership
+evs_with_set_as_object <- getts_1 ev_data ("?", "object", set)
+evs_with_type_membership <- getts_1 ev_data
+("?", "type", "membership")
+getts_fdbr_entevprop ev_data "subject" $
+intersect evs_with_set_as_object evs_with_type_membership
 \end{code}
 
 First and foremost, the \texttt{getts\_*} functions defined in \texttt{TripleStore m} now properly return {\em IO actions}.
-Three new functions are introduced, \texttt{getts\_preimage}, \texttt{getts\_fdbr}, and \texttt{getts\_members}.
-\texttt{getts\_fdbr} serves the same purpose that \texttt{make\_image} had in the original semantics.
-
-TODO: \texttt{getts\_members} behaves like \texttt{get\_members} in the original semantics, except...
-
-TODO: \texttt{getts\_preimage} behaves like \texttt{getts\_fdbr}...
+Three new functions are introduced: \texttt{getts\_fdbr\_entevprop},\\ \texttt{getts\_fdbr\_entevprop\_type}, and \texttt{getts\_members}.
+\texttt{getts\_fdbr\_entevprop\_type} serves the same purpose that \texttt{make\_image} had in the original semantics.
+These functions are named after their counterparts in Chapter 3.
 
 Only the three \texttt{getts\_*} functions must be defined for the new type of triplestore at minimum, however efficient implementations
 of all functions in the typeclass may be provided if desired.  We provide a backend using a SPARQL endpoint as a triplestore using the
 \texttt{SPARQLBackend} type and a backend for in-program triplestores using the \texttt{[Triple]} type as instances of \texttt{TripleStore}.
 
+\subsubsection{Basic query fusion}
 
+In addition to this, a basic form of query fusion has been implemented in the form of memoization.  Briefly, queries and their results
+are stored in {\em key-value stores}.  When a query is performed, it is first checked against the appropriate key-value store to see
+if the same triplestore query has been made previously.  If it has, the previous result is returned.  Otherwise, the request is made to the remote
+triplestore and its result is saved into the appropriate key-value store.  Multiple requests for the same information to the remote triplestore are therefore fused together.
 
+The key-value stores are held in top-level mutable variables.  Defining top-level mutable variables in Haskell is a subject that has been explored in depth, with many proposals in how to provide an idiomatic method in the language to express it.  According to the Haskell community, the accepted way of doing this for now is with the following pattern \cite{tlmvconsensus}:
 
-\subsection{Efficiency}
+\begin{itemize}
+	\item A top-level mutable variable \texttt{v} is defined using \texttt{v = unsafePerformIO \$ newIORef value} 
+	\item \texttt{v} must be annotated with the compiler pragma \texttt{\{\--\# NOINLINE v \#\--\}}
+\end{itemize}
 
-The \texttt{collect} function as defined in \cite{agboola2015extensible} used a key-value store from the \texttt{Data.Map.Lazy} module in Haskell to efficiently construct Images from relations represented as association lists.  Because all key-value pairs of the \texttt{Map} will eventually be traversed, in this Thesis the \texttt{Data.Map.Strict} module was used instead.  The asymptotic time complexity of both methods are identical, however the \texttt{Strict} version uses less memory and is slightly faster as it does not attempt to store partially evaluated areas of the Map as {\em thunks}.
+\subsubsection{Efficiency of ``collect''}
+
+The \texttt{collect} function as defined in \cite{agboola2015extensible} used a key-value store from the \texttt{Data.Map.Lazy} module in Haskell to efficiently construct Images from relations represented as association lists.  Because all key-value pairs of the \texttt{Map} will be traversed in order, immediately, in all cases, in this Thesis the \texttt{Data.Map.Strict} module was used instead.  The asymptotic time complexity of both methods are identical, however the \texttt{Strict} version uses less memory and is slightly faster as it does not attempt to store partially evaluated areas of the Map as {\em thunks}.
+
+The \texttt{collect} function is defined in this module as:
+
+\begin{code}
+collect = Map.toList . Map.fromListWith (++) . map (\(x, y) -> (x, [y]))
+\end{code}
 
 %\begin{theorem}
 %	\texttt{collect} is optimal.
@@ -244,12 +116,16 @@ The \texttt{collect} function as defined in \cite{agboola2015extensible} used a 
 \subsubsection{Efficiently constructing FDBRs from grouped association lists}
 In addition, a new function, \texttt{condense}, has been created to efficiently construct $FDBR(r)$ such that $r$ is represented by an association list that is grouped according to the first element in each pair.
 
+The \texttt{condense} function is defined in this module as:
+
 \begin{code}
 condense =
-  map (\list -> (fst $ head list, map snd list)) . List.groupBy cmp
-  where
-  cmp x y = (fst x) == (fst y)
+map (\list -> (fst $ head list, map snd list)) . List.groupBy cmp
+where
+cmp x y = (fst x) == (fst y)
 \end{code}
+
+In our SPARQL backend, the \texttt{getts\_fdbr\_entevprop} and \texttt{getts\_fdbr\_entevprop\_type} functions efficiently construct FDBRs of their ENTEVPROP relations using this function by requesting that the ENTEVPROP query results be sorted according to the first element in each pair.  Since this groups pairs together in the association list by their first element, \texttt{condense} is used instead of \texttt{collect} in order to construct the FDBR in the SPARQL backend.
 
 \begin{theorem}
 	\texttt{condense} has $O(n)$ worst-case upper-bound asymptotic time complexity, with comparison on the first element in the association list pairs being the key operation.
@@ -292,18 +168,18 @@ Proof:
 In the Haskell standard library source code, \texttt{Data.List.groupBy} is defined as follows: \cite{hstdlib}:
 
 \begin{code}
-	groupBy _  []           =  []
-	groupBy eq (x:xs)       =  (x:ys) : groupBy eq zs
-	where (ys,zs) = span (eq x) xs
+groupBy _  []           =  []
+groupBy eq (x:xs)       =  (x:ys) : groupBy eq zs
+where (ys,zs) = span (eq x) xs
 \end{code}
 
 \texttt{span} is defined as follows \cite{hstdlib}:
 
 \begin{code}
-	span _ xs@[]            =  (xs, xs)
-	span p xs@(x:xs')
-	| p x          =  let (ys,zs) = span p xs' in (x:ys,zs)
-	| otherwise    =  ([],xs)
+span _ xs@[]            =  (xs, xs)
+span p xs@(x:xs')
+| p x          =  let (ys,zs) = span p xs' in (x:ys,zs)
+| otherwise    =  ([],xs)
 \end{code}
 
 %\begin{subproposition}
@@ -347,10 +223,9 @@ By recursing into the second list returned by \texttt{span}, no previous element
 For each list \texttt{i} in \texttt{part} except the last, \texttt{(length i - 1) + 1 = length i} comparisons will have been made (\texttt{groupBy} calls span on \texttt{xs}, not \texttt{x:xs}).  For the last list $last$ in \texttt{part}, \texttt{(length last - 1)} comparisons will have been made (the longest prefix is \texttt{xs} in this case).  Therefore, the total number of comparisons made can be expressed by:
 
 \begin{code}
-length part[0] + length part[1] + ...
-	+ length part[m - 2] + (length part[m - 1] - 1)
-= (length part[0] + length part[1] + ...
-	+ length part[m - 1]) - 1
+length part[0] + length part[1] + ... + length part[m - 2]
+  + (length part[m - 1] - 1)
+= (length part[0] + length part[1] + ... + length part[m - 1]) - 1
 = n - 1
 \end{code}
 
@@ -388,18 +263,142 @@ The same applies to the composition function $\circ$.
 The \texttt{map} function is composed with the \texttt{List.groupBy cmp} function to produce a new function:
 \begin{code}
 \x -> map (\list -> (fst $ head list, map snd list))
-  (List.groupBy cmp x)
+(List.groupBy cmp x)
 \end{code}
 
 The \texttt{map} function evaluates the lambda over every list in the partition returned by (List.groupBy cmp x).  Since
 neither the map, the lambda, nor the function composition perform any comparisons, they do not contribute to the number
 of key operations performed.
 
-Therefore the worst-case upper bound time complexity of \texttt{condense} is $O(1) + n*(O(1) + O(1)) + O(n) = O(n)$ with comparison on the first element in
+Therefore the worst-case upper bound time complexity of \texttt{condense} is \[O(1) + n*(O(1) + O(1)) + O(n) = O(n)\] with comparison on the first element in
 the association list pairs (\texttt{cmp}) being the key operation.
 $\blacksquare$
 
 %Since \texttt{condense} has a worst-case tight bound asymptotic time complexity of $\theta(n)$, it is optimal. \qedsymbol 
+
+\section{Structure}
+
+A graph representing the structure of the modules in the XSaiga package in relation to one another is presented in Figure \ref{fig:modulegraph}.  Briefly, there exists an arrow from module \texttt{A} to module \texttt{B} in the graph if and only if module \texttt{A} imports module \texttt{B} in the source code.
+
+\begin{figure}[h]
+	\centering
+	\frame{\includegraphics[width=\columnwidth]{modules2}}
+	\caption{Module graph of the XSaiga package}
+	\label{fig:modulegraph}
+\end{figure}
+
+\section{Data representation}
+
+Like the original Haskell implementations, we represent sets in our implementation using lists and binary relations as association lists.  We represent triples using 3-tuples and we represent URIs using the \texttt{String} type, which is a list of \texttt{Char}.
+
+
+\section{AGParser2 and TypeAg2 modules}
+
+The parser is defined in the \texttt{AGParser2} module.
+
+\begin{figure}[h]
+	\centering
+	\frame{\includegraphics[width=\textwidth]{semanticsslide3}}
+	\caption{Parser operation: how an English sentence is mapped to semantic functions for evaluation \cite{graphmqslide}}
+\end{figure}
+
+The types of the semantic functions in \texttt{SolarmanTriplestore} are defined in the TypeAg2 module.
+The changes made to the original parser to accommodate monadic code are summarized below:
+
+\subsection{PrettyPrinting}
+Utility functions for formatting the parser results had to be modified.
+
+\subsubsection{Pure version}
+In the pure version, we have:
+
+\begin{code}
+	class PP' a where
+	pp' :: a -> Doc
+\end{code}
+
+where \texttt{Doc} is a formatted \texttt{String} and instances are defined for the various types
+used by the parser itself.
+ 
+\subsubsection{Monadic version}
+
+In the monadic version, we have:
+
+\begin{code}
+	class PP' a where
+	pp' :: a -> IO Doc
+\end{code}
+
+Here, the \texttt{pp'} function returns an IO action rather than a pure value.
+All instances of \texttt{PP'} were modified accordingly.
+
+\subsection{formatAttsFromAlt}
+
+\subsubsection{Pure version}
+\begin{code}
+formatAttsFinalAlt  key e t  =
+   [(pp' [vcat [(vcat [vcat [vcat [text (show ty1v1)  |ty1v1<-val1]
+   |(((st,inAtt2),(end,synAtts)), ts)<-rs, end == e]                             
+   | ((i,inAt1),((cs,ct),rs)) <- sr ])
+   | (s,sr) <- t, s == key ] 
+
+\end{code}
+
+\subsubsection{Monadic version}
+\begin{code}
+formatAttsFinalAlt  key e t  =
+  sequence [(sequence [liftM vcat $ sequence
+    [(liftM vcat $ sequence
+	  [liftM vcat $ sequence
+	    [liftM vcat $ sequence
+		  [liftM text (showio ty1v1) | ty1v1<-val1]
+		 |(id1,val1)<-synAtts]] )
+       |(((st,inAtt2),(end,synAtts)), ts)<-rs, end == e]
+      | ((i,inAt1),((cs,ct),rs)) <- sr ])>>= pp'
+     | (s,sr) <- t, s == key ]
+\end{code}
+
+
+\section{Main module}
+
+The \texttt{Main} module implements a CGI interface for evaluating Natural Language queries using the \texttt{SolarmanTriplestore} module.
+
+\section{Interactive module}
+
+The \texttt{Interactive} module is used by the Direct Query Interface to directly evaluate semantic functions.  It is intended to be used with SafeHaskell
+in order to restrict the evaluation of functions to a trusted subset, suitable for online interfaces.
+
+In \texttt{SolarmanTriplestore}, a dictionary is defined that maps words to semantic functions.  This module defines variables that are named
+after those words such that those functions can be directly accessed in a Haskell interpreter.  This enables, for instance,
+
+\begin{code}
+	hall $ discovered phobos
+\end{code}
+
+to be directly evaluated at a Haskell prompt.
+
+A Haskell file InteractiveGenerator.hs is used to generate this module using the dictionary in \texttt{SolarmanTriplestore}.
+
+\section{LocalData module}
+
+This module contains an in-program version of the triplestore located on our SPARQL endpoint.  As the \texttt{Getts} module provides
+a general interface to triplestores in the form of a typeclass, we are able to support both in-program triplestores as well as remote triplestores.
+The module exports the list of triples as the variable \texttt{localData}:
+
+\begin{code}
+	localData = [("event1000", "object", "sol"),
+	("event1000", "subject", "mercury"),
+	("event1000", "type", "orbit_ev"),
+	("event1001", "object", "sol"),
+	("event1001", "subject", "venus"),
+	("event1001", "type", "orbit_ev"),
+	("event1002", "object", "sol"),
+	("event1002", "subject", "earth"),
+	("event1002", "type", "orbit_ev"),
+	("event1003", "object", "sol"),
+	... ]
+\end{code}
+
+
 
 
 \end{document}
