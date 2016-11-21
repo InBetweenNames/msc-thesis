@@ -4,4 +4,165 @@
 
 \chapter{Timing}
 
+\section{Experiment setup}
+
+We conducted some experiments in order to measure the performance of our implementation.
+First, we compiled all Haskell code with profiling enabled such that we were able to accurately see how much time was spent in various functions.
+Second, we enabled the highest level of optimization possible in the GHC Haskell compiler as we wanted to measure how performance would look
+``in the real world''.
+
+This was accomplished by using the following arguments to GHC when compiling:
+
+\begin{code}
+	ghc -prof -fprof-auto -rtsopts -O3
+\end{code}
+
+Note that to replicate these experiments, you must rebuild the entire package library that ships with GHC with profiling enabled.
+This is because with GHC, code that is instrumented with profiling must only link to other code that is instrumented for profiling.
+
+All tests were performed on a system with these specifications:
+
+\begin{itemize}
+	\item Intel Core i7 4770k processor
+	\item 16 GB of RAM
+	\item Samsung 850 EVO Solid State Drive
+\end{itemize}
+
+
+\section{Experiment description}
+
+In our first experiment, we do a simple measurement to see the amount of CPU time is spent and memory used for constructing the FDBR of
+a particularly large relation.
+
+In our second experiment, we examine the amount of time it takes to perform a query, using profiling information to break down
+exactly where most time is spent in processing.
+
+\section{Experiment 1}
+
+We construct a randomized relation represented as an association list with 10,000 unique events and 1000 entities with a varying
+number of pairs in the relation.  We also construct a grouped relation with the same number of unique events and unique entities.
+We compare the implementation of our \texttt{collect} and \texttt{condense} functions versus the previous implementation in
+\cite{agboola2015extensible}.
+
+\subsection{Results}
+
+\subsubsection{Ungrouped association lists}
+First, we compare the implementations on ungrouped relations.
+
+For 100,000 pairs:
+
+\begin{itemize}
+	\item Previous implementation: 0.130 sec
+	\item Our implementation: 0.129 sec
+\end{itemize}
+
+For 1,000,000 pairs:
+
+\begin{itemize}
+	\item Previous implementation: 1.426 sec
+	\item Our implementation: 1.388 sec
+\end{itemize}
+
+For 10,000,000 pairs:
+
+\begin{itemize}
+	\item Previous implementation: 14.274 sec
+	\item Our implementation: 14.283 sec
+\end{itemize}
+
+\subsubsection{Grouped association lists}
+Next, we compare the implementations for grouped relations, including \texttt{condense}.
+
+\noindent For 100,000 pairs:
+\begin{itemize}
+	\item Previous collect: 0.083 sec
+	\item Our collect: 0.068 sec
+	\item texttt{condense}: 0.030 sec
+\end{itemize}
+
+\noindent For 1,000,000 pairs:
+\begin{itemize}
+	\item Previous collect: 0.775 sec
+	\item Our collect: 0.756 sec
+	\item texttt{condense}: 0.401 sec
+\end{itemize}
+
+\noindent For 10,000,000 pairs:
+\begin{itemize}
+	\item Previous collect: 8.169 sec
+	\item Our collect: 7.618 sec
+	\item \texttt{condense}: 4.502 sec
+\end{itemize}
+
+\subsection{Discussion}
+
+In the ungrouped case, both implementations are highly comparable.
+In the grouped case, a very minor improvement was shown for our version of \texttt{collect},
+and a major improvement over both \texttt{collect} implementations was shown for \texttt{condense}.
+
+\section{Experiment 2}
+
+We performed two Natural Language queries to our SPARQL endpoints using a simple command line interface constructed for our semantics:
+
+\begin{enumerate}
+	\item ``which vacuumous moon that orbits jupiter was discovered by nicholson or hall with a telescope in 1938 in mt\_wilson or mt\_hopkins''
+	\item ``what was discovered in 1877 at us\_naval\_observatory''
+\end{enumerate}
+
+We ran our command line interface with the following arguments to enable profiling for IO:
+
+\begin{code}
+	./solarman_cmd <query_string> +RTS -pa
+\end{code}
+
+We also ran our command line interface with these arguments to enable profiling for CPU time:
+
+\begin{code}
+./solarman_cmd <query_string> +RTS -p
+\end{code}
+
+After doing so, we examined the ``prof'' files produced by each run of our command line interface.
+
+A 15 megabit cable connection was used during these tests.  Before performing any experiments,
+we measured latency to the remote SPARQL triplestore as being roughly 60 milliseconds.
+
+\subsection{Results}
+
+Profiling for IO:
+
+\begin{itemize}
+	\item For query 1: approximately 98.3\% of the running time was spent waiting on IO
+	\item For query 2: approximately 98.5\% of the running time was spent waiting on IO
+\end{itemize}
+
+\noindent Profiling for CPU time (excluding IO time):
+
+\noindent Running time breakdown for query 1:
+
+\begin{itemize}
+	\item SPARQL query generation and result processing including XML parsing: 51.4\%
+	\item Network related processing: 39.3\%
+	\item Natural Language parsing: 5.5\%
+	\item Semantic functions: 3.8\%
+\end{itemize}
+
+\noindent Running time breakdown for query 2:
+
+\begin{itemize}
+	\item SPARQL query generation and result processing including XML parsing: 42\%
+	\item Network related processing: 44\%
+	\item Natural Language parsing: 3\%
+	\item Semantic functions: 11\%
+\end{itemize}
+
+\subsection{Discussion}
+
+As is evident from the results, our implementation is heavily IO bound.
+The vast majority of time is spent performing the SPARQL queries themselves, with
+less than 2\% of CPU time actually spent in our semantic functions.
+
+This provides a good hint as to how to improve the semantics in the future.
+We could potentially alleviate this bottleneck by performing fewer external triplestore queries.
+
+
 \end{document}
