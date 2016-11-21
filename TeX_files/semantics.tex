@@ -374,17 +374,23 @@ All semantic functions have been modified to accept FDBRs and return FDBRs, with
 \texttt{what} and \texttt{whatobj} are differentiated to obtain the \texttt{subjects} and \texttt{objects} of FDBRs, respectively, with the
 \texttt{objects} being obtained through the events in FDBR. 
 
-\paragraph{Predicates}
+\paragraph{Determiner phrases and proper nouns}
 Previously, predicates were functions from sets of entities to boolean values.
 
-In our new semantics, we modified the definition of predicates such that predicates accept FDBRs and return FDBRs.  A returned FDBR that is non-empty is 
-considered to be \texttt{True}.  A returned FDBR that is empty is considered to be \texttt{False}.
+In our new semantics, we modified the definition of predicates such that predicates accept FDBRs and return FDBRs.
+A returned FDBR that is non-empty is considered to be \texttt{True}.  A returned FDBR that is empty is considered to be \texttt{False}.
+Specifically, a predicate $p$ evaluated on an FDBR $F$ returns only the elements of $F$ that are {\em relevant} to $p$.
 
-\begin{definition}[Predicate]
-	A function from FDBRs to FDBRs.
+\begin{definition}[Relevant and irrelevant FDBR-pairs with respect to a predicate]
+	An FDBR-Pair $x$ of an FDBR $F$ is {\em irrelevant} with respect to a predicate $p$ if $p\ F = p\ F'$, where $F'$ is obtained by removing $x$ from $F$.  Otherwise,
+	$x$ is {\em relevant} to $p$.
 \end{definition}
 
-Specifically, all predicates are now defined in terms of a function \texttt{intersect\_fdbr}.
+\begin{definition}[Predicate]
+	A function from FDBRs to FDBRs that discards irrelevant FDBR-pairs from its argument.
+\end{definition}
+
+Most predicates in our semantics are defined in terms of the function \texttt{intersect\_fdbr}:
 
 \begin{definition}[intersect\_fdbr function]
 	\begin{multline*}
@@ -393,12 +399,18 @@ Specifically, all predicates are now defined in terms of a function \texttt{inte
 \end{definition}
 
 Briefly, this function performs the intersection of two FDBRs using the entity name in each FDBR-pair.  The events from the second FDBR are preserved
-in the intersection, and the events from the first FDBR are discarded.  The reason it is defined this way is because when filtering, the FDBR being filtered
-is the second argument to \texttt{intsersect\_fdbr}, and therefore those events should be preserved.  Furthermore, the events of the first argument
-don't contribute anything to the result--often times, these are membership events, for instance in a termphrase like \texttt{a moon}.
+in the intersection, while the events from the first FDBR are discarded.
 
-With this in mind, determiners have been defined as follows:\\
+For an example of why \texttt{intersect\_fdbr} is defined this way, consider the sentence
+\texttt{a moon spins}.  The events that {\em justify} the claim that a particular moon spins are contained in the FDBR \texttt{spins}.  On the other hand, the events of \texttt{moon}
+are only membership events and don't contribute any useful information about whether a given moon will spin or not.  Therefore we would expect in the FDBR for \texttt{a moon spins},
+we would only have events from the \texttt{spins} relation.  Furthermore, it wouldn't make sense to have any entities that weren't moons in any FDBR-pairs \texttt{a moon spins}, nor would
+it make sense for us to be missing any moons, since we know that all moons spin.  If we let $\mathtt{a} = \mathtt{intersect\_fdbr}$, then we capture exactly these semantics.
+
+In general, in any determiner function, we are interested in the events of the second FDBR as they provide {\em justification} that the entities in the first FDBR
+have some characteristic that the second argument expresses.  With this in mind, we define determiners as follows:\\
 {\setlength{\mathindent}{0cm}
+\allowdisplaybreaks
 \begin{gather*}
 \mathtt{a} = \mathtt{intersect\_fdbr} \\
 \mathtt{any} = \mathtt{a} \\
@@ -427,10 +439,19 @@ With this in mind, determiners have been defined as follows:\\
 }
 
 \texttt{fst} is a function that returns the first component from in a pair.  The \texttt{map} function computes the image of a function $f$ over the elements of a set $s$.  
-Therefore the function \texttt{map fst} obtains all of the entities in an FDBR.
+Hence the function \texttt{map fst} obtains all of the entities in an FDBR.
+
+Proper nouns are defined as follows:
+
+\begin{gather*}
+\mathtt{make\_pnoun}\enspace \mathtt{noun}\enspace \mathtt{fdbr} = \mathtt{intersect\_fdbr}\enspace \left\{(\mathtt{noun}, \mathtt{\emptyset})\right\} \enspace\mathtt{fdbr}
+\end{gather*}
+
+Note that proper nouns are treated the same as determiners under the same reasoning.
 
 This change was actually motivated by our changes to how prepositional phrases are handed in our semantics, and is the basis through which
-``filtering'' occurs along preposition chains.
+``filtering'' occurs along preposition chains.  Since predicates only return FDBR-pairs that are relevant to them, \texttt{filter\_ev} can directly
+use predicates to filter FDBRs and find the events that are common among all of them, if any.
 
 \paragraph{Transitive verbs}
 
@@ -537,6 +558,8 @@ Similarly, the conjoiners for termphrases are also defined in terms of FDBRs:
   \end{cases} \\
   \mathtt{termor}\enspace \mathtt{tmph1} \enspace \mathtt{tmph2} \enspace \mathtt{fdbr} = \mathtt{nounor}\enspace (\mathtt{tmph1}\enspace \mathtt{fdbr}) \enspace (\mathtt{tmph2} \enspace \mathtt{fdbr})
 \end{gather*}
+
+Note that \texttt{termand tmph1 tmph2} and \texttt{termor tmph1 tmph2} are predicates, as is \texttt{nounand nph1}, \texttt{nounor nph1}, and \texttt{that nph1}.
 
 \subsection{The use of `by' as a preposition}
 
