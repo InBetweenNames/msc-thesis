@@ -17,6 +17,11 @@
 \usepackage[mark]{gitinfo2}
 \usepackage[hidelinks]{hyperref}
 \usepackage[backend=biber,bibstyle=numeric-comp,sorting=ydnt,natbib=true,mcite=true,maxnames=100,url=true,isbn=false,doi=false,uniquename=init,giveninits=true,hyperref=true,backref=true,date=edtf,sortcites]{biblatex}
+\usepackage{tocloft}
+
+\newcommand{\listappendicesname}{List of Appendices}
+\newlistof{appendices}{apc}{\listappendicesname}
+
 %\usepackage{underscore}
 \graphicspath{ {images/} }
 
@@ -48,7 +53,7 @@
 
 \makeatother
 \renewcommand{\thmtformatoptarg}[1]{ -- #1}
-\renewcommand{\listtheoremname}{List of Definitions}
+\renewcommand{\listtheoremname}{Nomenclature}
 
 
 
@@ -303,11 +308,15 @@ holder.
 
 \begin{uwindefaultspaceenv}
 
-\listoffigures
-
+\clearpage
+\listoftables
 \clearpage
 
-\listoftables
+\listoffigures
+\clearpage
+
+\listofappendices
+\addcontentsline{toc}{chapter}{List of Appendices}
 \clearpage
 
 \listoftheorems[ignoreall,show={definition}]
@@ -329,8 +338,11 @@ holder.
 
 \printbibliography[heading=bibintoc]
 
-\chapter*{Appendix}
-\addcontentsline{appendix}{chapter}{Appendix}
+\chapter*{Appendices}
+\addcontentsline{toc}{chapter}{Appendices}
+\section*{Appendix A - Source code listing}
+\addcontentsline{toc}{section}{Appendix A - Source code listing}
+\addcontentsline{apc}{appendices}{Appendix A - Source code listing}
 
 \chapter*{Vita Auctoris}
 \addcontentsline{toc}{chapter}{Vita Auctoris}
