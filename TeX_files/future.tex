@@ -27,10 +27,10 @@ In addition to this, the semantics as they exist currently in some cases perform
 In particular, as seen in the Timing chapter, running time of the semantics was empirically measured to be dominated by the IO involved in actually communicating
 with the remote triplestore.
 
-An example of where these small queries are made are in the \texttt{make\_filtered\_relation} and \texttt{make\_inverted\_filtered\_relation} semantic functions.
+An example of where these small queries are made are in the \texttt{make\_trans\_active'} and \texttt{make\_trans\_passive'} semantic functions.
 
-In these functions, \texttt{getts\_preimage} is applied to each event list inside the Image passed to the function for each preposition or termphrase.  \texttt{getts\_preimage} makes a request to the remote triplestore for each event list.  Therefore, if there are $n$ Image tuples (TODO: define Image tuple) inside the Image (TODO: redefine image), and
-$m$ prepositions (and optionally a termphrase) $n*m$ requests will be made to the remote triplestore in order to compute the final Image in the worst case.
+In these functions, \texttt{getts\_entevprop} is applied to each event list inside the FDBR passed to the function for each preposition's properties.  \texttt{getts\_entevprop} makes a request to the remote triplestore for each event list.  Therefore, if there are $n$ FDBR-pairs inside the FDBR, and
+$m$ prepositions, $n*m$ requests will be made to the remote triplestore in the worst case.
 
 \subsection{Query fusion}
 
@@ -50,10 +50,10 @@ An example of how this could work:
 runQueryFusion :: QueryFusion a -> IO a
 
 main = do
-	rawQuery <- getQueryString      -- rawQuery :: String
-	let sQuery = genQuery rawQuery  -- sQuery   :: QueryFusion Result
-	result <- runQueryFusion query  -- result   :: Result
-	print result
+  rawQuery <- getQueryString      -- rawQuery :: String
+  let sQuery = genQuery rawQuery  -- sQuery   :: QueryFusion Result
+  result <- runQueryFusion query  -- result   :: Result
+  print result
 
 \end{code}
 
@@ -74,8 +74,8 @@ Currently, no parallelism is taken advantage of within the semantics, as they ar
 \end{definition}
 
 Semantic functions which do not depend on one another, for example \texttt{moon} and \texttt{planet}, could be evaluated in parallel to accelerate processing.
-In addition to this, when the final Images are obtained for the semantic functions, {\em data parallelism} could be used to efficiently perform operations
-on Images.
+In addition to this, when the final FDBRs are obtained for the semantic functions, {\em data parallelism} could be used to efficiently perform operations
+on FDBRs.
 
 \begin{definition}[Data parallelism]
 	A special case of task parallelism where the tasks are identical, but are executed over different sets of data
@@ -104,15 +104,16 @@ Therefore, we could in theory compute the elements of \texttt{squareList [1,2,3]
 Suppose we have $n$ hardware threads of execution available to use.  Let us define a function to partition \texttt{list} into $n$ sublists:
 
 \begin{code}
-	partition n = foldr buildPart (empty n) . split n
+  partition n = foldr buildPart (empty n) . split n
 	
-	split n [] = []
-	split n list = (take n list) : (split n \$ drop n list )
+  split n [] = []
+  split n list = (take n list) : (split n \$ drop n list )
 	
-	empty 0 = []
-	empty n = [] : (empty (n - 1))
+  empty 0 = []
+  empty n = [] : (empty (n - 1))
 	
-	buildPart x partition = (zipWith (:) x partition) ++ drop (length x) partition
+  buildPart x partition
+    = (zipWith (:) x partition) ++ drop (length x) partition
 	
 \end{code}
 
@@ -120,7 +121,7 @@ Now, execute \texttt{square} over each sublist with a hypothetical \texttt{parMa
 performs a \texttt{map} across each element in a list in parallel, distributing each task among a different core:
 
 \begin{code}
-	result = concat \$ parMap squareList \$ partition n list
+	result = concat $ parMap squareList $ partition n list
 \end{code}
 
 In this view, \texttt{squareList} is a task being executed in parallel across all of the partitions of our input list.
@@ -129,8 +130,8 @@ over different sets of data.  The \texttt{concat} function merges the results ba
 
 One benefit of data parallelism is that it maps well onto a variety of different compute architectures, such as
 FPGAs, GPUs, and compute clusters.  In massive triplestores, it may not be feasible to perform computations on
-Images in a reasonable amount of time using only single-threaded semantics, as in these triplestores,
-an Image could contain millions of Image tuples.  Fortunately, each Image tuple exists independent of other Image tuples, and 
+FDBRs in a reasonable amount of time using only single-threaded semantics, as in these triplestores,
+an FDBR could contain millions of FDBR-pairs.  Fortunately, each FDBR-pair exists independent of other FDBR-pairs, and 
 the semantic functions could be rewritten in a data-parallel way similar to how the above example was rewritten
 in order to scale across the available hardware threads in a system.  In doing so, the door would be open for implementing
 the semantics on GPUs as well.
@@ -138,8 +139,6 @@ the semantics on GPUs as well.
 
 \subsection{Conceptual spaces}
 
-One promising approach in processing large amounts of data is Conceptual Spaces \cite{cs}, which has already seen some use in performing queries in the Semantic Web \cite{usesofcs}.  It may be possible to develop a new event-based semantics that uses Conceptual Spaces (and by extension Conceptual Geometry) to perform queries on larger datasets.
-
-
+One promising approach in processing large amounts of data is Conceptual Spaces \cite{gardenfors2004conceptual}, which has already seen some use in performing queries in the Semantic Web \cite{wu2006exploring} \cite{adams2009conceptual} \cite{gardenfors2014geometry} .  It may be possible to develop a new event-based semantics that uses Conceptual Spaces, and by extension Conceptual Geometry, to perform queries on larger datasets.
 
 \end{document}
