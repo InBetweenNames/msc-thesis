@@ -16,7 +16,7 @@ One problem with entity-based triplestores is that it is difficult to add contex
 One form of reification is to organize information into {\em events}.
 
 \begin{definition}[Event]
-	A point in time and the physical occurrences that are associated with it \cite{?} -- TODO: find better definition
+	A set of meaningfully connected physical phenomena occurring in a span of time
 \end{definition}
 
 For example, the triple \texttt{(sally, met, susan)} in an entity-based triplestore could be represented by three triples:
@@ -404,11 +404,12 @@ in the intersection, while the events from the first FDBR are discarded.
 For an example of why \texttt{intersect\_fdbr} is defined this way, consider the sentence
 \texttt{a moon spins}.  The events that {\em justify} the claim that a particular moon spins are contained in the FDBR \texttt{spins}.  On the other hand, the events of \texttt{moon}
 are only membership events and don't contribute any useful information about whether a given moon will spin or not.  Therefore we would expect in the FDBR for \texttt{a moon spins},
-we would only have events from the \texttt{spins} relation.  Furthermore, it wouldn't make sense to have any entities that weren't moons in any FDBR-pairs \texttt{a moon spins}, nor would
+we would only have events from the \texttt{spins} relation.  Furthermore, it wouldn't make sense to have any entities that weren't moons in \texttt{a moon spins}, nor would
 it make sense for us to be missing any moons, since we know that all moons spin.  If we let $\mathtt{a} = \mathtt{intersect\_fdbr}$, then we capture exactly these semantics.
 
 In general, in any determiner function, we are interested in the events of the second FDBR as they provide {\em justification} that the entities in the first FDBR
-have some characteristic that the second argument expresses.  With this in mind, we define determiners as follows:\\
+have some characteristic that the second FDBR expresses.  The first FDBR is useful only for the entities contained within it as a way of specifying which entities should be queried.
+With this in mind, we define the determiners as follows:\\
 {\setlength{\mathindent}{0cm}
 \allowdisplaybreaks
 \begin{gather*}
@@ -559,11 +560,13 @@ Similarly, the conjoiners for termphrases are also defined in terms of FDBRs:
   \mathtt{termor}\enspace \mathtt{tmph1} \enspace \mathtt{tmph2} \enspace \mathtt{fdbr} = \mathtt{nounor}\enspace (\mathtt{tmph1}\enspace \mathtt{fdbr}) \enspace (\mathtt{tmph2} \enspace \mathtt{fdbr})
 \end{gather*}
 
-Note that \texttt{termand tmph1 tmph2} and \texttt{termor tmph1 tmph2} are predicates, as is \texttt{nounand nph1}, \texttt{nounor nph1}, and \texttt{that nph1}.
+Note that \texttt{termand tmph1 tmph2} and \texttt{termor tmph1 tmph2} are predicates: they are functions from FDBRs to FDBRs and return exactly the FDBR-pairs
+that are relevant to them.  \texttt{termand tmph1 tmph2} is curiously defined in terms of \texttt{termor}.  The reason for this is that, provided both termphrases
+evaluate to \texttt{True} for FDBR $F$, all FDBR-pairs in both FDBRs are relevant: if any of those FDBR-pairs were to go missing from $F$, calling this new FDBR $F'$, at least one of 
+the termphrases would evaluate to \texttt{False} on $F'$, changing the result.
 
 \subsection{The use of `by' as a preposition}
 
-%TODO: newterm
 One item of note is that in our semantics we treat the word ``by'', as in ``discovered by'', as a preposition.
 
 When designing the new semantics orginally, the termphrase after ``by'' was
