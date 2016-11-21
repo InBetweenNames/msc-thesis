@@ -29,7 +29,7 @@ A graph representing the structure of the modules in the XSaiga package in relat
 		getts_3 :: m -> (Event, String, String) -> IO [String]
 
 		getts_image :: m -> String -> String -> IO Image
-		getts_preimage :: m -> String -> [Event] -> IO Image
+		getts_fdbr_entevprop :: m -> String -> [Event] -> IO Image
 		getts_members :: m -> String -> IO Image
 	\end{code}
 
@@ -180,27 +180,29 @@ We used this feature of the language to provide a generic interface for triplest
 
 \begin{code}
 class TripleStore m where
-	getts_1 :: m -> (Event, String, String) -> IO [String]
-	getts_2 :: m -> (Event, String, String) -> IO [String]
-	getts_3 :: m -> (Event, String, String) -> IO [String]
+getts_1 :: m -> (Event, String, String) -> IO [String]
+getts_2 :: m -> (Event, String, String) -> IO [String]
+getts_3 :: m -> (Event, String, String) -> IO [String]
 
-	getts_fdbr :: m -> String -> String -> IO FDBR
-	getts_fdbr ev_data ev_type entity_type = do
-		evs <- getts_1 ev_data ("?", "type", ev_type)
-		getts_preimage ev_data entity_type evs
-		
-	getts_preimage :: m -> String -> [Event] -> IO FDBR
-	getts_preimage ev_data entity_type evs = do
-		pairs <- liftM concat $ mapM (\ev -> do
-		ents <- getts_3 ev_data (ev, entity_type,"?")
-		return $ zip ents (repeat ev)) evs
-		return $ collect pairs
+getts_fdbr_entevprop_type :: m -> String -> String -> IO FDBR
+getts_fdbr_entevprop_type ev_data ev_type entity_type = do
+  evs <- getts_1 ev_data ("?", "type", ev_type)
+  getts_fdbr_entevprop ev_data entity_type evs
+	
+getts_fdbr_entevprop :: m -> String -> [Event] -> IO FDBR
+getts_fdbr_entevprop ev_data entity_type evs = do
+  pairs <- liftM concat $ mapM (\ev -> do
+  ents <- getts_3 ev_data (ev, entity_type,"?")
+  return $ zip ents (repeat ev)) evs
+  return $ collect pairs
 
-	getts_members :: m -> String -> IO FDBR
-	getts_members ev_data set = do
-		evs_with_set_as_object <- getts_1 ev_data ("?", "object", set)
-		evs_with_type_membership <- getts_1 ev_data ("?", "type", "membership")
-		getts_preimage ev_data "subject" $ intersect evs_with_set_as_object evs_with_type_membership
+getts_members :: m -> String -> IO FDBR
+getts_members ev_data set = do
+  evs_with_set_as_object <- getts_1 ev_data ("?", "object", set)
+  evs_with_type_membership <- getts_1 ev_data
+    ("?", "type", "membership")
+  getts_fdbr_entevprop ev_data "subject" $
+    intersect evs_with_set_as_object evs_with_type_membership
 \end{code}
 
 First and foremost, the \texttt{getts\_*} functions defined in \texttt{TripleStore m} now properly return {\em IO actions}.
@@ -243,9 +245,10 @@ The \texttt{collect} function as defined in \cite{agboola2015extensible} used a 
 In addition, a new function, \texttt{condense}, has been created to efficiently construct $FDBR(r)$ such that $r$ is represented by an association list that is grouped according to the first element in each pair.
 
 \begin{code}
-	condense = map (\list -> (fst $ head list, map snd list)) . List.groupBy cmp
-	where
-	cmp x y = (fst x) == (fst y)
+condense =
+  map (\list -> (fst $ head list, map snd list)) . List.groupBy cmp
+  where
+  cmp x y = (fst x) == (fst y)
 \end{code}
 
 \begin{theorem}
@@ -344,8 +347,10 @@ By recursing into the second list returned by \texttt{span}, no previous element
 For each list \texttt{i} in \texttt{part} except the last, \texttt{(length i - 1) + 1 = length i} comparisons will have been made (\texttt{groupBy} calls span on \texttt{xs}, not \texttt{x:xs}).  For the last list $last$ in \texttt{part}, \texttt{(length last - 1)} comparisons will have been made (the longest prefix is \texttt{xs} in this case).  Therefore, the total number of comparisons made can be expressed by:
 
 \begin{code}
-length part[0] + length part[1] + ... + length part[m - 2] + (length part[m - 1] - 1)
-= (length part[0] + length part[1] + ... + length part[m - 1]) - 1
+length part[0] + length part[1] + ...
+	+ length part[m - 2] + (length part[m - 1] - 1)
+= (length part[0] + length part[1] + ...
+	+ length part[m - 1]) - 1
 = n - 1
 \end{code}
 
@@ -382,7 +387,8 @@ The same applies to the composition function $\circ$.
 
 The \texttt{map} function is composed with the \texttt{List.groupBy cmp} function to produce a new function:
 \begin{code}
-	\x -> map (\list -> (fst $ head list, map snd list)) (List.groupBy cmp x)
+\x -> map (\list -> (fst $ head list, map snd list))
+  (List.groupBy cmp x)
 \end{code}
 
 The \texttt{map} function evaluates the lambda over every list in the partition returned by (List.groupBy cmp x).  Since
