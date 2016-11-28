@@ -21,7 +21,7 @@ then these queries could return different results, violating referential transpa
 The function \texttt{unsafeDupablePerformIO} was used in \cite{agboola2015extensible} to force Haskell to treat the \texttt{getts\_*} functions as pure functions
 in order to maintain compatibility with the original semantics. The problem with \texttt{unsafeDupablePerformIO} is that it subverts the type system of Haskell.  Code that is built using it is therefore not on
 solid theoretical ground within the constructs of the language, and surprising effects can occur as a result.  The use of \texttt{unsafeDupablePerformIO}, while
-legitimate in some cases, is heavily discouraged within the Haskell community\cite{noUnsafePerformIO}.
+legitimate in some cases, is heavily discouraged within the Haskell community\cite{tlmvconsensus}.
 
 In this Thesis, we chose a different approach to handling external triplestore queries by representing the triplestore functions and semantics in terms of {\em monadic functions}.
 By expressing the semantics and triplestore functions monadically, we stay safely within the confines of Haskell's type system, avoiding
