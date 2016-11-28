@@ -3,7 +3,7 @@
 \begin{document}
 	
 \chapter{Future Work}
-
+\label{chapter:futurework}
 
 \section{Providing Event-based views into entity-based triplestores}
 
@@ -24,7 +24,7 @@ There are several drawbacks with the current implementation that prevent it from
 In the worst case, some of the functions would require reading in a significant amount of data from the triplestore in order to return a value.  One example of this is in the membership functions.
 
 In addition to this, the semantics as they exist currently in some cases perform many small queries to the triplestore, slowing down processing dramatically.
-In particular, as seen in the Timing chapter, running time of the semantics was empirically measured to be dominated by the IO involved in actually communicating
+In particular, as seen in Chapter \ref{chapter:timing}, running time of the semantics was empirically measured to be dominated by the IO involved in actually communicating
 with the remote triplestore.
 
 An example of where these small queries are made are in the \texttt{make\_trans\_active'} and \texttt{make\_trans\_passive'} semantic functions.
@@ -37,7 +37,7 @@ $m$ prepositions, $n*m$ requests will be made to the remote triplestore in the w
 One way of remedying this is to reduce the number of queries to the remote triplestore.  To achieve this, it may be possible to modify the semantics to
 support {\em query fusion}, fusing smaller queries together into larger queries in order to reduce the number of queries performed.
 
-In the {\em Parser Combinators} chapter of this Thesis Report, it was explained that the parser now operates in the IO monad, and that with a small amount of work, it could
+In Chapter \ref{chapter:combinators} of this Thesis Report, it was explained that the parser now operates in the IO monad, and that with a small amount of work, it could
 work in other monads as well.  To support query fusion in the semantics, a new monad could be devised that the semantic functions would use instead of the IO monad.  Let us
 call this hypothetical monad \texttt{QueryFusion}.  This monad would be pure, functioning much like the monad \texttt{State} as it exists in the Haskell language currently: threading an implicit {\em state} argument through the combinators and semantic functions and keeping the details of that state neatly abstracted away.  The goal of this would be to obtain a value of type \texttt{QueryFusion a}, which with the help of a function, say, \texttt{runQueryFusion}, that would convert the query into an IO action.
 

@@ -4,6 +4,8 @@
 
 \chapter{The Query Program}
 
+\label{chapter:implementation}
+
 \section{Improvements over Original Haskell Implementations}
 
 \subsection{Type safety}
@@ -26,7 +28,7 @@ By expressing the semantics and triplestore functions monadically, we stay safel
 the need to use \texttt{unsafeDupablePerformIO} in order to perform queries to external triplestores as a result.  Another key benefit of this approach is that it preserves the compositional nature of the original semantics.
 
 The semantics are defined in the IO monad currently, however if other monads were desired, only minimal changes would be required in order to accommodate
-other instances of the Monad typeclass.  In the chapter {\em Future Work}, one potential application of this functionality is discussed.
+other instances of the Monad typeclass.  In Chapter \ref{chapter:futurework}, one potential application of this functionality is discussed.
 
 \subsection{The Getts module: A generic interface to triplestores using a typeclass}
 

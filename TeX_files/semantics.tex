@@ -9,6 +9,8 @@
 
 \chapter {Event-Based Denotational Semantics}
 
+\label{chapter:semantics}
+
 \section{Event-Based Triplestores}
 
 One problem with entity-based triplestores is that it is difficult to add contextual information to a triple.  Two common examples of contextual information are time and location.  Many approaches that allow this use a method called {\em reification}\cite{?}.
@@ -339,7 +341,7 @@ The reason this happens is because in the original \texttt{filter\_ev} function,
 
 In our semantics we define a new \texttt{filter\_ev} function that overcomes
 both these problems.  Its definition is deferred until the {\em Transitive Verbs}
-section below as some concepts must be introduced first.
+section below as some additional concepts must be introduced first.
 
 \subsection{Semantic consistency}
 
@@ -455,6 +457,7 @@ This change was actually motivated by our changes to how prepositional phrases a
 use predicates to filter FDBRs and find the events that are common among all of them, if any.
 
 \paragraph{Transitive verbs}
+\label{par:transitive}
 
 In the original semantics, the function \texttt{make\_trans} was used to
 construct an FDBR out of an event type.
