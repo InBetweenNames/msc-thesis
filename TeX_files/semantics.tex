@@ -11,7 +11,7 @@
 
 \section{Event-Based Triplestores}
 
-One problem with entity-based triplestores is that it is difficult to add contextual information to a triple.  Two common examples of contextual information are time and location.  Many approaches that allow this use a method called {\em reification} \cite{?}.
+One problem with entity-based triplestores is that it is difficult to add contextual information to a triple.  Two common examples of contextual information are time and location.  Many approaches that allow this use a method called {\em reification}\cite{?}.
 
 One form of reification is to organize information into {\em events}.
 
@@ -95,7 +95,7 @@ functions:
 
 \subsection{Semantic functions}
 
-Common nouns were defined as ``the set of entities that are members of the set associated with that noun'' \cite{frost2014denotational}.
+Common nouns were defined as ``the set of entities that are members of the set associated with that noun''\cite{frost2014denotational}.
 These were implemented using the \texttt{get\_members} function.
 
 %NOTE: Should the code examples be rewritten to not use anything from \cite{frost2014denotational}?
@@ -103,7 +103,7 @@ These were implemented using the \texttt{get\_members} function.
 	person = get_members "person"
 \end{code}
 
-Intransitive verbs were defined as ``the set of entities that are subjects of an event of the type associated with that verb'' \cite{frost2014denotational}.
+Intransitive verbs were defined as ``the set of entities that are subjects of an event of the type associated with that verb''\cite{frost2014denotational}.
 They were implemented using the \texttt{get\_subjs\_of\_event\_type} function.
 
 \begin{code}
@@ -140,8 +140,8 @@ Conjoiners for common nouns were implemented similarly:
 \end{code}
 
 
-A {\em determiner phrase} was defined as being a determiner with a common noun applied to it \cite{frost2014denotational}.
-A {\em termphrase} was defined as being either a a proper noun or a determiner phrase \cite{frost2014denotational}.
+A {\em determiner phrase} was defined as being a determiner with a common noun applied to it\cite{frost2014denotational}.
+A {\em termphrase} was defined as being either a a proper noun or a determiner phrase\cite{frost2014denotational}.
 Conjoiners for termphrases were implemented differently:
 \vspace{1em}
 \begin{code}
@@ -153,14 +153,14 @@ This was necessary because common nouns were sets of entities, but
 proper nouns and determiner phrases were functions that acted on sets
 of entities.
 
-Transitive verbs were defined in terms of {\em images} \cite{frost2014denotational}.  Briefly, images
+Transitive verbs were defined in terms of {\em images}\cite{frost2014denotational}.  Briefly, images
 are constructed from binary relations with the \texttt{collect} function.
 
 \begin{definition}[Collect function]
 The function collect is defined such that it takes a binary relation as an
 argument, joinrel, and ``returns a new binary relation, containing one binary tuple
 (x, image\_x) for each member of the projection of the left-hand column of joinrel
-, where image\_x is the mathematical image of x under the relation joinrel'' \cite{frost2014denotational}
+, where image\_x is the mathematical image of x under the relation joinrel''\cite{frost2014denotational}
 \end{definition}
 
 \begin{definition}[Image (original semantics)]
@@ -228,7 +228,7 @@ telescope), ("year", year "1877")]}
       filter_ev ev preps])]
 \end{code}
 
-where \texttt{filter\_ev} is defined as follows \cite{frost2014denotational}:
+where \texttt{filter\_ev} is defined as follows\cite{frost2014denotational}:
 
 \begin{code}
   filter_ev ev [] = True
@@ -244,17 +244,17 @@ to support SPARQL endpoints, with some efficiency improvements.  In particular, 
 
 \section{Improvements over Original Semantics}
 
-In the following section, {\em function currying} \cite{currying} is used to simplify the description of the semantics.
+In the following section, {\em function currying}\cite{currying} is used to simplify the description of the semantics.
 Briefly, a function $f$ with $n$ arguments can be {\em curried} into a chain of $n$ functions, each accepting one argument and returning the next function
 in a chain, effectively ``fixing'' the current argument in the returned function.  If the end of the chain is reached, the value that $f$
-would have produced had it been directly called with all $n$ arguments is returned.  This is a key feature of many functional programming languages \cite{haskell}.
+would have produced had it been directly called with all $n$ arguments is returned.  This is a key feature of many functional programming languages\cite{haskell}.
 
 We use the syntax $f$ $x_1$ $x_2$ $\dots$ $x_n$ to denote a function or function call with $n$ arguments.  If this syntax is used
 and only a partial number of arguments are provided, then a function of the remaining arguments is returned.  Otherwise,
 this syntax is equivalent to $f(x_1, x_2, \dots, x_n)$.
 
 The improvements from the original semantics presented in
-\cite{frost2014demonstration} \cite{frostagboola2014} are detailed below.
+\cite{frost2014demonstration}\cite{frostagboola2014} are detailed below.
 
 \subsection{Multiple-property prepositions and terminology}
 
@@ -286,7 +286,7 @@ For example, the \texttt{subjects}, \texttt{objects}, or \texttt{types} of an ev
 
 \subsection{Naming and definition of ``Images''}
 
-Originally, transitive verbs were defined in terms of {\em images} \cite{frost2014denotational}.
+Originally, transitive verbs were defined in terms of {\em images}\cite{frost2014denotational}.
 In this Thesis, we use the term {\em function defined by the relation} instead of {\em image}, as {\em image} is a term that already exists throughout mathematics and has
 a different meaning.
 
@@ -348,7 +348,7 @@ accomplish this task.
 
 \subsubsection{Triplestore utility functions}
 
-The \texttt{getts} functions are identical to how they were in \cite{frost2013event}, however
+The \texttt{getts} functions are identical to how they were in\cite{frost2013event}, however
 all other triplestore utility functions have been modified from their original definitions.
 In particular, the functions \texttt{get\_subjs\_for\_event}, \texttt{get\_subjs\_for\_events},
 \texttt{get\_subjs\_for\_event\_type}, and \texttt{get\_members} return an FDBR rather than a set of entities.  They are defined as follows:

@@ -14,7 +14,7 @@ sensors, network adapters, and other electronic hardware. These devices are what
 improving accessibility for those who have disabilities.  Natural Language Interfaces, in particular, could carry tremendous value to these users.
 
 The Internet of Things, or {\em IoT}, is built on {\em The Semantic Web}, a body of open standards that allows these devices to ``speak the same language'' to one another, much
-like how the {\em World Wide Web} operates today \cite{semwebanalogy}.  If it were possible to design a framework for building Natural Language Interfaces to the Semantic Web,
+like how the {\em World Wide Web} operates today\cite{semwebanalogy}.  If it were possible to design a framework for building Natural Language Interfaces to the Semantic Web,
 Natural Language Interfaces could in turn be designed for these IoT-enabled devices.
 
 
@@ -25,7 +25,7 @@ Natural Language Interfaces could in turn be designed for these IoT-enabled devi
 To begin understanding The Semantic Web, first some terminology must be introduced.
 
 \begin{definition}[Uniform Resource Identifier]
-	``A compact sequence of characters that identifies an abstract or physical resource'' \cite{w3curi}
+	``A compact sequence of characters that identifies an abstract or physical resource''\cite{w3curi}
 \end{definition}
 
 A Uniform Resource Identifier may also be referred to as a {\em URI}.  A URI may take the form of a {\em name}, a {\em location}, or possibly both at once.
@@ -34,7 +34,7 @@ URIs are a fundamental component of The Semantic Web, as it standardizes the not
 that comprise it.  Having a canonical name for a given object helps agents to refer to it, and in turn understand what one another are referring to when communicating.
 
 \begin{definition}[Triple]
-	A 3-tuple that has the form $(\text{\em subject}, \text{\em predicate}, \text{\em object})$, where {\em subject}, {\em predicate}, and {\em object} are Uniform Resource Identifiers \cite{w3csemanticweb}.
+	A 3-tuple that has the form $(\text{\em subject}, \text{\em predicate}, \text{\em object})$, where {\em subject}, {\em predicate}, and {\em object} are Uniform Resource Identifiers\cite{w3csemanticweb}.
 \end{definition}
 
 Fundamentally, The Semantic Web is a network of online databases that store facts in the form of {\em triples}.
@@ -43,7 +43,7 @@ These {\em triples} compose the basic elements of the Resource Description Frame
 Traditionally, triplestores describe facts in terms of {\em entities}.
 
 \begin{definition}[Entity]
-	``A thing capable of an independent existence that can be uniquely identified'' \cite{kent2015era}
+	``A thing capable of an independent existence that can be uniquely identified''\cite{kent2015era}
 \end{definition}
 
 We call triplestores whose information is organized around entities {\em entity-based triplestores}.
@@ -53,7 +53,7 @@ We call triplestores whose information is organized around entities {\em entity-
 \end{definition}
 
 In this Thesis Report, we use the syntax \texttt{(s, v, o)} to describe a triple.  However, in practice, different encodings are used
-to represent triples.  For instance, in {\em N-Triples} syntax \cite{w3cntriples}, the triple \texttt{(s, v, o)} would be represented using
+to represent triples.  For instance, in {\em N-Triples} syntax\cite{w3cntriples}, the triple \texttt{(s, v, o)} would be represented using
 the string obtained by substituting the URIs that \texttt{s}, \texttt{v}, and \texttt{o} represent directly into their corresponding placeholders ``\texttt{\$s}'', ``\texttt{\$v}'', and ``\texttt{\$o}'' in the following string:  ``\texttt{<\$s> <\$v> <\$o>.}''.  In our Haskell code, we would represent this triple using the tuple \texttt{(ss, vs, os)}, where \texttt{ss}, \texttt{vs}, and \texttt{os} are, respectively, the URIs that \texttt{s}, \texttt{v}, and \texttt{o} represent mapped to the \texttt{String} type in the language.
 
 Therefore, in this Thesis Report the triples we refer to are ``abstract'' triples rather than the actual concrete representations of those triples in practice.
@@ -62,7 +62,7 @@ Therefore, in this Thesis Report the triples we refer to are ``abstract'' triple
 
 \section {The Problem}
 
-Although information represented in the Semantic Web is standardized by the W3C \cite{w3csemanticweb}, the problem of how to actually query information contained within it is still an area of active research.
+Although information represented in the Semantic Web is standardized by the W3C\cite{w3csemanticweb}, the problem of how to actually query information contained within it is still an area of active research.
 
 The SPARQL Protocol and RDF Query Language is an attempt to provide an SQL-like interface to the Semantic Web.  Currently, it is the de-facto method of querying RDF triplestores.  SPARQL queries form patterns that define restrictions on the elements of triples.  Only triples matching the query pattern are returned in the result.  Users submit queries to a {\em SPARQL endpoint} which in turn executes the query against a triplestore and returns the results.  SPARQL is not intended to be used directly by humans, however. User-friendly Semantic Web query interfaces provide higher level metaphors for interacting with RDF triplestores, improving accessibility.  These query interfaces then transform these metaphors into corresponding SPARQL queries.
 
@@ -77,10 +77,10 @@ An ontology-aware English interface to the Semantic Web based on Montague semant
 and evaluates queries based on a compositional semantics.  It supports quantification, negation, and conjunction in queries.  ORAKEL directly attempts to convert the input query to a SPARQL query.
 
 \subsubsection{QuestIO}
-An ontology-aware English interface to the Semantic Web that is keyword oriented, attempting to match words against concepts to hone down queries\cite{tablan2008natural} .  Uses SeRQL \cite{serql}, a query language similar to SPARQL, to form queries.  Sentences are transformed into SeRQL queries by the use of a formal semantics.
+An ontology-aware English interface to the Semantic Web that is keyword oriented, attempting to match words against concepts to hone down queries\cite{tablan2008natural} .  Uses SeRQL\cite{serql}, a query language similar to SPARQL, to form queries.  Sentences are transformed into SeRQL queries by the use of a formal semantics.
 
 \subsubsection{AutoSPARQL}
-A supervised machine learning approach using English to query the Semantic Web \cite{lehmann2011autosparql}.  Queries are provided in the form of keywords, which are used to construct query trees.  These are then converted to SPARQL queries.  It is a feedback oriented system in that the user is expected to be actively involved in refining subsequent results by selecting candidates from the returned set that best match what the user is looking for.
+A supervised machine learning approach using English to query the Semantic Web\cite{lehmann2011autosparql}.  Queries are provided in the form of keywords, which are used to construct query trees.  These are then converted to SPARQL queries.  It is a feedback oriented system in that the user is expected to be actively involved in refining subsequent results by selecting candidates from the returned set that best match what the user is looking for.
 
 %THE PROBLEM WITH EXISTING APPROACHES:
 
@@ -94,7 +94,7 @@ While these approaches have seen success, they all share a shortcoming in that t
 
 The work presented in this thesis draws on two main concepts: executable attribute grammars\cite{frosthafiz2008} and event-based denotational semantics\cite{frostagboola2014}.
 
-Executable attribute grammars are a natural way to implement Natural Language processors \cite{?}, and since they allow top-down rather than bottom-up parsing, they are highly modular \cite{frosthafiz2008}.  This makes them well suited to the natural specification of semantic rules.
+Executable attribute grammars are a natural way to implement Natural Language processors\cite{?}, and since they allow top-down rather than bottom-up parsing, they are highly modular\cite{frosthafiz2008}.  This makes them well suited to the natural specification of semantic rules.
 
 Event-based denotational semantics operate on event-based triplestores\cite{frost2014demonstration} rather than entity-based triplestores.  Triplestores describe entities and their relations to other entities, but a problem exists in how to add contextual information to a particular triple.  In an event-based triplestore, triples describe events rather than entities, and information about entities and their relationships to one another may be gleaned from the events in which they occur.  Additional information about an event may be added by simply adding a new triple to the triplestore.
 
@@ -118,7 +118,7 @@ Additionally, other information about the event may be added as well, for exampl
 \section{Thesis Statement}
 By integrating a novel event-based denotational semantics with a parser constructed as an executable attribute grammar, it is possible to create a highly modular and extensible Natural Language Interface to the Semantic Web that supports the use of prepositional phrases in queries.
 
-\section{Proof of Concept} We prove the Thesis by creating an online English query interface to a triplestore containing thousands of facts about the solar system. \cite{Solarman:2016}.
+\section{Proof of Concept} We prove the Thesis by creating an online English query interface to a triplestore containing thousands of facts about the solar system\cite{Solarman:2016}.
 
 Some example queries that can be handled by this system include:
 
@@ -134,7 +134,7 @@ In addition to this, we demonstrate a novel method of handling the word ``by'' a
 
 \section{Structure of Thesis Report}
 
-The remainder Thesis Report is structured as follows:
+The remainder of this Thesis Report is structured as follows:
 
 \begin{enumerate}
 	\item Demonstration

@@ -9,7 +9,7 @@
 The parser combinators as described in this Thesis differ from their original implementations
 in \cite{frosthafiz2008}.  The most significant change that we made is that the combinators are now {\em monadic} in nature rather than being strictly pure functions.
 Briefly, monads in the Haskell programming language are types that are instances of the {\em Monad} typeclass that obey the
-{\em monad laws} \cite{monadlaws}.  In Haskell, functions that are not {\em referentially transparent} are represented using computations in the monad \texttt{IO}, commonly referred to as the {\em IO monad}.
+{\em monad laws}\cite{monadlaws}.  In Haskell, functions that are not {\em referentially transparent} are represented using computations in the monad \texttt{IO}, commonly referred to as the {\em IO monad}.
 
 By modifying the parser to work with monadic rather than pure values, the restriction that the semantics themselves must also be pure was lifted, and
 we can safely support streaming information from external triplestores in our semantics as a result.

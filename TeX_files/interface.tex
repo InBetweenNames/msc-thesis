@@ -19,7 +19,7 @@ then these queries could return different results, violating referential transpa
 The function \texttt{unsafeDupablePerformIO} was used in \cite{agboola2015extensible} to force Haskell to treat the \texttt{getts\_*} functions as pure functions
 in order to maintain compatibility with the original semantics. The problem with \texttt{unsafeDupablePerformIO} is that it subverts the type system of Haskell.  Code that is built using it is therefore not on
 solid theoretical ground within the constructs of the language, and surprising effects can occur as a result.  The use of \texttt{unsafeDupablePerformIO}, while
-legitimate in some cases, is heavily discouraged within the Haskell community \cite{noUnsafePerformIO}.
+legitimate in some cases, is heavily discouraged within the Haskell community\cite{noUnsafePerformIO}.
 
 In this Thesis, we chose a different approach to handling external triplestore queries by representing the triplestore functions and semantics in terms of {\em monadic functions}.
 By expressing the semantics and triplestore functions monadically, we stay safely within the confines of Haskell's type system, avoiding
@@ -79,7 +79,7 @@ are stored in {\em key-value stores}.  When a query is performed, it is first ch
 if the same triplestore query has been made previously.  If it has, the previous result is returned.  Otherwise, the request is made to the remote
 triplestore and its result is saved into the appropriate key-value store.  Multiple requests for the same information to the remote triplestore are therefore fused together.
 
-The key-value stores are held in top-level mutable variables.  Defining top-level mutable variables in Haskell is a subject that has been explored in depth, with many proposals in how to provide an idiomatic method in the language to express it.  According to the Haskell community, the accepted way of doing this for now is with the following pattern \cite{tlmvconsensus}:
+The key-value stores are held in top-level mutable variables.  Defining top-level mutable variables in Haskell is a subject that has been explored in depth, with many proposals in how to provide an idiomatic method in the language to express it.  According to the Haskell community, the accepted way of doing this for now is with the following pattern\cite{tlmvconsensus}:
 
 \begin{itemize}
 	\item A top-level mutable variable \texttt{v} is defined using \texttt{v = unsafePerformIO \$ newIORef value} 
@@ -165,7 +165,7 @@ Proof:
 
 Proof:
 
-In the Haskell standard library source code, \texttt{Data.List.groupBy} is defined as follows: \cite{hstdlib}:
+In the Haskell standard library source code, \texttt{Data.List.groupBy} is defined as follows\cite{hstdlib}:
 
 \begin{code}
 groupBy _  []           =  []
@@ -173,7 +173,7 @@ groupBy eq (x:xs)       =  (x:ys) : groupBy eq zs
 where (ys,zs) = span (eq x) xs
 \end{code}
 
-\texttt{span} is defined as follows \cite{hstdlib}:
+\texttt{span} is defined as follows\cite{hstdlib}:
 
 \begin{code}
 span _ xs@[]            =  (xs, xs)
@@ -299,7 +299,7 @@ The parser is defined in the \texttt{AGParser2} module.
 \begin{figure}[h]
 	\centering
 	\frame{\includegraphics[width=\textwidth]{semanticsslide3}}
-	\caption{Parser operation: how an English sentence is mapped to semantic functions for evaluation \cite{graphmqslide}}
+	\caption{Parser operation: how an English sentence is mapped to semantic functions for evaluation\cite{graphmqslide}}
 \end{figure}
 
 The types of the semantic functions in \texttt{SolarmanTriplestore} are defined in the TypeAg2 module.
