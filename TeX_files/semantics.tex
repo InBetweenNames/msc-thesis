@@ -11,7 +11,7 @@
 
 \label{chapter:semantics}
 
-Our demonstration program, Solarman, uses an event-based denotational semantics in order to perform queries on the Semantic Web.  In this Chapter we present
+Our demonstration query program, Solarman, uses an event-based denotational semantics in order to perform queries on the Semantic Web.  In this Chapter we present
 an overview of event-based triplestores, a summary of the original event-based semantics that our semantics are based on, and our improved semantics.
 We also present a novel method of handling the word ``by'', as in the phrase ``discovered by'', treating it directly as a prepositional phrase in queries.
 
@@ -54,7 +54,7 @@ The key motivation behind using Event-based triplestores in this Thesis is that 
 
 \section{Original Event-Based Denotational Semantics}
 
-The semantics in this Thesis is based on work that was originally described by Frost et al. in 2013\cite{frost2013event}.  That work was later improved upon by Frost and Agboola in 2014\cite{frostagboola2014}.
+The semantics in this Thesis is based on work that was originally described by Frost et al. in 2013\cite{frost2013event}, called EV-FLMS.  That work was later improved upon by Frost and Agboola in 2014\cite{frostagboola2014}.
 
 One key feature of the original semantics is that they were not tied to any particular implementation of an event-based triplestore,
 removing the need to directly convert queries into corresponding triplestore queries.
@@ -146,9 +146,9 @@ Conjoiners for common nouns were implemented similarly:
 \end{code}
 
 
-A {\em determiner phrase} was defined as being a determiner with a common noun applied to it\cite{frost2014denotational}.
+A {\em determiner phrase} was defined as being a determiner such as ``a'' or ``every'' applied to a common noun, for example ``every moon''.\cite{frost2014denotational}.
 A {\em termphrase} was defined as being either a a proper noun or a determiner phrase\cite{frost2014denotational}.
-Conjoiners for termphrases were implemented differently:
+Conjoiners for termphrases were implemented as follows:
 \vspace{1em}
 \begin{code}
  termand tmph1 tmph2 setofents = (tmph1 setofents) && (tmph2 setofevs)
@@ -260,6 +260,7 @@ this syntax is equivalent to $f(x_1, x_2, \dots, x_n)$.
 
 The improvements from the original semantics presented in
 \cite{frost2014demonstration}\cite{frostagboola2014} are detailed below.
+This new semantics is called ``Unified EV-FLMS'', abbreviated as UEV-FLMS.
 
 \subsection{Multiple-property prepositions and terminology}
 
@@ -296,7 +297,7 @@ In this Thesis, we use the term {\em function defined by the relation} instead o
 a different meaning.
 
 \begin{definition}[Function defined by the relation $r$]
-	The function defined by the binary relation $r$ is the set $\{(\mathtt{x}, \mathtt{image_x}) : \mathtt{x}$ is a member of the domain of $\mathtt{r} \ \wedge \  \mathtt{image_x}$ is the image of $\mathtt{x}$ under $\mathtt{r} \}$
+	The function defined by the binary relation $r$ is the set $\{(\mathtt{x}, \mathtt{image_x}) : \mathtt{x}$ is a member of the domain of $\mathtt{r}$ and $\mathtt{image_x}$ is the image of $\mathtt{x}$ under $\mathtt{r} \}$
 \end{definition}
 
 %TODO: Move Haskell impl details to chapter 5
@@ -326,7 +327,7 @@ In the original semantics, the \texttt{make\_trans} function could be defined as
   \mathtt{make\_trans} \ \mathtt{event\_type}\ \mathtt{tmph} = \\ \mathtt{tmph} (\mathtt{map} \ \mathtt{fst}\ \mathtt{FDBR}(\mathtt{ENTEVPROP\_TYPE}(\mathtt{event\_type}, \text{``\texttt{subject}''})))
 \end{multline*}
 
-These relations form the basis on which our new semantics are defined.
+These relations form the basis on which our new semantics is defined.
 
 \subsection{The implicit `and' problem and the problem of `every'}
 
@@ -348,7 +349,7 @@ section below as some additional concepts must be introduced first.
 
 \subsection{Semantic consistency}
 
-One goal of the new semantics is to unify concepts in the original semantics.  A significant refactoring was done in order to 
+One goal of the new semantics is to unify concepts in the original semantics.  A significant refactoring was performed in order to 
 accomplish this task.
 
 \subsubsection{Triplestore utility functions}
@@ -444,7 +445,7 @@ With this in mind, we define the determiners as follows:\\
 \end{gather*}
 }
 
-\texttt{fst} is a function that returns the first component from in a pair.  The \texttt{map} function computes the image of a function $f$ over the elements of a set $s$.  
+\texttt{fst} is a function that returns the first component in a pair.  The \texttt{map} function computes the image of a function $f$ over the elements of a set $s$.  
 Hence the function \texttt{map fst} obtains all of the entities in an FDBR.
 
 Proper nouns are defined as follows:
