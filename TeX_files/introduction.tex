@@ -15,7 +15,7 @@ Increasingly, Internet-aware ``smart'' devices are becoming the norm, silently r
 sensors, network adapters, and other electronic hardware. These devices are what comprise the {\em Internet of Things}, a revolutionary change in how we interact with devices and appliances around us.  One benefit of this change is that these devices are able to be operated remotely and through alternative interfaces, drastically
 improving accessibility for those who have disabilities.  Natural Language Interfaces, in particular, could carry tremendous value to these users.
 
-The Internet of Things, or {\em IoT}, is built on {\em The Semantic Web}, a body of open standards that allows these devices to ``speak the same language'' to one another, much
+The Internet of Things, or {\em IoT}, is built on the {\em Semantic Web}, a body of open standards that allows these devices to ``speak the same language'' to one another, much
 like how the {\em World Wide Web} operates today\cite{semwebanalogy}.  If it were possible to design a framework for building Natural Language Interfaces to the Semantic Web,
 Natural Language Interfaces could in turn be designed for these IoT-enabled devices.
 
@@ -24,7 +24,7 @@ Natural Language Interfaces could in turn be designed for these IoT-enabled devi
 
 \section{The Semantic Web}
 
-To begin understanding The Semantic Web, first some terminology must be introduced.
+To begin understanding the Semantic Web, first some terminology must be introduced.
 
 \begin{definition}[Uniform Resource Identifier]
 	``A compact sequence of characters that identifies an abstract or physical resource''\cite{w3curi}
@@ -32,14 +32,14 @@ To begin understanding The Semantic Web, first some terminology must be introduc
 
 A Uniform Resource Identifier may also be referred to as a {\em URI}.  A URI may take the form of a {\em name}, a {\em location}, or possibly both at once.
 A common example of a URI is an HTTP URL for a website.  Another example would be the ISBN of a book, or a telephone number.
-URIs are a fundamental component of The Semantic Web, as it standardizes the notion of identification for the devices, or more generally speaking, {\em agents}
+URIs are a fundamental component of the Semantic Web, as it standardizes the notion of identification for the devices, or more generally speaking, {\em agents}
 that comprise it.  Having a canonical name for a given object helps agents to refer to it, and in turn understand what one another are referring to when communicating.
 
 \begin{definition}[Triple]
 	A 3-tuple that has the form $(\text{\em subject}, \text{\em predicate}, \text{\em object})$, where {\em subject}, {\em predicate}, and {\em object} are Uniform Resource Identifiers\cite{w3csemanticweb}.
 \end{definition}
 
-Fundamentally, The Semantic Web is a network of online databases that store facts in the form of {\em triples}.
+Fundamentally, the Semantic Web is a network of online databases that store facts in the form of {\em triples}.
 These {\em triples} compose the basic elements of the Resource Description Framework data model that underlies the Semantic Web, and databases that contain them are commonly referred to as {\em triplestores} or {\em RDF triplestores}.  When we refer to the \texttt{subject}, \texttt{predicate}, or \texttt{object} of a triple, we are referring to the first, second, or third component of that triple, respectively.
 
 Traditionally, triplestores describe facts in terms of {\em entities}.
@@ -68,7 +68,7 @@ Although information represented in the Semantic Web is standardized by the W3C\
 
 The SPARQL Protocol and RDF Query Language is an attempt to provide an SQL-like interface to the Semantic Web.  Currently, it is the de-facto method of querying RDF triplestores.  SPARQL queries form patterns that define restrictions on the elements of triples.  Only triples matching the query pattern are returned in the result.  Users submit queries to a {\em SPARQL endpoint} which in turn executes the query against a triplestore and returns the results.  SPARQL is not intended to be used directly by humans, however. User-friendly Semantic Web query interfaces provide higher level metaphors for interacting with RDF triplestores, improving accessibility.  These query interfaces then transform these metaphors into corresponding SPARQL queries.
 
-Querying the Semantic Web using Natural Language is an active area of research interest, as it allows users with little to no technical background to construct queries for RDF triplestores.  This allows, for instance, health or police databases to be queried by professionals with minimal effort by the user.  It also enhances accessibility of The Semantic Web for users who have disabilities.  As there have been several attempts to construct a Natural Language Interface for the Semantic Web, and research is ongoing, the problem of doing so is non-trivial.  A summary of existing approaches for Natural Language Interfaces to query the Semantic Web is given below:
+Querying the Semantic Web using Natural Language is an active area of research interest, as it allows users with little to no technical background to construct queries for RDF triplestores.  This allows, for instance, health or police databases to be queried by professionals with minimal effort by the user.  It also enhances accessibility of the Semantic Web for users who have disabilities.  As there have been several attempts to construct a Natural Language Interface for the Semantic Web, and research is ongoing, the problem of doing so is non-trivial.  A summary of existing approaches for Natural Language Interfaces to query the Semantic Web is given below:
 
 
 %SUMMARY OF EXISTING APPROACHES:
