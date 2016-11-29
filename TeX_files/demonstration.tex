@@ -24,6 +24,18 @@ In the text box labeled ``Enter query here'', English queries about the Solar sy
 
 Traversing the ``More Examples'' link will bring up a page that contains a full list of the words that can be used in queries, along with a list of example queries that can be used.
 
+Some example queries that use prepositional phrases include:
+
+\begin{itemize}
+	\item \texttt{what moon was discovered by one person in 1877}
+	\item \texttt{what planet is orbited by a moon that was discovered in 1684}
+	\item \texttt{what was discovered in 1877 in us\_naval\_observatory with a \\ telescope}
+	\item \texttt{how many moons were discovered in 1938}
+	\item \texttt{where were the moons that were discovered by hall or kuiper in \\ 1877 discovered}
+	\item \texttt{which moons that orbit a planet that orbits a sun were discovered \\ by one person at a place with a telescope}
+	\item \texttt{how were the moons that were discovered with two telescopes\\ discovered}
+\end{itemize}
+
 %%
 
 \section{Direct Query Interface}
@@ -43,11 +55,15 @@ to a safe subset that is suitable for executing untrusted code.  This makes the 
 
 Examples of queries that can be performed with the Direct Query Interface:
 \begin{itemize}
-	\item ``\texttt{when' \$ something \$ discovered\_ [at mt\_wilson]}'' (English: ``when was something discovered at mt\_wilson'')
-	\item ``\texttt{how' \$ discovered \$ the (thing `that` discovered\_ [at flagstaff])}'' (English: ``how was the thing that was discovered at flagstaff discovered'')
-	\item ``\texttt{what \$ discovered\_ [in' 1877, at us\_naval\_observatory]}'' (English: ``what was discovered in 1877 at us\_naval\_observatory'')
-	\item ``\texttt{which planet \$ orbited\_ [by \$ a (moon `that` discovered\_ [in' 1684])]}'' (English: ``what planet is orbited by a moon that was discovered in 1684'')
-	\item ``\texttt{which ( liftM2 intersect\_fdbr vacuumous  (moon `that` orbits jupiter)) \$ discovered\_ [by \$ nicholson `termor` hall, with \$ a telescope, in' 1938, at \$ mt\_wilson `termor` mt\_hopkins]}'' (English: ``which vacuumous moon that orbits jupiter was discovered by nicholson or hall with a telescope in 1938 in mt\_wilson or mt\_hopkins'')
+	\item \texttt{when' \$ something \$ discovered\_ [at mt\_wilson]} \\(English: ``when was something discovered at mt\_wilson'')
+	\item \texttt{how' \$ discovered \$
+	\subitem the (thing `that` discovered\_ [at flagstaff])} \\(English: ``how was the thing that was discovered at flagstaff discovered'')
+	\item \texttt{what \$ discovered\_ [in' 1877, at us\_naval\_observatory]} \\(English: ``what was discovered in 1877 at us\_naval\_observatory'')
+	\item \texttt{which planet \$ orbited\_ 
+		\subitem [by \$ a (moon `that` discovered\_ [in' 1684])]} \\(English: ``what planet is orbited by a moon that was discovered in 1684'')
+	\item \texttt{which
+		\subitem (liftM2 intersect\_fdbr vacuumous  (moon `that` orbits jupiter))
+		\subitem \$ discovered\_ [by \$ nicholson `termor` hall, \subsubitem with \$ a telescope, in' 1938, \subsubitem at \$ mt\_wilson `termor` mt\_hopkins]}\\(English: ``which vacuumous moon that orbits jupiter was discovered by nicholson or hall with a telescope in 1938 in mt\_wilson or mt\_hopkins'')
 \end{itemize}
 
 \subsection{Verb voices}
@@ -66,15 +82,25 @@ The above voices apply to the ``orbit'' verb as well.
 \subsection{Evaluating types}
 
 In addition to evaluating queries, the types of the combinators themselves and their results may also be evaluated by prepending the query with
-``:t''.  For example:
+``\texttt{:t}''.  For example:
 
 \begin{itemize}
-	\item ``:t moon'' returns ``moon :: IO FDBR''
-	\item ``:t a moon'' returns ``a moon :: IO [(String,  t2)] $\rightarrow$ IO [(String,  t2)]''
-	\item ``:t by'' returns ``by :: t $\rightarrow$ ([[Char]],  t)''
-	\item ``:t discovered\''' returns ``discovered'	:: (IO FDBR $->$ IO FDBR) $\rightarrow$ [([[Char]],  IO FDBR $\rightarrow$ IO FDBR)] $\rightarrow$ IO FDBR''
-	\item ``:t vacuumous'' returns ``vacuumous :: IO FDBR''
+	\item ``\texttt{:t moon}'' returns ``\texttt{moon :: IO FDBR}''
+	\item ``\texttt{:t a moon}'' \subitem returns ``\texttt{a moon :: IO [(String,  t2)] $\rightarrow$ IO [(String,  t2)]}''
+	\item ``\texttt{:t by}'' returns ``\texttt{by :: t $\rightarrow$ ([[Char]],  t)}''
+	\item ``\texttt{:t discovered'}'' \subitem returns ``\texttt{discovered' :: (IO FDBR $\rightarrow$ IO FDBR) $\rightarrow$ \subsubitem [([[Char]],  IO FDBR $\rightarrow$ IO FDBR)] $\rightarrow$ IO FDBR}''
+	\item ``\texttt{:t vacuumous}'' returns ``\texttt{vacuumous :: IO FDBR}''
 \end{itemize}
+
+In the above query results, \texttt{FDBR} refers to the ``Function Defined By Relation'' construct which is explained in Chapter \ref{chapter:semantics}.  A value of type
+\texttt{IO FDBR} represents an ``IO Action'', when executed, yields a value of type \texttt{FDBR}.  In our semantics, the \texttt{FDBR} type is defined as \texttt{[(String, [String])]}.
+The type $\mathtt{a \rightarrow b}$ is used to denote a function from type $\mathtt{a}$ to type $\mathtt{b}$.
+
+The Haskell language deduces the most general type declaration possible for a given function definition.  If certain components of an input value aren't used,
+those components will be replaced with a {\em type variable} when possible.  This can be seen above in the queries for \texttt{:t a moon} and \texttt{:t by}.
+Neither of these expressions use the list of events associated with the input FDBR, and therefore the type declaration was generalized,
+substituting a type variable for the list of events.  The type variable is allowed to be bound to any type, subject to type constraints.
+For example, in ``\texttt{:t a moon}'', if we let \texttt{t2 = [String]}, then \texttt{a moon :: IO [(String, [String])]} and hence \texttt {a moon :: IO FDBR}.
 
 \subsection{Result formatting}
 
@@ -107,5 +133,14 @@ This was accomplished using the {\em WAVE Web Accessibility Evaluation Tool}\cit
 The SPARQL endpoint that Solarman uses can be accessed via this URL:
 
 \url{http://speechweb2.cs.uwindsor.ca/sparql}
+
+We use the Virtuoso RDF triplestore and its SPARQL interface\cite{virtuoso} in our demonstration.  To replicate our setup,
+first install the Virtuoso software for your operating system.  Next, obtain a database dump of our triplestore
+in ``n-Triples'' format\cite{w3cntriples} using this URL:
+
+\url{http://speechweb2.cs.uwindsor.ca/solarman2/triples.nt}
+
+Finally, use the ``bulk import'' mechanism in Virtuoso Conductor to import our triples into your triplestore, selecting the \texttt{triples.nt} file.
+Our semantics can use any SPARQL interface, so the Virtuoso triplestore may be substituted with any number of alternatives, including Apache Jena\cite{jena2013apache}. 
 
 \end{document}

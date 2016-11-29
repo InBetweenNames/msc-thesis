@@ -27,8 +27,7 @@ In this Thesis, we chose a different approach to handling external triplestore q
 By expressing the semantics and triplestore functions monadically, we stay safely within the confines of Haskell's type system, avoiding
 the need to use \texttt{unsafeDupablePerformIO} in order to perform queries to external triplestores as a result.  Another key benefit of this approach is that it preserves the compositional nature of the original semantics.
 
-The semantics are defined in the IO monad currently, however if other monads were desired, only minimal changes would be required in order to accommodate
-other instances of the Monad typeclass.  In Chapter \ref{chapter:futurework}, one potential application of this functionality is discussed.
+The semantics are implemented in the IO monad currently.  However, if other monads were desired, just as with the parser described in Chapter \ref{chapter:combinators}, only minimal changes would be required in order to accommodate other instances of the Monad typeclass.  In Chapter \ref{chapter:futurework}, one potential application of this functionality is discussed.
 
 \subsection{The Getts module: A generic interface to triplestores using a typeclass}
 
@@ -90,7 +89,7 @@ The key-value stores are held in top-level mutable variables.  Defining top-leve
 
 \subsubsection{Efficiency of ``collect''}
 
-The \texttt{collect} function as defined in \cite{agboola2015extensible} used a key-value store from the \texttt{Data.Map.Lazy} module in Haskell to efficiently construct Images from relations represented as association lists.  Because all key-value pairs of the \texttt{Map} will be traversed in order, immediately, in all cases, in this Thesis the \texttt{Data.Map.Strict} module was used instead.  The asymptotic time complexity of both methods are identical, however the \texttt{Strict} version uses less memory and is slightly faster as it does not attempt to store partially evaluated areas of the Map as {\em thunks}.
+The \texttt{collect} function as defined in \cite{agboola2015extensible} used a key-value store from the \texttt{Data.Map.Lazy} module in Haskell to efficiently construct Images from relations represented as association lists.  Because all key-value pairs of the \texttt{Map} will be traversed in order, immediately, in all cases, in this Thesis the \texttt{Data.Map.Strict} module was used instead.  The asymptotic time complexity of both methods are identical, however the \texttt{Strict} version uses less memory and is slightly faster as it does not attempt to store partially evaluated areas of the Map as {\em thunks}, which are partially evaluated Haskell expressions.
 
 The \texttt{collect} function is defined in this module as:
 
@@ -295,6 +294,7 @@ Like the original Haskell implementations, we represent sets in our implementati
 
 
 \section{AGParser2 and TypeAg2 modules}
+\label{section:nonrefparserimpl}
 
 The parser is defined in the \texttt{AGParser2} module.
 

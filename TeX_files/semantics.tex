@@ -54,7 +54,7 @@ The key motivation behind using Event-based triplestores in this Thesis is that 
 
 \section{Original Event-Based Denotational Semantics}
 
-The semantics in this Thesis is based on work that was originally described in \cite{frost2013event}.  That work was later improved upon in \cite{frostagboola2014}.
+The semantics in this Thesis is based on work that was originally described by Frost et al. in 2013\cite{frost2013event}.  That work was later improved upon by Frost and Agboola in 2014\cite{frostagboola2014}.
 
 One key feature of the original semantics is that they were not tied to any particular implementation of an event-based triplestore,
 removing the need to directly convert queries into corresponding triplestore queries.
@@ -245,8 +245,7 @@ where \texttt{filter\_ev} is defined as follows\cite{frost2014denotational}:
 
 \subsection{Haskell implementation for SPARQL}
 
-Later, in \cite{agboola2015extensible}, the Haskell implementation was modified
-to support SPARQL endpoints, with some efficiency improvements.  In particular, the asymptotic time complexity of the \texttt{collect} function was improved to O$(n$ log $n)$ time.
+In 2015, Agboola modified the Haskell implementation to support SPARQL endpoints, with some efficiency improvements\cite{agboola2015extensible}.  In particular, the asymptotic time complexity of the \texttt{collect} function was improved to O$(n$ log $n)$ time.
 
 \section{Improvements over Original Semantics}
 

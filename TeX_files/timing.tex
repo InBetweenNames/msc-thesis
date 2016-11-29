@@ -163,7 +163,8 @@ The vast majority of time is spent performing the SPARQL queries themselves, wit
 less than 2\% of CPU time actually spent in our semantic functions.
 
 This provides a good hint as to how to improve the semantics in the future.
-We could potentially alleviate this bottleneck by performing fewer external triplestore queries.
-
+We could potentially alleviate this bottleneck by performing fewer external triplestore queries,
+either by using more advanced forms of query fusion or better caching mechanisms.  Such techniques
+are discussed further in Chapter \ref{chapter:futurework}.
 
 \end{document}
