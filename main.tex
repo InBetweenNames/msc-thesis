@@ -14,10 +14,11 @@
 \usepackage{mathptmx}% http://ctan.org/pkg/mathptmx
 \usepackage{fancyhdr}
 \usepackage{setspace}
-\usepackage[mark]{gitinfo2}
+%\usepackage[mark]{gitinfo2}
 \usepackage[hidelinks]{hyperref}
 \usepackage[backend=biber,bibstyle=numeric-comp,sorting=ydnt,natbib=true,mcite=true,maxnames=100,url=true,isbn=false,doi=false,uniquename=init,giveninits=true,hyperref=true,backref=true,date=edtf,sortcites]{biblatex}
 \usepackage{tocloft}
+\usepackage{minted}
 
 \newcommand{\listappendicesname}{List of Appendices}
 \newlistof{appendices}{apc}{\listappendicesname}
@@ -173,12 +174,12 @@
 \setlength{\abovedisplayshortskip}{0pt}
 \setlength{\belowdisplayshortskip}{0pt} 
 	
-\renewcommand{\gitMark}{
-	Branch: \gitBranch\,@\,\gitAbbrevHash{} 
-	\textbullet{} 
-	Release:\gitReln{} 
-	(\gitAuthorDate)
-}
+%\renewcommand{\gitMark}{
+%	Branch: \gitBranch\,@\,\gitAbbrevHash{} 
+%	\textbullet{} 
+%	Release:\gitReln{} 
+%	(\gitAuthorDate)
+%}
 	
 \pagenumbering{roman}
 
@@ -434,6 +435,28 @@ The Semantic Web is an emerging component of the set of technologies that will b
 \section*{Appendix A - Source code listing}
 \addcontentsline{toc}{section}{Appendix A - Source code listing}
 \addcontentsline{apc}{appendices}{Appendix A - Source code listing}
+
+%\lstinputlisting[language=haskell]{../solarman/XSaiga/SolarmanTriplestore.hs}
+\subsection*{SolarmanTriplestore.hs}
+\inputminted[autogobble, fontsize=\tiny, breaklines=true]{haskell}{../solarman/XSaiga/SolarmanTriplestore.hs}
+
+\subsection*{Getts.hs}
+\inputminted[autogobble, fontsize=\tiny, breaklines=true]{haskell}{../solarman/XSaiga/Getts.hs}
+
+\subsection*{TypeAg2.hs}
+\inputminted[autogobble, fontsize=\tiny, breaklines=true]{haskell}{../solarman/XSaiga/TypeAg2.hs}
+
+\subsection*{AGParser2.hs}
+\inputminted[autogobble, fontsize=\tiny, breaklines=true]{haskell}{../solarman/XSaiga/AGParser2.hs}
+
+\subsection*{Interactive.hs}
+\inputminted[autogobble, fontsize=\tiny, breaklines=true]{haskell}{../solarman/XSaiga/Interactive.hs}
+
+\subsection*{Main.hs}
+\inputminted[autogobble, fontsize=\tiny, breaklines=true]{haskell}{../solarman/Main.hs}
+
+%\subsection*{LocalData.hs}
+%\inputminted[autogobble, fontsize=\scriptsize, breaklines=true]{haskell}{../solarman/XSaiga/LocalData.hs}
 
 \chapter*{Vita Auctoris}
 \addcontentsline{toc}{chapter}{Vita Auctoris}
