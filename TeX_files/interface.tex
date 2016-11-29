@@ -6,7 +6,138 @@
 
 \label{chapter:implementation}
 
+\section{Data representation}
+
+Like the original Haskell implementations, we represent sets in our implementation using lists and binary relations as association lists.  We represent triples using 3-tuples and we represent URIs using the \texttt{String} type, which is a list of \texttt{Char}.
+
+\section{Structure}
+
+A graph representing the structure of the modules in the XSaiga package in relation to one another is presented in Figure \ref{fig:modulegraph}.  Briefly, there exists an arrow from module \texttt{A} to module \texttt{B} in the graph if and only if module \texttt{A} imports module \texttt{B} in the source code.
+
+\begin{figure}[h]
+	\centering
+	\frame{\includegraphics[width=\columnwidth]{modules2}}
+	\caption{Module graph of the XSaiga package}
+	\label{fig:modulegraph}
+\end{figure}
+
+
+\section{AGParser2 and TypeAg2 modules}
+\label{section:nonrefparserimpl}
+
+The parser is defined in the \texttt{AGParser2} module.
+
+\begin{figure}[h]
+	\centering
+	\frame{\includegraphics[width=\textwidth]{semanticsslide3}}
+	\caption{Parser operation: how an English sentence is mapped to semantic functions for evaluation\cite{graphmqslide}}
+\end{figure}
+
+The types of the semantic functions in \texttt{SolarmanTriplestore} are defined in the TypeAg2 module.
+These are the implementations of the semantic functions described in Chapter \ref{chapter:semantics}.
+The TypeAg2 module therefore serves as the interface between the parser and the semantics.
+
+The changes made to the original parser to accommodate monadic code are summarized below:
+
+\subsection{PrettyPrinting}
+Utility functions for formatting the parser results had to be modified.
+
+\subsubsection{Pure version}
+In the pure version, we have:
+
+\begin{code}
+class PP' a where
+pp' :: a -> Doc
+\end{code}
+
+where \texttt{Doc} is a formatted \texttt{String} and instances are defined for the various types
+used by the parser itself.
+
+\subsubsection{Monadic version}
+
+In the monadic version, we have:
+
+\begin{code}
+class PP' a where
+pp' :: a -> IO Doc
+\end{code}
+
+Here, the \texttt{pp'} function returns an IO action rather than a pure value.
+All instances of \texttt{PP'} were modified accordingly.
+
+\subsection{formatAttsFromAlt}
+
+\subsubsection{Pure version}
+\begin{code}
+formatAttsFinalAlt  key e t  =
+[(pp' [vcat [(vcat [vcat [vcat [text (show ty1v1)  |ty1v1<-val1]
+|(((st,inAtt2),(end,synAtts)), ts)<-rs, end == e]                             
+| ((i,inAt1),((cs,ct),rs)) <- sr ])
+| (s,sr) <- t, s == key ] 
+
+\end{code}
+
+\subsubsection{Monadic version}
+\begin{code}
+formatAttsFinalAlt  key e t  =
+sequence [(sequence [liftM vcat $ sequence
+[(liftM vcat $ sequence
+[liftM vcat $ sequence
+[liftM vcat $ sequence
+[liftM text (showio ty1v1) | ty1v1<-val1]
+|(id1,val1)<-synAtts]] )
+|(((st,inAtt2),(end,synAtts)), ts)<-rs, end == e]
+| ((i,inAt1),((cs,ct),rs)) <- sr ])>>= pp'
+| (s,sr) <- t, s == key ]
+\end{code}
+
+\section{Main module}
+
+The \texttt{Main} module implements a CGI interface for evaluating Natural Language queries using the \texttt{SolarmanTriplestore} module.
+
+\section{Interactive module}
+
+The \texttt{Interactive} module is used by the Direct Query Interface to directly evaluate semantic functions.  It is intended to be used with SafeHaskell
+in order to restrict the evaluation of functions to a trusted subset, suitable for online interfaces.
+
+In \texttt{SolarmanTriplestore}, a dictionary is defined that maps words to semantic functions.  This module defines variables that are named
+after those words such that those functions can be directly accessed in a Haskell interpreter.  This enables, for instance,
+
+\begin{code}
+hall $ discovered phobos
+\end{code}
+
+to be directly evaluated at a Haskell prompt.
+
+A Haskell file InteractiveGenerator.hs is used to generate this module using the dictionary in \texttt{SolarmanTriplestore}.
+
+\section{LocalData module}
+
+This module contains an in-program version of the triplestore located on our SPARQL endpoint.  As the \texttt{Getts} module provides
+a general interface to triplestores in the form of a typeclass, we are able to support both in-program triplestores as well as remote triplestores.
+The module exports the list of triples as the variable \texttt{localData}:
+
+\begin{code}
+localData = [("event1000", "object", "sol"),
+("event1000", "subject", "mercury"),
+("event1000", "type", "orbit_ev"),
+("event1001", "object", "sol"),
+("event1001", "subject", "venus"),
+("event1001", "type", "orbit_ev"),
+("event1002", "object", "sol"),
+("event1002", "subject", "earth"),
+("event1002", "type", "orbit_ev"),
+("event1003", "object", "sol"),
+... ]
+\end{code}
+
+\section{SolarmanTriplestore and Getts modules}
+
+The implementation of our semantics in Haskell is contained within these modules, along with the parser constructed as an executable attribute grammmar and
+the dictionary used by the parser.  We detail our implementation improvements over EV-FLMS in Section \ref{section:improvementsimpl}.
+
 \section{Improvements over Original Haskell Implementations}
+\label{section:improvementsimpl}
 
 \subsection{Type safety}
 
@@ -277,129 +408,13 @@ $\blacksquare$
 
 %Since \texttt{condense} has a worst-case tight bound asymptotic time complexity of $\theta(n)$, it is optimal. \qedsymbol 
 
-\section{Structure}
 
-A graph representing the structure of the modules in the XSaiga package in relation to one another is presented in Figure \ref{fig:modulegraph}.  Briefly, there exists an arrow from module \texttt{A} to module \texttt{B} in the graph if and only if module \texttt{A} imports module \texttt{B} in the source code.
+\section{Summary}
 
-\begin{figure}[h]
-	\centering
-	\frame{\includegraphics[width=\columnwidth]{modules2}}
-	\caption{Module graph of the XSaiga package}
-	\label{fig:modulegraph}
-\end{figure}
-
-\section{Data representation}
-
-Like the original Haskell implementations, we represent sets in our implementation using lists and binary relations as association lists.  We represent triples using 3-tuples and we represent URIs using the \texttt{String} type, which is a list of \texttt{Char}.
-
-
-\section{AGParser2 and TypeAg2 modules}
-\label{section:nonrefparserimpl}
-
-The parser is defined in the \texttt{AGParser2} module.
-
-\begin{figure}[h]
-	\centering
-	\frame{\includegraphics[width=\textwidth]{semanticsslide3}}
-	\caption{Parser operation: how an English sentence is mapped to semantic functions for evaluation\cite{graphmqslide}}
-\end{figure}
-
-The types of the semantic functions in \texttt{SolarmanTriplestore} are defined in the TypeAg2 module.
-The changes made to the original parser to accommodate monadic code are summarized below:
-
-\subsection{PrettyPrinting}
-Utility functions for formatting the parser results had to be modified.
-
-\subsubsection{Pure version}
-In the pure version, we have:
-
-\begin{code}
-	class PP' a where
-	pp' :: a -> Doc
-\end{code}
-
-where \texttt{Doc} is a formatted \texttt{String} and instances are defined for the various types
-used by the parser itself.
- 
-\subsubsection{Monadic version}
-
-In the monadic version, we have:
-
-\begin{code}
-	class PP' a where
-	pp' :: a -> IO Doc
-\end{code}
-
-Here, the \texttt{pp'} function returns an IO action rather than a pure value.
-All instances of \texttt{PP'} were modified accordingly.
-
-\subsection{formatAttsFromAlt}
-
-\subsubsection{Pure version}
-\begin{code}
-formatAttsFinalAlt  key e t  =
-   [(pp' [vcat [(vcat [vcat [vcat [text (show ty1v1)  |ty1v1<-val1]
-   |(((st,inAtt2),(end,synAtts)), ts)<-rs, end == e]                             
-   | ((i,inAt1),((cs,ct),rs)) <- sr ])
-   | (s,sr) <- t, s == key ] 
-
-\end{code}
-
-\subsubsection{Monadic version}
-\begin{code}
-formatAttsFinalAlt  key e t  =
-  sequence [(sequence [liftM vcat $ sequence
-    [(liftM vcat $ sequence
-	  [liftM vcat $ sequence
-	    [liftM vcat $ sequence
-		  [liftM text (showio ty1v1) | ty1v1<-val1]
-		 |(id1,val1)<-synAtts]] )
-       |(((st,inAtt2),(end,synAtts)), ts)<-rs, end == e]
-      | ((i,inAt1),((cs,ct),rs)) <- sr ])>>= pp'
-     | (s,sr) <- t, s == key ]
-\end{code}
-
-
-\section{Main module}
-
-The \texttt{Main} module implements a CGI interface for evaluating Natural Language queries using the \texttt{SolarmanTriplestore} module.
-
-\section{Interactive module}
-
-The \texttt{Interactive} module is used by the Direct Query Interface to directly evaluate semantic functions.  It is intended to be used with SafeHaskell
-in order to restrict the evaluation of functions to a trusted subset, suitable for online interfaces.
-
-In \texttt{SolarmanTriplestore}, a dictionary is defined that maps words to semantic functions.  This module defines variables that are named
-after those words such that those functions can be directly accessed in a Haskell interpreter.  This enables, for instance,
-
-\begin{code}
-	hall $ discovered phobos
-\end{code}
-
-to be directly evaluated at a Haskell prompt.
-
-A Haskell file InteractiveGenerator.hs is used to generate this module using the dictionary in \texttt{SolarmanTriplestore}.
-
-\section{LocalData module}
-
-This module contains an in-program version of the triplestore located on our SPARQL endpoint.  As the \texttt{Getts} module provides
-a general interface to triplestores in the form of a typeclass, we are able to support both in-program triplestores as well as remote triplestores.
-The module exports the list of triples as the variable \texttt{localData}:
-
-\begin{code}
-	localData = [("event1000", "object", "sol"),
-	("event1000", "subject", "mercury"),
-	("event1000", "type", "orbit_ev"),
-	("event1001", "object", "sol"),
-	("event1001", "subject", "venus"),
-	("event1001", "type", "orbit_ev"),
-	("event1002", "object", "sol"),
-	("event1002", "subject", "earth"),
-	("event1002", "type", "orbit_ev"),
-	("event1003", "object", "sol"),
-	... ]
-\end{code}
-
+In this Chapter we presented an overview of our query program structure as well as how we efficiently implemented our semantics in Haskell.
+We showed the modifications we made to the parser described in \cite{frosthafiz2008} in order to accommodate monadic functions as attributes.
+We presented a basic form of query fusion as used by our implementation, and showed an improved version of \texttt{collect} for
+grouped association lists.  In Chapter \ref{chapter:timing}, we perform some benchmarks to measure the empirical performance of our code.
 
 
 
