@@ -7,7 +7,7 @@
 
 The query program is called ``Solarman'', and there exists two web based interfaces that can be used to interact with it.
 
-Solarman was a program originally built to demonstrate Frost's FLMS semantics in 1989\cite{frost1989constructing}, enabling the user
+Solarman was a program originally built in Miranda to demonstrate Frost's FLMS semantics in 1989\cite{frost1989constructing}, enabling the user
 to perform queries about objects in the Solar system.  It was later ported to Haskell and integrated with Hafiz's parser in 2008\cite{frosthafiz2008}
 to form a Natural Language Interface using FLMS semantics to perform queries.  Later still, it was ported to EV-FLMS semantics, operating on an in-program
 triplestore and, optionally, a SPARQL endpoint using \texttt{unsafeDupablePerformIO}.  We ported Solarman to use UEV-FLMS semantics as described in this Thesis to perform queries on the Semantic Web through SPARQL endpoints safely, removing the need for \texttt{unsafeDupablePerformIO} in our code.
@@ -84,7 +84,7 @@ transitive verbs are supported.  The available voices are summarized as follows:
 	\item discover\_ is the passive voice with prepositional phrases
 \end{itemize}
 
-The above voices apply to the ``orbit'' verb as well.
+\noindent The above voices apply to the ``orbit'' verb as well.
 
 \subsection{Evaluating types}
 
@@ -99,7 +99,7 @@ In addition to evaluating queries, the types of the combinators themselves and t
 	\item ``\texttt{:t vacuumous}'' returns ``\texttt{vacuumous :: IO FDBR}''
 \end{itemize}
 
-In the above query results, \texttt{FDBR} refers to the ``Function Defined By Relation'' construct which is explained in Chapter \ref{chapter:semantics}.  A value of type
+In the above query results, \texttt{FDBR} refers to the ``Function Defined By Relation'' construct which is explained in Section \ref{section:fdbr}.  A value of type
 \texttt{IO FDBR} represents an ``IO Action'', when executed, yields a value of type \texttt{FDBR}.  In our semantics, the \texttt{FDBR} type is defined as \texttt{[(String, [String])]}.
 The type $\mathtt{a \rightarrow b}$ is used to denote a function from type $\mathtt{a}$ to type $\mathtt{b}$.
 

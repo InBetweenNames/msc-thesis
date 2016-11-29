@@ -7,7 +7,7 @@
 
 To implement our Natural Language Interface, we integrated our semantics with a parser constructed as an executable attribute grammar.  We chose to use the parser
 described by Frost and Hafiz in 2008\cite{frosthafiz2008} for this purpose, as it supports top-down parsing of ambiguous grammars.  Our motivations
-for choosing this parser were threefold.  First, it enables users to not have to worry about ambiguity in their grammars.  The parser itself
+for choosing this parser were threefold.  First, it enables users to not have to worry about ambiguity or left-recursion in their grammars.  The parser itself
 tracks ambiguity and evaluates all unique possible parses\cite{frosthafiz2008}.  Second, both semantic and syntactic rules can be defined together, improving modularity\cite{frosthafiz2008}.
 Third, new syntactic and semantic rules can be easily and naturally coded in an attribute grammar that supports left recursion, thereby improving
 extensibility\cite{frosthafiz2008}.

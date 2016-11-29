@@ -101,7 +101,7 @@ Executable attribute grammars are a natural way to implement Natural Language pr
 English denotational semantics were first described by Dr. Richard Montague in 1970\cite{dowty2012introduction}.  Montague proposed
 denotations for English words using characteristic functions described in higher order logic.
 The presence of universal quantification in these characteristic functions made Montague's semantics difficult to implement in a computationally tractable way, however.
-Frost et al. presented an improved version of Montague semantics called {\em FLMS} in 1989\cite{frost1989constructing} that addressed this need.  Frost's approach was to use sets instead of universal quantifiers in predicates, improving tractability.  In addition, Frost proposed a denotation for transitive verbs which was missing in Montague's semantics\cite{frost2013event}.
+Frost et al. in 1989 presented an improved version of Montague semantics called {\em FLMS}\cite{frost1989constructing} that addressed this need.  Frost's approach was to use sets instead of universal quantifiers in predicates, making the semantics computationally tractable.  In addition, Frost proposed a denotation for transitive verbs which was missing in Montague's semantics\cite{frost2013event}.
 
 Frost et al. improved on FLMS in 2013 with a new semantics called {\em EV-FLMS}\cite{frost2013event}, intended for use with event-based triplestores.
 This event-based denotational semantics operates on event-based triplestores\cite{frost2014demonstration} rather than entity-based triplestores.  Triplestores describe entities and their relations to other entities, but a problem exists in how to add contextual information to a particular triple.  In an event-based triplestore, triples describe events rather than entities, and information about entities and their relationships to one another may be gleaned from the events in which they occur.  Additional information about an event may be added by simply adding a new triple to the triplestore.
@@ -125,7 +125,7 @@ Additionally, other information about the event may be added as well, for exampl
 
 In this Thesis, we present a new event-based denotational semantics called {\em Unified EV-FLMS} or {\em UEV-FLMS} that improves on EV-FLMS by unifying several semantic concepts,
 supporting prepositions that query multiple properties, and solving two problems with how prepositional phrases were handled in the original semantics.
-In addition to this, we demonstrate a novel method of handling the word ``by'' as used in the passive form of a verb by treating it directly as a preposition within our grammar, unifying our treatment of active and passive verbs.  In doing this, we are able to accommodate queries such as ``which moon was discovered in 1877 by hall'' without any added complexity to the semantics.
+In doing this, we demonstrate a novel method of handling the word ``by'' as used in the passive form of a verb by treating it directly as a preposition within our grammar, unifying our treatment of active and passive verbs.  With this approach, we are able to accommodate queries such as ``which moon was discovered in 1877 by hall'' without any added complexity to the semantics.
 
 \section{Thesis Statement}
 By integrating a novel event-based denotational semantics with a parser constructed as an executable attribute grammar, it is possible to create a highly modular and extensible Natural Language Interface to the Semantic Web that supports the use of prepositional phrases in queries.

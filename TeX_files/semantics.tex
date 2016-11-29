@@ -291,6 +291,7 @@ We may use the phrase ``the \texttt{prop}s of an event'' as a shorthand for ``th
 For example, the \texttt{subjects}, \texttt{objects}, or \texttt{types} of an event are the entities with property \texttt{subject}, \texttt{object} or \texttt{type} of that event, respectively.
 
 \subsection{Naming and definition of ``Images''}
+\label{section:fdbr}
 
 Originally, transitive verbs were defined in terms of {\em images}\cite{frost2014denotational}.
 In this Thesis, we use the term {\em function defined by the relation} instead of {\em image}, as {\em image} is a term that already exists throughout mathematics and has
@@ -345,7 +346,7 @@ The reason this happens is because in the original \texttt{filter\_ev} function,
 
 In our semantics we define a new \texttt{filter\_ev} function that overcomes
 both these problems.  Its definition is deferred until the {\em Transitive Verbs}
-section below as some additional concepts must be introduced first.
+section as some additional concepts must be introduced first.
 
 \subsection{Semantic consistency}
 
@@ -570,7 +571,7 @@ Similarly, the conjoiners for termphrases are also defined in terms of FDBRs:
 Note that \texttt{termand tmph1 tmph2} and \texttt{termor tmph1 tmph2} are predicates: they are functions from FDBRs to FDBRs and return exactly the FDBR-pairs
 that are relevant to them.  \texttt{termand tmph1 tmph2} is curiously defined in terms of \texttt{termor}.  The reason for this is that, provided both termphrases
 evaluate to \texttt{True} for FDBR $F$, all FDBR-pairs in both FDBRs are relevant: if any of those FDBR-pairs were to go missing from $F$, calling this new FDBR $F'$, at least one of 
-the termphrases would evaluate to \texttt{False} on $F'$, changing the result.
+the termphrases \texttt{tmph1} or \texttt{tmph2} would evaluate to \texttt{False} on $F'$, changing the result.  Hence, all FDBR-pairs of $F$ are relevant.
 
 \subsection{The use of `by' as a preposition}
 
@@ -587,7 +588,7 @@ of needing to be directly next to the verb.
 \section{Summary}
 
 In this Chapter, we presented an overview of event-based denotational semantics.  We first introduced the concept of an event-based triplestore,
-and presented a summary of EV-FLMS, an event-based denotational semantics for use on those types of triplestores.  We then presented a new
+and then presented a summary of EV-FLMS, an event-based denotational semantics for use on those types of triplestores.  We then presented a new
 event-based denotational semantics called Unified EV-FLMS or UEV-FLMS that improves on FLMS in several ways.  First, we extended the definition of prepositions
 so that they may query multiple properties.  Second, we chose a different name for the concept previously known as an ``Image'' in EV-FLMS that does not clash
 with existing Mathematical nomenclature.  Third, we overcame two shortcomings with how prepositions were originally defined in EV-FLMS.  Fourth, we unified
