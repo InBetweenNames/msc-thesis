@@ -107,7 +107,7 @@ Suppose we have $n$ hardware threads of execution available to use.  Let us defi
   partition n = foldr buildPart (empty n) . split n
 	
   split n [] = []
-  split n list = (take n list) : (split n \$ drop n list )
+  split n list = (take n list) : (split n $ drop n list )
 	
   empty 0 = []
   empty n = [] : (empty (n - 1))

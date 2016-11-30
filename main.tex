@@ -246,7 +246,7 @@
 	
 	\noindent\rule{4in}{0.4pt}
 	
-	Dr. Richard J. Caron, Outside Department Reader
+	Dr. Richard J. Caron
 	
 	Department of Mathematics and Statistics
 	
@@ -254,7 +254,7 @@
 	
 	\noindent\rule{4in}{0.4pt}
 	
-	Dr. Luis G. Rueda, Inside Department Reader
+	Dr. Luis G. Rueda
 	
 	School of Computer Science
 	
@@ -270,7 +270,7 @@
 	
 	\noindent\rule{4in}{0.4pt}
 	
-	Dr. Richard A. Frost, Principal Advisor
+	Dr. Richard A. Frost, Co-Supervisor
 	
 	School of Computer Science
 	
@@ -292,66 +292,6 @@
 %holder.
 
 %\vspace*{\fill}
-
-%---------
-
-
-%----------
-
-\clearpage
-\chapter*{Abstract\markboth{\MakeUppercase{Abstract}}{}}
-\addcontentsline{toc}{chapter}{Abstract}
-
-\begin{uwindoublespaceenv}
-The Semantic Web is an emerging component of the set of technologies that will be known as “Web 3.0” in the future.  With the large changes it brings to how information is stored and represented to users, there is a need to re-evaluate how this information can be queried.  Specifically, there is a need for Natural Language Interfaces that allow users to easily query for information on the Semantic Web.  While there has been previous work in this area, existing solutions suffer from the problem that they do not support prepositional phrases in queries (e.g, “in 1958” or “with a key”).  To achieve this, we improve on an existing semantics for event-based triplestores that supports prepositional phrases and demonstrate a novel method of handling the word ``by'', treating it directly as a preposition in queries.  We then show how this new semantics can be integrated with a parser constructed as an executable attribute grammar to create a highly modular and extensible Natural Language Interface to the Semantic Web that supports prepositional phrases in queries.
-
-\end{uwindoublespaceenv}
-
-%----------
-%
-\clearpage
-\chapter*{\centering Dedication\markboth{\MakeUppercase{Dedication}}{}}
-\addcontentsline{toc}{chapter}{Dedication}
-
-\vspace*{\fill}
-
-\begin{center}
-	{\em This Thesis is dedicated to my meme and pepe, Theresa and Alfred Bombardier}
-\end{center}
-
-\vspace*{\fill}
-
-%----------
-
-\clearpage
-\chapter*{Acknowledgements\markboth{\MakeUppercase{Acknowledgements}}{}}
-\addcontentsline{toc}{chapter}{Acknowledgements}
-
-\begin{uwindefaultspaceenv}
-	I'd like to thank, in no particular order:
-	
-	Dr. Richard A. Frost, whom I've been working with since my first semester here at the University of Windsor, for his guidance in my work
-	and the many opportunities he has provided me over the years to participate in research.  You were the first professor I had a chance to have a conversation with when I started
-	my Undergraduate degree here in 2009, and ultimately it is our conversations during the labs of 60-100 that got me seriously interested in functional programming in the first place.
-	
-	Dr. Robert D. Kent, for believing in me and providing me with many opportunities to contribute here at the University, and generally being a very positive role model in my life.
-	It is in no small part our talks that have allowed me to refocus, get my priorities straight, and get my life back in order.
-	
-	My External and Internal Readers, Dr. Richard J. Caron and Dr. Luis G. Rueda, for being available on such short notice to participate on my Thesis Committee.
-	
-	David MacMillan, Bryan St. Amour and Paul Preney, for being great lab partners, being up for interesting conversations, and always being willing to lend an ear.
-	Thank you also Bryan and Paul for letting me use your LaTeX styles and giving my first draft a read.
-	
-	All of the secretaries in the School of Computer Science for their help during my degree.  Whether it was getting me through scheduling nightmares or helping me get things done by the deadlines, your help has been incredibly invaluable to me and I sincerely thank you for your work.
-	
-	My girlfriend, Taylor Tracey Kyryliuk, for being incredibly supportive of me both in life and in my work.
-	
-	And my friend Kyle Iaquinta for taking the time to proofread my Thesis and providing me with positive encouragement throughout my degree.
-\end{uwindefaultspaceenv}
-
-%----------
-\clearpage
-\tableofcontents
 
 %---------
 
@@ -396,7 +336,80 @@ The Semantic Web is an emerging component of the set of technologies that will b
 	
 	I certify that, with the above qualification, this thesis, and the research to which it refers, is the product of my own work.
 	
+	I certify that I have obtained a written permission from the copyright owner(s) to include the above
+	published material(s) in my thesis. I certify that the above material describes work completed during my
+	registration as graduate student at the University of Windsor.
+	
+	I declare that, to the best of my knowledge, my thesis does not infringe upon anyone's copyright nor
+	violate any proprietary rights and that any ideas, techniques, quotations, or any other material from the work
+	of other people included in my thesis, published or otherwise, are fully acknowledged in accordance with the
+	standard referencing practices. Furthermore, to the extent that I have included copyrighted material that
+	surpasses the bounds of fair dealing within the meaning of the Canada Copyright Act, I certify that I have
+	obtained a written permission from the copyright owner(s) to include such material(s) in my thesis.
+	I declare that this is a true copy of my thesis, including any final revisions, as approved by my thesis
+	committee and the Graduate Studies office, and that this thesis has not been submitted for a higher degree to
+	any other University or Institution.
+	
 \end{uwindefaultspaceenv}
+
+%----------
+
+\clearpage
+\chapter*{Abstract\markboth{\MakeUppercase{Abstract}}{}}
+\addcontentsline{toc}{chapter}{Abstract}
+
+\begin{uwindoublespaceenv}
+The Semantic Web is an emerging component of the set of technologies that will be known as “Web 3.0” in the future.  With the large changes it brings to how information is stored and represented to users, there is a need to re-evaluate how this information can be queried.  Specifically, there is a need for Natural Language Interfaces that allow users to easily query for information on the Semantic Web.  While there has been previous work in this area, existing solutions suffer from the problem that they do not support prepositional phrases in queries (e.g, “in 1958” or “with a key”).  To achieve this, we improve on an existing semantics for event-based triplestores that supports prepositional phrases and demonstrate a novel method of handling the word ``by'', treating it directly as a preposition in queries.  We then show how this new semantics can be integrated with a parser constructed as an executable attribute grammar to create a highly modular and extensible Natural Language Interface to the Semantic Web that supports prepositional phrases in queries.
+
+\end{uwindoublespaceenv}
+
+%----------
+%
+\clearpage
+\chapter*{Dedication\markboth{\MakeUppercase{Dedication}}{}}
+\addcontentsline{toc}{chapter}{Dedication}
+
+\vspace*{\fill}
+
+\begin{center}
+	{\em This Thesis is dedicated to my meme and pepe, Theresa and Alfred Bombardier}
+\end{center}
+
+\vspace*{\fill}
+
+%----------
+
+\clearpage
+\chapter*{Acknowledgements\markboth{\MakeUppercase{Acknowledgements}}{}}
+\addcontentsline{toc}{chapter}{Acknowledgements}
+
+\begin{uwindefaultspaceenv}
+	I'd like to thank, in no particular order:
+	
+	Dr. Richard A. Frost, whom I've been working with since my first semester here at the University of Windsor, for his guidance in my work
+	and the many opportunities he has provided me over the years to participate in research.  You were the first professor I had a chance to have a conversation with when I started
+	my Undergraduate degree here in 2009, and ultimately it is our conversations during the labs of 60-100 that got me seriously interested in functional programming in the first place.
+	
+	Dr. Robert D. Kent, for believing in me and providing me with many opportunities to contribute here at the University, and generally being a very positive role model in my life.
+	It is in no small part our talks that have allowed me to refocus, get my priorities straight, and get my life back in order.
+	
+	My External and Internal Readers, Dr. Richard J. Caron and Dr. Luis G. Rueda, for being available on such short notice to participate on my Thesis Committee.
+	
+	David MacMillan, Bryan St. Amour and Paul Preney, for being great lab partners, being up for interesting conversations, and always being willing to lend an ear.
+	Thank you also Bryan and Paul for letting me use your LaTeX styles and giving my first draft a read.
+	
+	All of the secretaries in the School of Computer Science for their help during my degree.  Whether it was getting me through scheduling nightmares or helping me get things done by the deadlines, your help has been incredibly invaluable to me and I sincerely thank you for your work.
+	
+	My girlfriend, Taylor Tracey Kyryliuk, for being incredibly supportive of me both in life and in my work.
+	
+	And my friend Kyle Iaquinta for taking the time to proofread my Thesis and providing me with positive encouragement throughout my degree.
+\end{uwindefaultspaceenv}
+
+%----------
+\clearpage
+\tableofcontents
+
+%---------
 
 \begin{uwindefaultspaceenv}
 
@@ -433,28 +446,36 @@ The Semantic Web is an emerging component of the set of technologies that will b
 \chapter*{Appendices}
 \markboth{Appendices}{}
 \addcontentsline{toc}{chapter}{Appendices}
-\section*{Appendix A - Source code listing}
+\section*{Appendix A - Source code}
 \addcontentsline{toc}{section}{Appendix A - Source code listing}
 \addcontentsline{apc}{appendices}{Appendix A - Source code listing}
 
+The source code for Solarman and the XSaiga parser can be obtained online via this URL:
+
+{\noindent \small \url{https://hackage.haskell.org/package/XSaiga-1.5.0.0/XSaiga-1.5.0.0.tar.gz}}
+
+\noindent The XSaiga package for Haskell is available online at this URL:
+
+{\noindent \small \url{https://hackage.haskell.org/package/XSaiga}}
+
 %\lstinputlisting[language=haskell]{../solarman/XSaiga/SolarmanTriplestore.hs}
-\subsection*{SolarmanTriplestore.hs}
-\inputminted[autogobble, fontsize=\tiny, breaklines=true]{haskell}{../solarman/XSaiga/SolarmanTriplestore.hs}
-
-\subsection*{Getts.hs}
-\inputminted[autogobble, fontsize=\tiny, breaklines=true]{haskell}{../solarman/XSaiga/Getts.hs}
-
-\subsection*{TypeAg2.hs}
-\inputminted[autogobble, fontsize=\tiny, breaklines=true]{haskell}{../solarman/XSaiga/TypeAg2.hs}
-
-\subsection*{AGParser2.hs}
-\inputminted[autogobble, fontsize=\tiny, breaklines=true]{haskell}{../solarman/XSaiga/AGParser2.hs}
-
-\subsection*{Interactive.hs}
-\inputminted[autogobble, fontsize=\tiny, breaklines=true]{haskell}{../solarman/XSaiga/Interactive.hs}
-
-\subsection*{Main.hs}
-\inputminted[autogobble, fontsize=\tiny, breaklines=true]{haskell}{../solarman/Main.hs}
+%\subsection*{SolarmanTriplestore.hs}
+%\inputminted[autogobble, fontsize=\tiny, breaklines=true]{haskell}{../solarman/XSaiga/SolarmanTriplestore.hs}
+%
+%\subsection*{Getts.hs}
+%\inputminted[autogobble, fontsize=\tiny, breaklines=true]{haskell}{../solarman/XSaiga/Getts.hs}
+%
+%\subsection*{TypeAg2.hs}
+%\inputminted[autogobble, fontsize=\tiny, breaklines=true]{haskell}{../solarman/XSaiga/TypeAg2.hs}
+%
+%\subsection*{AGParser2.hs}
+%\inputminted[autogobble, fontsize=\tiny, breaklines=true]{haskell}{../solarman/XSaiga/AGParser2.hs}
+%
+%\subsection*{Interactive.hs}
+%\inputminted[autogobble, fontsize=\tiny, breaklines=true]{haskell}{../solarman/XSaiga/Interactive.hs}
+%
+%\subsection*{Main.hs}
+%\inputminted[autogobble, fontsize=\tiny, breaklines=true]{haskell}{../solarman/Main.hs}
 
 %\subsection*{LocalData.hs}
 %\inputminted[autogobble, fontsize=\scriptsize, breaklines=true]{haskell}{../solarman/XSaiga/LocalData.hs}
