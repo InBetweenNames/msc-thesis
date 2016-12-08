@@ -89,7 +89,7 @@
 }
 
 %
-% Allow \subsectionwithouttoc to be used instead of \subsection to make it 
+% allow \subsectionwithouttoc to be used instead of \subsection to make it 
 % easy to omit a table of contents in a particular subsection.
 %
 \newboolean{showsubsectiontoc}
@@ -99,6 +99,15 @@
   \subsection{#1}%
   \setboolean{showsubsectiontoc}{true}%
 }
+
+\newboolean{showsubsubsectiontoc}
+\setboolean{showsubsubsectiontoc}{true}
+\newcommand{\subsubsectionwithouttoc}[1]{%
+  \setboolean{showsubsubsectiontoc}{false}%
+  \subsubsection{#1}%
+  \setboolean{showsubsubsectiontoc}{true}%
+}
+
 
 %
 % Define the University of Windsor blue and gold colours...

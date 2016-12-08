@@ -1,0 +1,520 @@
+% Load the beamer-sharcnet document class...
+\documentclass[tabu]{beamer-uwindsor}
+
+% Have latex inform when another run is needed...
+\usepackage{rerunfilecheck}
+
+% Use the csquotes package...
+\usepackage{csquotes}
+
+% Use the listings package...
+\usepackage{listings}
+
+\lstloadlanguages{Haskell}
+
+\lstnewenvironment{code}
+{\lstset{}%
+	\csname lst@SetFirstLabel\endcsname}
+{\csname lst@SaveFirstLabel\endcsname}
+\lstset{
+	basicstyle={\scriptsize\ttfamily\singlespacing},
+	flexiblecolumns=false,
+	basewidth={0.5em,0.45em},
+	literate={+}{{$+$}}1 {/}{{$/$}}1 {*}{{$*$}}1 {=}{{$=$}}1
+	{>}{{$>$}}1 {<}{{$<$}}1 {\\}{{$\lambda$}}1
+	{\\\\}{{\char`\\\char`\\}}1
+	{->}{{$\rightarrow$}}2 {>=}{{$\geq$}}2 {<-}{{$\leftarrow$}}2
+	{<=}{{$\leq$}}2 {=>}{{$\Rightarrow$}}2
+	{\ .\ }{{$\circ$}}2
+	{>>}{{>>}}2 {>>=}{{>>=}}2
+	{|}{{$\mid$}}1
+}
+
+\lstnewenvironment{spec}
+{\lstset{}%
+	\csname lst@SetFirstLabel\endcsname}
+{\csname lst@SaveFirstLabel\endcsname}
+\lstset{
+	basicstyle={\scriptsize\ttfamily\singlespacing},
+	flexiblecolumns=false,
+	basewidth={0.5em,0.45em},
+	literate={+}{{$+$}}1 {/}{{$/$}}1 {*}{{$*$}}1 {=}{{$=$}}1
+	{>}{{$>$}}1 {<}{{$<$}}1 {\\}{{$\lambda$}}1
+	{\\\\}{{\char`\\\char`\\}}1
+	{->}{{$\rightarrow$}}2 {>=}{{$\geq$}}2 {<-}{{$\leftarrow$}}2
+	{<=}{{$\leq$}}2 {=>}{{$\Rightarrow$}}2
+	{\ .\ }{{$\circ$}}2
+	{>>}{{>>}}2 {>>=}{{>>=}}2
+	{|}{{$\mid$}}1
+}
+
+%
+% Use TrueType fonts (i.e., xelatex).
+%
+% Use "Charis SIL" font even though it is not sans-serif as
+% it is easy-to-read, has all Unicode characters, is under
+% the open SIL font licence, and is free.
+%
+% As SIL does not have a monospaced font, Liberation Mono
+% is used instead.
+%
+\usepackage{xltxtra,fontspec,xunicode}
+\defaultfontfeatures{Scale=MatchLowercase}
+\setromanfont{Charis SIL}
+\setsansfont{Charis SIL}
+\setmainfont{Charis SIL}
+%\setmonofont[Scale=0.70]{Liberation Mono}
+\setmonofont{Liberation Mono}
+
+%
+% Define slide show and presenter-specific globals...
+%
+\providecommand{\basetexfilename}{slides}
+\providecommand{\emailshane}{peelar@uwindsor.ca}
+\title[Masters Thesis Defence]{Accommodating prepositional phrases in a highly modular
+	natural language query interface to semantic web triplestores using a novel event-based denotational semantics for English and a set of parser combinators.}
+\date{December 12th 2016}
+\author[Shane Peelar]{%
+  Shane Peelar, BSc (Hons) \texorpdfstring{\\}{}%
+  {\footnotesize\href{mailto:\emailshane}{\emailshane}} \texorpdfstring{\\}{}%
+}
+\institute[University of Windsor]{%
+  University of Windsor, \texorpdfstring{\\}{}%
+  Windsor, Ontario, Canada \texorpdfstring{\\}{}%
+  Copyright \copyright{} 2016 \insertshortauthor{}. All Rights Reserved. \texorpdfstring{\\}{}%
+  ~ \texorpdfstring{\\}{}%
+}
+\subject{Intro}
+
+\usepackage{hyperref}
+
+\usepackage{xcolor}
+\hypersetup{
+	colorlinks,
+	linkcolor={red!50!black},
+	citecolor={blue!50!black},
+	urlcolor={blue!80!black}
+}
+
+% bibliography...
+\usepackage[backend=biber,bibstyle=numeric-comp,sorting=ydnt,natbib=true,mcite=true,maxnames=100,url=true,isbn=false,doi=false,uniquename=init,giveninits=true,hyperref=true,backref=true,date=edtf,sortcites]{biblatex}
+\renewcommand{\subtitlepunct}{\addcolon\addspace}
+
+%\hypersetup{pdfpagemode=FullScreen}
+
+
+% Load support for hypertext references...
+\usepackage{url}
+
+% Turn off the navigation bar...
+\beamertemplatenavigationsymbolsempty
+
+% Support arithmetic with numbers...
+\usepackage{fp}
+
+% Use Tikz
+\usepackage{tikz}
+
+%
+% Make it easy to output a number in roman numeral form...
+%
+\makeatletter
+\newcommand*{\asroman}[1]{\expandafter\@slowromancap\romannumeral #1@}
+\makeatother
+
+%
+% Redefine the part page to subtract one from the part # since the first
+% part of this document represents the document title page and overview
+% preamble...
+%
+\setbeamertemplate{part page}
+{
+  \begin{centering}
+    \FPeval{\result}{clip(\insertpartnumber-1)}
+    {\usebeamerfont{part name}\usebeamercolor[fg]{part name}\partname~\asroman{\result}}
+    \vskip1em\par
+    \begin{beamercolorbox}[sep=16pt,center,shadow=false,rounded=true]{part title}
+      \usebeamerfont{part title}\insertpart\par
+    \end{beamercolorbox}
+  \end{centering}
+}
+
+%
+% Define how beamer shows auto-generated pages...
+%
+\makeatletter
+\newcommand*{\resetsectioncount}{
+  \beamer@tocsectionnumber=0\relax%
+  \setcounter{section}{0}%
+}
+\makeatother
+
+\makeatletter
+\AtBeginPart{%
+  % Restart section numbering within each part...
+  \resetsectioncount%
+  % And output (if applicable) the part page...
+  \ifthenelse{\boolean{showpartpage}}{%
+    \frame{\partpage}%
+  }{}%
+}
+\makeatother
+
+\AtBeginSection[]{%
+  \ifthenelse{\boolean{showsectiontoc}}{%
+    \begin{frame}{Table of Contents}%
+      \tableofcontents[sectionstyle=show/hide,subsectionstyle=show/show/hide]%
+    \end{frame}%
+  }{}%
+}
+
+% Bibliography...
+\addbibresource{thesis.bib}
+
+% Title Page Logo
+\titlegraphic{\includegraphics[width=2cm]{logos/uwin-logo-horz-3col.eps}}
+
+% 
+% The presentation slide content follows...
+%
+\begin{document}
+	% Don't show logo or footer on title page...
+	{
+	\setbeamertemplate{logo}{}
+	\setbeamertemplate{footline}{} 
+	\begin{frame}[label=TitleSlide,noframenumbering]
+	  \titlepage
+	\end{frame}
+	}
+	
+	\begin{frame}{Thesis Committee}
+		\begin{itemize}
+			\item Supervisors: Dr. Richard Frost and Dr. Robert Kent
+			\item Internal Reader: Dr. Luis Rueda
+			\item External Reader: Dr. Richard Caron
+			\item Chair: Dr. Alioune Ngom
+		\end{itemize}
+	\end{frame}
+
+	\begin{frame}{Outline}
+		\tableofcontents
+	\end{frame}
+	
+	\sectionwithouttoc{Introduction}
+
+	
+	\subsectionwithouttoc{Motivation}
+	\begin{frame}{Motivation}
+		\begin{itemize}
+			\item Internet of Things
+			\begin{itemize}
+				\item Self driving cars, coffee machines, refrigerators, ovens...
+				\item Able to be operated remotely through {\em alternative interfaces}
+				\item Accessibility
+				\item Natural Language Interfaces
+			\end{itemize}
+			\item The Semantic Web
+		\end{itemize}
+	\end{frame}
+
+	\subsectionwithouttoc{The Semantic Web}
+	\begin{frame}{The Semantic Web}
+		\begin{itemize}
+			\item The Semantic Web (part of Web 3.0)
+			\begin{itemize}
+				\item Distributed and decentralized network of databases
+				\item Store facts in the form of {\em triples}
+				\item Resource Description Framework (RDF) \cite{w3csemanticweb}
+				\item SPARQL Protocol and RDF Query Language (SPARQL)
+			\end{itemize}
+			\item Can be thought of, informally, as applying the model of the World Wide Web to databases
+			\item SPARQL is low-level (like SQL)
+		\end{itemize}
+	\end{frame}
+	
+	%\subsectionwithouttoc{Resource Description Framework (RDF)}
+	\begin{frame}{Resource Description Framework (RDF)}
+		\begin{itemize}
+			\item Data is organized into {\em triples}
+			\item A {\em triple} is a 3-tuple that has the form \texttt{(subject, predicate, object)}
+			\item \texttt{subject}, \texttt{predicate}, and \texttt{object} are Uniform Resource Identifiers (URIs)\cite{w3csemanticweb}.  A URI may denote a {\em name}, {\em location}, or possibly both at once.  Examples:
+			\begin{itemize}
+				\item URL
+				\item ISBN of a book
+				\item Telephone number
+			\end{itemize}
+			\item A database containing these triples is commonly called a {\em triplestore}
+			\item Example triple: \texttt{(jane, purchased, pencil\_1)}
+			\item Triplestores that describe facts in terms of {\em entities} are called {\em entity-based triplestores}
+		\end{itemize}
+	\end{frame}
+	
+	%\subsectionwithouttoc{SPARQL}
+	\defverbatim[colored]\lstI{
+		\begin{lstlisting}[basicstyle=\ttfamily,keywordstyle=\color{red}]
+	PREFIX foaf:  <http://xmlns.com/foaf/0.1/>
+	SELECT ?name ?email
+	FROM <http://www.w3.org/People/Berners-Lee/card>
+	WHERE {
+	{      SELECT DISTINCT ?person ?name WHERE { 
+	?person foaf:name ?name 
+	} ORDER BY ?name LIMIT 10 OFFSET 10    }
+	}
+		\end{lstlisting}
+	}
+	
+	\begin{frame}{SPARQL Protocol and RDF Query Language}
+		\begin{itemize}
+			\item RDF Query Language
+			\item Similar to SQL
+			\item Queries are submitted to {\em SPARQL endpoints}
+			\item Form patterns that define restrictions on the elements of triples
+			\item Similar to pattern matching in functional programming
+			\item Low-level
+			\item Example: \lstI
+		\end{itemize}
+	\end{frame}
+	
+	\subsectionwithouttoc{The Problem}
+	\begin{frame}[allowframebreaks]{The Problem}
+		\begin{itemize}
+			\item SPARQL is low level and not user-friendly
+			\item Natural Language Interfaces
+				\begin{itemize}
+					\item Require little technical knowledge to use
+					\item Require minimal effort on part of the user
+					\item Improve accessibility
+					\item Area of active research, with several previous attempts (non-trivial)%TODO: HERE
+				\end{itemize}
+		\end{itemize}
+	\end{frame}
+
+	\subsectionwithouttoc{Previous Work}
+	\begin{frame}[allowframebreaks]{Previous Work}
+		\begin{itemize}
+			\item ORAKEL (2007) \cite{cimiano2007orakel}
+			\begin{itemize}
+				\item Ontology-aware
+				\item English interface
+				\item Based on Montague semantics
+				\item Supports quantification, negation, conjunction
+				\item Attempts to directly convert input query into a SPARQL query
+			\end{itemize}
+			\item QuestIO (2008) \cite{tablan2008natural}
+			\begin{itemize}
+				\item Ontology-aware
+				\item English interface
+				\item Keyword oriented
+				\item Attempts to match keywords against concepts to hone down queries
+				\item Uses SeRQL, similar to SPARQL, to form queries
+				\item Sentences transformed into SeRQL queries using formal semantics
+			\end{itemize}
+		
+			\pagebreak
+			\item AutoSPARQL (2011) \cite{lehmann2011autosparql}
+			\begin{itemize}
+				\item Supervised machine learning
+				\item Constructs query trees using keywords
+				\item Query trees are converted into SPARQL queries
+				\item Feedback oriented
+				\begin{itemize}
+				\item User selects candidates from returned query set that best matches what the user is looking for
+				\item User is expected to be actively involved in refining subsequent results
+				\end{itemize}
+			\end{itemize}
+		\end{itemize}
+	\end{frame}
+	
+	\subsectionwithouttoc{Shortcomings of Previous Work}
+	\begin{frame}{Shortcomings of Previous Work}
+		
+		%\textbf{The Problem}:
+		Previous work has seen success, but the English NLIs have a shortcoming in that they do not allow for prepositional phrases in queries, and hence have a limited coverage of the English language.
+		%\newline
+		
+	\end{frame}
+
+	\subsectionwithouttoc{New Approach}
+	\begin{frame}{New Approach}
+		
+		The work presented in this thesis draws on two main concepts:
+		\begin{itemize}
+			\item Executable Attribute Grammars\cite{frosthafiz2008}
+			\item Event-Based Denotational Semantics\cite{frostagboola2014}.
+		\end{itemize}
+	\end{frame}
+	
+	\subsubsectionwithouttoc{Executable Attribute Grammars}
+	\begin{frame}{Executable Attribute Grammars}
+		\begin{itemize}
+		\item A natural way to process Natural Language queries \cite{frosthafiz2008}
+		\item Allow top-down rather than bottom-up parsing, so are highly modular \cite{frosthafiz2008}
+		\item Efficient top-down parsing has been demonstrated previously \cite{frosthafiz2008}
+		\item In the parser we used:
+		\begin{itemize}
+			\item Left-recursive grammars are supported directly \cite{frosthafiz2008}
+			\item Ambiguity in grammars is tracked, producing parse trees for all possible interpretations of a grammar \cite{frosthafiz2008}
+		\end{itemize}
+		%\item This allows ambiguous grammars to be used, simplifying development
+		\item We modified the parser described in \cite{frosthafiz2008} to support using non-referentially transparent functions as attributes using monads
+		\end{itemize}
+	\end{frame}
+	
+	\subsubsectionwithouttoc{Event-Based Denotational Semantics}
+	\begin{frame}[allowframebreaks]{Event-Based Denotational Semantics}
+		Introduction to denotational semantics:
+		%TODO: Explain quantification see frost2013event prepositions
+		\begin{itemize}
+			\item Montague Semantics
+			\begin{itemize}
+				\item Described by Dr. Richard Montague in 1970\cite{dowty2012introduction}
+				\item Uses {\em characteristic functions} in {\em higher order logic} as denotations for English words %TODO:
+				\item Not computationally tractable due to universal quantification
+				\item Examples: %TODO
+			\end{itemize}
+			\item FLMS
+			\begin{itemize}
+				\item Described by Frost et al. in 1989\cite{frost1989constructing}, based on Montague's approach
+				\item Uses set-theory instead of higher order logic to describe denotations for English words
+				\item Includes a denotation for transitive verbs, missing from Montague's approach\cite{frost2013event}
+				\item Computationally tractable\cite{frost1989constructing}
+				\item Examples: %TODO
+			\end{itemize}
+			\item EV-FLMS
+			\begin{itemize}
+				\item Described by Frost et al. in 2013\cite{frost2013event}, based on FLMS
+				\item Intended for use with {\em event-based triplestores}
+				\item Includes a denotation for prepositional phrases
+				\item Key difference with existing approaches for Semantic Web: direct translation to SPARQL is not performed
+				\item Examples: %TODO
+			\end{itemize}
+		\end{itemize}
+		
+	\end{frame}
+
+	\subsubsectionwithouttoc{Unified EV-FLMS}
+	\begin{frame}[allowframebreaks]{Unified EV-FLMS}
+	\end{frame}
+
+	%TODO: Font
+	\defverbatim[colored]\lstIoo{
+	\begin{lstlisting}[basicstyle=\ttfamily,keywordstyle=\color{red}]
+		(jane, purchased, pencil_1)
+	\end{lstlisting}
+	}
+
+	\defverbatim[colored]\lstIo{
+		\begin{lstlisting}[basicstyle=\ttfamily,keywordstyle=\color{red}]
+		(event1, subject, Jane)
+		(event1, type, purchase)
+		(event1, object, pencil)
+		\end{lstlisting}
+	}
+
+	\sectionwithouttoc{Event-Based Triplestores}
+	\begin{frame}{Event-Based Triplestores}
+		\begin{itemize}
+			\item In event-based triplestores triples describe events rather than entities
+			\item Information about entities and their relationships to one another may be gleaned from the events in which they occur
+			\item Additional information about an event may be added by simply adding a new triple to the triplestore
+			\item The key motivation behind using event-based triplestores is that they directly support reification on triples\cite{frost2014event}
+		\end{itemize}
+		Example (traditional):
+		{\lstIoo}
+		Example (event-based):
+		{\lstIo}
+	\end{frame}
+	
+	\subsectionwithouttoc{Thesis Statement}
+	\begin{frame}{Thesis Statement}
+		By integrating a novel event-based denotational semantics with a parser constructed as an executable attribute grammar, it is possible to create a highly modular and extensible Natural Language Interface to the Semantic Web that supports the use of prepositional phrases in queries.
+	\end{frame}
+	
+	\subsectionwithouttoc{Proof of Concept}
+	\begin{frame}{Proof of Concept}
+		We prove the Thesis by creating an online English query interface to a triplestore containing thousands of facts about the solar system. \cite{Solarman:2016}.
+		
+		Some example queries that can be handled by this system include:
+		
+		\begin{itemize}
+			\item ``when was something discovered at mt\_wilson''
+			\item ``how was the thing that was discovered at flagstaff discovered''
+			\item ``what was discovered in 1877 in us\_naval\_observatory''
+			\item ``what planet is orbited by a moon that was discovered in 1684''
+			\item ``which vacuumous moon that orbits jupiter was discovered by nicholson or hall with a telescope in 1938 in mt\_wilson or mt\_hopkins''
+		\end{itemize}
+		
+		The interface can be accessed at: \url{http://speechweb2.cs.uwindsor.ca/solarman2/}
+	\end{frame}
+	
+	\sectionwithouttoc{Demonstration}
+	\begin{frame}{Demonstration}
+		\begin{itemize}
+			\item Demo
+		\end{itemize}
+	\end{frame}
+		
+	\sectionwithouttoc{Implementation Details}
+	\begin{frame}{Implementation Details}
+		\begin{itemize}
+			\item Implemented in Haskell
+			\item SafeHaskell is used in the Direct Query Interface to prevent arbitrary code execution
+			\item The monadic parser was joined with the monadic semantics in combination with a grammar
+			\item Memoization is performed at the query level to keep queries fast
+			\item The actual query logic is contained in the Getts module, which provides interfaces to SPARQL triplestores and also list-based in-program triplestores.  A general typeclass is provided for future extensibility
+		\end{itemize}
+	\end{frame}
+	
+	\sectionwithouttoc{Improvements over Original Semantics}
+	\begin{frame}{Improvements over Original Semantics}
+		\begin{itemize}
+			\item The original event-based semantics were developed by Frost, Agboola et al. \cite{frostagbola2014}
+			\item The interface to the remote triplestore was overhauled with the monadic improvements described
+			\item The original semantics suffered from an implicit `and' problem where chained prepositions in sentences were treated as though they had the word `and' in between them.
+			For example ``who discovered a moon in 1877 with a telescope'' would have been treated as ``who discovered a moon in 1877 and with a telescope''.
+			\item This also interfered with the correct handling of words such as `one', `two', and `every'
+			\item The `collect' operation is now more efficient an can be performed in O(n log n) time
+			\item `by' is treated as a preposition in the grammar
+		\end{itemize}
+	\end{frame}
+	
+	\sectionwithouttoc{Novel additions}
+	\begin{frame}{Novel additions}
+		The use of `by' as a preposition:
+		\begin{itemize}
+		\item In developing the system, it was discovered that the logic for handling the word `by' (e.g, ``phobos was discovered by hall'') was identical to a preposition in the semantics that searched for a subject in a given event
+		\item The functionality was merged, and with no added complexity to the grammar, the word `by' is supported in queries
+		\end{itemize}
+	\end{frame}
+		
+	
+	\sectionwithouttoc{Thank You \& Feedback}
+	\begin{frame}{Thank You \& Feedback}
+		\centering
+		Thank you for attending! \\ Comments, suggestions, or questions?
+	\end{frame}
+  
+	\sectionwithouttoc{References}
+	\begin{frame}[allowframebreaks]{References}
+	  \def\newblock{}
+	  \setbeamertemplate{bibliography item}[text]
+	  \setlength\bibitemsep{1.5\itemsep}
+	  \printbibliography
+	\end{frame}
+	
+	%\appendix 
+	%\section*{Appendix Overview}
+	%\begin{frame}{Appendix Overview}
+	%  \tableofcontents[part=3,sectionstyle=show/show,subsectionstyle=hide/hide/hide]
+	%\end{frame}
+	
+	%\sectionwithouttoc{An Appendix Title}
+	%\begin{frame}{\insertsection}
+	%  This is the first section.
+	%\end{frame}
+	
+	%\sectionwithouttoc{Another Appendix Title}
+	%\begin{frame}{\insertsection}
+	%  This is the second section.
+	%\end{frame}
+\end{document}
