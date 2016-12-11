@@ -197,6 +197,7 @@
 	\end{frame}
 
 	\begin{frame}{Outline}
+		%\small
 		\tableofcontents
 	\end{frame}
 	
@@ -360,8 +361,7 @@
 		\end{itemize}
 	\end{frame}
 	
-	\subsubsectionwithouttoc{Event-Based Denotational Semantics}
-	\begin{frame}[allowframebreaks]{Event-Based Denotational Semantics}
+	\begin{frame}[allowframebreaks]{Denotational Semantics}
 		Introduction to denotational semantics:
 		%TODO: Explain quantification see frost2013event prepositions
 		\begin{itemize}
@@ -380,20 +380,20 @@
 				\item Computationally tractable\cite{frost1989constructing}
 				\item Examples: %TODO
 			\end{itemize}
-			\item EV-FLMS
-			\begin{itemize}
-				\item Described by Frost et al. in 2013\cite{frost2013event}, based on FLMS
-				\item Intended for use with {\em event-based triplestores}
-				\item Includes a denotation for prepositional phrases
-				\item Key difference with existing approaches for Semantic Web: direct translation to SPARQL is not performed
-				\item Examples: %TODO
-			\end{itemize}
 		\end{itemize}
-		
 	\end{frame}
-
-	\subsubsectionwithouttoc{Unified EV-FLMS}
-	\begin{frame}[allowframebreaks]{Unified EV-FLMS}
+	
+	%\subsubsectionwithouttoc{Event-Based Denotational Semantics}
+	\begin{frame}[allowframebreaks]{FLMS on the Semantic Web}
+		\begin{itemize}
+			\item FLMS can be directly implemented on entity-based triplestores
+			\item No prepositions: how to get contextual information from a triple?
+			\begin{itemize}
+				\item Use quads instead of triples
+				\item Reification
+				\item {\em Event-Based Triplestores}
+			\end{itemize}
+		\end{itemize}	
 	\end{frame}
 
 	%TODO: Font
@@ -411,18 +411,40 @@
 		\end{lstlisting}
 	}
 
-	\sectionwithouttoc{Event-Based Triplestores}
+	%\sectionwithouttoc{Event-Based Triplestores}
 	\begin{frame}{Event-Based Triplestores}
 		\begin{itemize}
-			\item In event-based triplestores triples describe events rather than entities
+			\item Triples describe facts about events
 			\item Information about entities and their relationships to one another may be gleaned from the events in which they occur
-			\item Additional information about an event may be added by simply adding a new triple to the triplestore
-			\item The key motivation behind using event-based triplestores is that they directly support reification on triples\cite{frost2014event}
+			\item Additional information about an event may be added by simply adding new triples
+			\item Key motivation: directly supports reification on triples\cite{frostagboola2014}
 		\end{itemize}
 		Example (traditional):
 		{\lstIoo}
 		Example (event-based):
 		{\lstIo}
+	\end{frame}
+
+	\subsubsectionwithouttoc{Event-Based Denotational Semantics}
+	\begin{frame}[allowframebreaks]{Event-Based Denotational Semantics}
+		\begin{itemize}
+			\item EV-FLMS 
+			\begin{itemize}
+				\item Described by Frost et al. in 2013\cite{frost2013event}, based on FLMS
+				\item Intended for use with {\em event-based triplestores}
+				\item Includes a denotation for prepositional phrases
+				\item Key difference with existing approaches: direct translation to SPARQL is not performed
+				\item Examples: %TODO
+			\end{itemize}
+			\item {\em Unified EV-FLMS (UEV-FLMS)}
+			\begin{itemize}
+				\item Based on EV-FLMS
+				\item Solves two problems with how prepositions are treated in EV-FLMS
+				\item Novel method of handling the word ``by'', treating it as a preposition
+				\item Unifies semantic concepts
+				\item Improves efficiency
+			\end{itemize}
+		\end{itemize}
 	\end{frame}
 	
 	\subsectionwithouttoc{Thesis Statement}
@@ -432,7 +454,7 @@
 	
 	\subsectionwithouttoc{Proof of Concept}
 	\begin{frame}{Proof of Concept}
-		We prove the Thesis by creating an online English query interface to a triplestore containing thousands of facts about the solar system. \cite{Solarman:2016}.
+		We prove the Thesis by creating an online English query interface to a triplestore containing thousands of facts about the solar system\cite{Solarman:2016}.
 		
 		Some example queries that can be handled by this system include:
 		
@@ -453,8 +475,8 @@
 			\item Demo
 		\end{itemize}
 	\end{frame}
-		
-	\sectionwithouttoc{Implementation Details}
+
+	%\sectionwithouttoc{Implementation Details}
 	\begin{frame}{Implementation Details}
 		\begin{itemize}
 			\item Implemented in Haskell
@@ -464,8 +486,12 @@
 			\item The actual query logic is contained in the Getts module, which provides interfaces to SPARQL triplestores and also list-based in-program triplestores.  A general typeclass is provided for future extensibility
 		\end{itemize}
 	\end{frame}
+
+	\sectionwithouttoc{Unified EV-FLMS}
+	\begin{frame}[allowframebreaks]{Unified EV-FLMS}
+	\end{frame}
 	
-	\sectionwithouttoc{Improvements over Original Semantics}
+	%\sectionwithouttoc{Improvements over Original Semantics}
 	\begin{frame}{Improvements over Original Semantics}
 		\begin{itemize}
 			\item The original event-based semantics were developed by Frost, Agboola et al. \cite{frostagbola2014}
@@ -478,7 +504,7 @@
 		\end{itemize}
 	\end{frame}
 	
-	\sectionwithouttoc{Novel additions}
+	%\sectionwithouttoc{Novel additions}
 	\begin{frame}{Novel additions}
 		The use of `by' as a preposition:
 		\begin{itemize}
@@ -487,6 +513,30 @@
 		\end{itemize}
 	\end{frame}
 		
+	\sectionwithouttoc{Timing}
+	\begin{frame}{Timing}
+		\begin{itemize}
+			\item Two experiments
+			\item Results:
+		\end{itemize}
+	\end{frame}
+
+	\sectionwithouttoc{Conclusions and Future Work}
+	\begin{frame}{Conclusions and Future Work}
+		\begin{itemize}
+			\item IO is clearly the limiting factor: many small queries produced, each query has overhead
+			\item Scaling up:
+			\begin{itemize}
+				\item More advanced Query Fusion using monads
+				\item Exploiting data-parallelism
+				\item Foregoing set-theory and delving into conceptual spaces
+			\end{itemize}
+			\item Compatibility:
+			\begin{itemize}
+				\item Providing event based views of entity-based triplestores exploiting ontology data
+			\end{itemize}
+		\end{itemize}
+	\end{frame}
 	
 	\sectionwithouttoc{Thank You \& Feedback}
 	\begin{frame}{Thank You \& Feedback}
