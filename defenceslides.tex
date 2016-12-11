@@ -472,8 +472,21 @@
 	\sectionwithouttoc{Demonstration}
 	\begin{frame}{Demonstration}
 		\begin{itemize}
-			\item Demo
+			\item Two interfaces
+			\begin{itemize}
+				\item Natural Language Interface: queries are English sentences
+				\item Direct Query Interface: queries are Haskell expressions, useful for learning how the semantics work
+			\end{itemize}
 		\end{itemize}
+	\end{frame}
+
+	\begin{frame}{Visualization of NL query process}
+		\centering
+		``who discovered two moons in 1877 with a telescope''
+		\[\Downarrow \qquad \Downarrow \qquad \Downarrow \]
+		\[ \mathtt{who}\ \left(\mathtt{discovered'}\ \left(\mathtt{two}\ \mathtt{moons}\right)\ \left[ \mathtt{in'}\ \mathtt{1877},\ \mathtt{with}\ \left(\mathtt{a}\ \mathtt{telescope}\right) \right] \right)  \]
+		\[\Downarrow \qquad \Downarrow \qquad \Downarrow \]
+		\texttt{...(event1045, subject, hall), (event1045, year, 1877), (event1045, type, discover\_ev)...}
 	\end{frame}
 
 	%\sectionwithouttoc{Implementation Details}
@@ -481,20 +494,21 @@
 		\begin{itemize}
 			\item Implemented in Haskell
 			\item SafeHaskell is used in the Direct Query Interface to prevent arbitrary code execution
-			\item The monadic parser was joined with the monadic semantics in combination with a grammar
-			\item Memoization is performed at the query level to keep queries fast
-			\item The actual query logic is contained in the Getts module, which provides interfaces to SPARQL triplestores and also list-based in-program triplestores.  A general typeclass is provided for future extensibility
+			\item Both interfaces are compatible with screen readers (for accessibility)
+			%\item The monadic parser was joined with the monadic semantics in combination with a grammar
+			\item Basic query fusion: memoization at query level
+			\item Getts module provides a general extensible interface to triplestores using a typeclass
+			%\item The actual query logic is contained in the Getts module, which provides interfaces to SPARQL triplestores and also list-based in-program triplestores.  A general typeclass is provided for future extensibility
 		\end{itemize}
 	\end{frame}
 
 	\sectionwithouttoc{Unified EV-FLMS}
-	\begin{frame}[allowframebreaks]{Unified EV-FLMS}
+	\begin{frame}[allowframebreaks]{New semantics: Unified EV-FLMS}
 	\end{frame}
 	
 	%\sectionwithouttoc{Improvements over Original Semantics}
 	\begin{frame}{Improvements over Original Semantics}
 		\begin{itemize}
-			\item The original event-based semantics were developed by Frost, Agboola et al. \cite{frostagbola2014}
 			\item The interface to the remote triplestore was overhauled with the monadic improvements described
 			\item The original semantics suffered from an implicit `and' problem where chained prepositions in sentences were treated as though they had the word `and' in between them.
 			For example ``who discovered a moon in 1877 with a telescope'' would have been treated as ``who discovered a moon in 1877 and with a telescope''.
@@ -517,7 +531,112 @@
 	\begin{frame}{Timing}
 		\begin{itemize}
 			\item Two experiments
-			\item Results:
+			\begin{itemize}
+				\item Construct random binary relation with varying number of elements and compare run-time of \texttt{collect} implementations, including \texttt{condense}
+				\item Perform two NL queries using an instrumented version of Solarman that collects profiling information
+			\end{itemize}
+			\item Experiment setup
+			\begin{itemize}
+				\item Intel Core i7 4770k Processor
+				\item 16GB RAM 
+				\item Samsung 850 EVO Solid State Drive
+				\item 15 megabit cable connection
+			\end{itemize}
+		\end{itemize}
+	\end{frame}
+
+	\begin{frame}[allowframebreaks]{Experiment 1}
+		\begin{itemize}
+			\item Construct a randomized association list with 10,000 unique events and 1000 entities with varying number of pairs in the list
+			\item Compare using both grouped and un-grouped association lists
+			\item Compare performance of \texttt{collect} with previous implementation in \cite{agboola2015extensible}, and for grouped association lists, compare \texttt{condense} as well
+			\pagebreak
+			\item Results for ungrouped association lists:
+			\begin{itemize}
+				\item For 100,000 pairs:
+				
+				\begin{itemize}
+					\item Previous implementation: 0.130 sec
+					\item Our implementation: 0.129 sec
+				\end{itemize}
+				
+				\item For 1,000,000 pairs:
+				
+				\begin{itemize}
+					\item Previous implementation: 1.426 sec
+					\item Our implementation: 1.388 sec
+				\end{itemize}
+				
+				\item For 10,000,000 pairs:
+				
+				\begin{itemize}
+					\item Previous implementation: 14.274 sec
+					\item Our implementation: 14.283 sec
+				\end{itemize}
+			\end{itemize}
+			\pagebreak
+			\item Results for grouped association lists:
+			\begin{itemize}
+				\item For 100,000 pairs:
+				\begin{itemize}
+					\item Previous \texttt{collect}: 0.083 sec
+					\item Our \texttt{collect}: 0.068 sec
+					\item \texttt{condense}: 0.030 sec
+				\end{itemize}
+				
+				\item For 1,000,000 pairs:
+				\begin{itemize}
+					\item Previous \texttt{collect}: 0.775 sec
+					\item Our \texttt{collect}: 0.756 sec
+					\item \texttt{condense}: 0.401 sec
+				\end{itemize}
+				
+				\item For 10,000,000 pairs:
+				\begin{itemize}
+					\item Previous \texttt{collect}: 8.169 sec
+					\item Our \texttt{collect}: 7.618 sec
+					\item \texttt{condense}: 4.502 sec
+				\end{itemize}
+			\end{itemize}
+		\end{itemize}
+	\end{frame}
+
+	\begin{frame}[allowframebreaks]{Experiment 2}
+		\begin{itemize}
+			\item Latency to remote SPARQL triplestore: approximately 60ms
+			\item Two queries:
+			\begin{enumerate}
+				\item ``which vacuumous moon that orbits jupiter was discovered by nicholson or hall with a telescope in 1938 in mt\_wilson or mt\_hopkins''
+				\item ``what was discovered in 1877 at us\_naval\_observatory''
+			\end{enumerate}
+			\item For each query, both IO and CPU time were measured using GHC's instrumentation
+			\item Resultant ``.prof'' file produced by runs were examined to find where time was spent
+			\pagebreak
+			\item Results (profiling for IO):
+			\begin{itemize}
+				\item Query 1: approx 98.3\% of running time was spent waiting on IO
+				\item Query 2: approx 98.3\% of running time was spent waiting on IO
+			\end{itemize}
+			\item Results (profiling CPU time, excluding IO time):
+			\begin{itemize}
+			\item Running time breakdown for query 1:
+			
+			\begin{itemize}
+				\item SPARQL query generation and result processing including XML parsing: 51.4\%
+				\item Network related processing: 39.3\%
+				\item Natural Language parsing: 5.5\%
+				\item Semantic functions: 3.8\%
+			\end{itemize}
+			
+			\item Running time breakdown for query 2:
+			
+			\begin{itemize}
+				\item SPARQL query generation and result processing including XML parsing: 42\%
+				\item Network related processing: 44\%
+				\item Natural Language parsing: 3\%
+				\item Semantic functions: 11\%
+			\end{itemize}
+			\end{itemize}
 		\end{itemize}
 	\end{frame}
 
