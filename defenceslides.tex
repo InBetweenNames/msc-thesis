@@ -197,7 +197,7 @@
 	\end{frame}
 
 	\begin{frame}{Outline}
-		%\small
+		\small
 		\tableofcontents
 	\end{frame}
 	
@@ -357,8 +357,19 @@
 			\item Ambiguity in grammars is tracked, producing parse trees for all possible interpretations of a grammar \cite{frosthafiz2008}
 		\end{itemize}
 		%\item This allows ambiguous grammars to be used, simplifying development
-		\item We modified the parser described in \cite{frosthafiz2008} to support using non-referentially transparent functions as attributes using monads
+		\item We modified the parser described in \cite{frosthafiz2008} to support using non-referentially transparent functions as attributes using the IO Monad
 		\end{itemize}
+	\end{frame}
+
+	\begin{frame}{Functional Programming}
+		\begin{itemize}
+			\item Original parser written in Haskell \cite{frosthafiz2008}
+			\item Referential transparency or ``pure'' functions
+			\item Used ``memoization'' and lazy-evaluation to efficiently parse left recursive ambiguous grammars
+			%\item Lazy-evaluation
+			\item Extended to IO Monad to handle non-referentially transparent functions as attributes
+		\end{itemize}
+		
 	\end{frame}
 	
 	\begin{frame}[allowframebreaks]{Denotational Semantics}
@@ -369,17 +380,53 @@
 			\begin{itemize}
 				\item Described by Dr. Richard Montague in 1970\cite{dowty2012introduction}
 				\item Uses {\em characteristic functions} in {\em higher order logic} as denotations for English words %TODO:
-				\item Not computationally tractable due to universal quantification
-				\item Examples: %TODO
+				\item Not computationally tractable due to quantification: must traverse entire universe of discourse
+				\item Denotations: %TODO
+				\begin{itemize}
+					\item Common nouns: $cnoun : \left(\forall ent\right) ent \rightarrow bool$
+					\item Intransitive verbs: $intrans : \left(\forall ent\right) ent \rightarrow bool$
+					\item Proper nouns: $pnoun : \left(\left(\forall ent\right) ent \rightarrow bool\right) \rightarrow bool$
+				\end{itemize}
+				\item ``phobos spins'':
+				\begin{itemize}
+					\item $phobos : \left(\left(\forall ent\right) ent \rightarrow bool\right) \rightarrow bool$
+					\item $spins: : \left(\forall ent\right) ent \rightarrow bool$
+					\item $phobos\ spins \Rightarrow bool$
+				\end{itemize}
 			\end{itemize}
+			\pagebreak
 			\item FLMS
 			\begin{itemize}
 				\item Described by Frost et al. in 1989\cite{frost1989constructing}, based on Montague's approach
 				\item Uses set-theory instead of higher order logic to describe denotations for English words
-				\item Includes a denotation for transitive verbs, missing from Montague's approach\cite{frost2013event}
+				\item Includes an explicit denotation for transitive verbs, missing from Montague's approach\cite{frost2013event}
 				\item Computationally tractable\cite{frost1989constructing}
-				\item Examples: %TODO
+				\item Denotations: %TODO
+				\begin{itemize}
+					\item Common nouns: set of entities
+					\item Intransitive verbs: set of entities
+					\item Proper nouns: a function from sets of entities to booleans
+					\item Transitive verbs: denoted using a binary relation
+				\end{itemize}
+				\item ``phobos spins'':
+				\begin{itemize}
+					\item phobos : $\{entities\} \rightarrow bool$
+					\item spins : $\{entities\}$
+					\item $phobos\ spins \Rightarrow bool$
+				\end{itemize}
 			\end{itemize}
+		\end{itemize}
+	\end{frame}
+
+	\begin{frame}{FLMS and Transitive Verbs}
+		\begin{itemize}
+			\item Transitive verbs are denoted using binary relations
+			\item Binary relations are converted into functions by ``collecting'' them
+			\item $transvb : \left( \{entities\} \rightarrow bool \right) \rightarrow \{entities\}$
+			\item $discover\ phobos \Rightarrow \{\left(hall, \{deimos, phobos\}\right)\}$
+			\item Beginnings of notion of Function Defined By Relation (FDBR)
+			\item Passive transitive verbs are created by inverting the binary relation
+			
 		\end{itemize}
 	\end{frame}
 	
@@ -387,6 +434,7 @@
 	\begin{frame}[allowframebreaks]{FLMS on the Semantic Web}
 		\begin{itemize}
 			\item FLMS can be directly implemented on entity-based triplestores
+			\item Binary relation $rel = \{(a_1, b_1), (a_2, b_2), \dots\}$ represented with triples $(a_1, rel, b_1), (a_2, rel, b_2)\dots$
 			\item No prepositions: how to get contextual information from a triple?
 			\begin{itemize}
 				\item Use quads instead of triples
@@ -405,9 +453,11 @@
 
 	\defverbatim[colored]\lstIo{
 		\begin{lstlisting}[basicstyle=\ttfamily,keywordstyle=\color{red}]
-		(event1, subject, Jane)
+		(event1, subject, jane)
 		(event1, type, purchase)
 		(event1, object, pencil)
+		(event1, cost, 1)
+		(event1, currency, CAD)
 		\end{lstlisting}
 	}
 
@@ -434,15 +484,23 @@
 				\item Intended for use with {\em event-based triplestores}
 				\item Includes a denotation for prepositional phrases
 				\item Key difference with existing approaches: direct translation to SPARQL is not performed
-				\item Examples: %TODO
+				\item Triplestore access abstracted through \texttt{getts} functions
+				\begin{itemize}
+					\item $get\_members\ set = getts(ANY, type, membership) \cap getts(ANY, object, set)$
+					\item $spins = get\_members\ spin$
+				\end{itemize}
+				\item Transitive verbs work differently: binary relations are from entities to events rather from entities to entities
+				\item $discover\ phobos \Rightarrow \{(hall, \{event1045\})\}$
 			\end{itemize}
+			\pagebreak
 			\item {\em Unified EV-FLMS (UEV-FLMS)}
 			\begin{itemize}
 				\item Based on EV-FLMS
 				\item Solves two problems with how prepositions are treated in EV-FLMS
+				\item Expands definition of prepositions such that multiple properties can be queried
 				\item Novel method of handling the word ``by'', treating it as a preposition
-				\item Unifies semantic concepts
-				\item Improves efficiency
+				\item Unifies semantic concepts described in EV-FLMS
+				%\item Improves efficiency
 			\end{itemize}
 		\end{itemize}
 	\end{frame}
@@ -476,6 +534,7 @@
 			\begin{itemize}
 				\item Natural Language Interface: queries are English sentences
 				\item Direct Query Interface: queries are Haskell expressions, useful for learning how the semantics work
+				\item Both interfaces compatible with screen readers for accessibility
 			\end{itemize}
 		\end{itemize}
 	\end{frame}
@@ -493,28 +552,98 @@
 	\begin{frame}{Implementation Details}
 		\begin{itemize}
 			\item Implemented in Haskell
+			\item Sets are represented using lists, URIs are represented using \texttt{String} type
+			\item Binary relations represented as association lists
 			\item SafeHaskell is used in the Direct Query Interface to prevent arbitrary code execution
 			\item Both interfaces are compatible with screen readers (for accessibility)
 			%\item The monadic parser was joined with the monadic semantics in combination with a grammar
 			\item Basic query fusion: memoization at query level
 			\item Getts module provides a general extensible interface to triplestores using a typeclass
+			\item Fast path for constructing FDBR with \texttt{condense} function
+			\begin{itemize}
+				\item Takes association list grouped according to the first element and constructs FDBR in O(n) time
+			\end{itemize}
+			\item Available on Hackage as the XSaiga package\cite{XSaiga:2016}
 			%\item The actual query logic is contained in the Getts module, which provides interfaces to SPARQL triplestores and also list-based in-program triplestores.  A general typeclass is provided for future extensibility
 		\end{itemize}
 	\end{frame}
 
 	\sectionwithouttoc{Unified EV-FLMS}
 	\begin{frame}[allowframebreaks]{New semantics: Unified EV-FLMS}
-	\end{frame}
-	
-	%\sectionwithouttoc{Improvements over Original Semantics}
-	\begin{frame}{Improvements over Original Semantics}
 		\begin{itemize}
-			\item The interface to the remote triplestore was overhauled with the monadic improvements described
-			\item The original semantics suffered from an implicit `and' problem where chained prepositions in sentences were treated as though they had the word `and' in between them.
-			For example ``who discovered a moon in 1877 with a telescope'' would have been treated as ``who discovered a moon in 1877 and with a telescope''.
-			\item This also interfered with the correct handling of words such as `one', `two', and `every'
-			\item The `collect' operation is now more efficient an can be performed in O(n log n) time
-			\item `by' is treated as a preposition in the grammar
+			\item Formalizes notion of ``collecting'' binary relations using the term Function Defined By Relation (FDBR)
+			\item Prepositions are denoted with a set of properties rather than a single property, necessary for ``in''
+			\begin{itemize}
+				\item i.e. $\left(\{props\}, predicate\right)$ instead of $\left(prop, predicate\right)$
+			\end{itemize}
+			\item Solved two problems with how prepositions were handled originally:
+			\begin{itemize}
+				\item Implicit ``and'' problem -- queries not honed down
+				\item The problem of ``every'' -- predicates applied only to information in individual events
+			\end{itemize}
+			\item Unified semantic concepts
+			\begin{itemize}
+				\item Treating ``by'' as a preposition
+				\item Uniform handling of passive and active verbs
+				\item No bools: empty FDBR denotes False, non-empty FDBR denotes True -- nearly all semantic functions accept FDBRs and return FDBRs
+				%\item Nearly all semantic functions accept FDBRs as arguments and return FDBRs (except question functions such as who, what, where, etc)
+			\end{itemize}
+		\end{itemize}
+	\end{frame}
+
+	\defverbatim[colored]\lstOFltEv{
+	\begin{lstlisting}[basicstyle=\ttfamily,keywordstyle=\color{red}]
+	filter_ev ev [] = True
+	filter_ev ev (prep:list_of_preps)
+		= ((snd (prep)) (getts_3 (ev,fst (prep),"?")))
+		&& filter_ev ev list_of_preps
+	\end{lstlisting}
+	}
+
+	\begin{frame}[allowframebreaks]{Problems with prepositions in EV-FLMS}
+		Original Haskell \texttt{filter\_ev} function in EV-FLMS used for prepositions:
+		{\lstOFltEv}
+		\begin{itemize}
+			\item The problem of ``every''
+			\begin{itemize}
+				\item Predicates are applied to the properties of individual events rather than to the entire set of events associated with a subject in an FDBR
+				\item Fine for predicates such as ``a'', ``an'', and ``some''
+				\item Determiners such as ``every'', ``two'' fail because they require information from all events
+				\item Solution: collect all relevant properties from all events and invoke predicate on *those* instead
+				\item Example: ``who discovered something with two telescopes''
+				\item Two interpretations: discover one entity using two telescopes, or discover two entities using different telescopes
+				\item Solution chosen allows for both interpretations
+				\item In the future, users should be able to select which interpretation they want
+				\item Clear-win example: ``who discovered with two telescopes'' 
+			\end{itemize}
+			\pagebreak
+			\item Implicit ``and'' problem
+			\begin{itemize}
+				\item After solving the problem of ``every'', new problem: prepositions individually can't hone down events
+				\item Result: implicit ``and'' placed between prepositional phrases
+				\begin{itemize}
+					\item ``in 1914 with two telescopes'' treated as ``in 1914 and with two telescopes'' -- subtle difference!
+				\end{itemize}
+				\item Re-thinking of problem required: predicates return booleans, but should return a new FDBR with only relevant FDBR-pairs
+				\item Thinking along these lines resulted in the unification of several semantic concepts
+			\end{itemize}
+
+		\end{itemize}
+	\end{frame}
+
+	\begin{frame}[allowframebreaks]{Unified semantic concepts}
+		\begin{itemize}
+			\item All semantic functions except question functions (e.g. who, what, when, where...) accept FDBRs as input and return FDBRs
+			\item Predicates return only FDBR-pairs in input that are {\em relevant} to that predicate
+			\begin{itemize}
+				\item An empty FDBR result denotes False, a nonempty FDBR result denotes True
+				\item This is used in filtering according to chains of prepositions, solves both problems noted previously
+			\end{itemize}
+			\item Both passive and active transitive verbs handled uniformly
+			\begin{itemize}
+				\item Termphrase in active transitive verb, e.g. (a moon) in ``discover (a moon)'', is actually handled with new \texttt{filter\_ev}
+				\item ``by'', as in ``discovered by'', is also handled with new \texttt{filter\_ev}
+			\end{itemize}
 		\end{itemize}
 	\end{frame}
 	
@@ -524,6 +653,7 @@
 		\begin{itemize}
 		\item In developing the system, it was discovered that the logic for handling the word `by' (e.g, ``phobos was discovered by hall'') was identical to a preposition in the semantics that searched for a subject in a given event
 		\item The functionality was merged, and with no added complexity to the grammar, the word `by' is supported in queries
+		\item Denotation for ``by'': $by\ termph\ = \left(\{``subject''\}, termph\right)$
 		\end{itemize}
 	\end{frame}
 		
@@ -640,8 +770,8 @@
 		\end{itemize}
 	\end{frame}
 
-	\sectionwithouttoc{Conclusions and Future Work}
-	\begin{frame}{Conclusions and Future Work}
+	\sectionwithouttoc{Future Work}
+	\begin{frame}{Future Work}
 		\begin{itemize}
 			\item IO is clearly the limiting factor: many small queries produced, each query has overhead
 			\item Scaling up:
@@ -654,8 +784,44 @@
 			\begin{itemize}
 				\item Providing event based views of entity-based triplestores exploiting ontology data
 			\end{itemize}
+			\item Ambiguity:
+			\begin{itemize}
+				\item Provide a way for users to understand the various ways their queries may be interpreted and allow them to select which interpretation they mean
+			\end{itemize}
 		\end{itemize}
 	\end{frame}
+
+	\sectionwithouttoc{Conclusions}
+	\begin{frame}[allowframebreaks]{Conclusions}
+		\begin{itemize}
+		\item Developed a novel event-based denotational semantics, UEV-FLMS, improving on EV-FLMS:
+		\begin{itemize}
+			\item Extends definition of prepositions to support multiple properties
+			\item Solves implicit ``and'' problem and the problem of ``every'' in prepositions
+			\item Novel method of handling the word ``by'', treating it directly as a preposition
+			\item Unified semantic concepts
+		\end{itemize}
+		\item Implemented UEV-FLMS in Haskell--improved on efficiency of previous work
+		\item Extended the work of Hafiz, Frost\cite{frosthafiz2008} to support non-referentially transparent functions as attributes
+		\item Integrated UEV-FLMS with a parser constructed as an executable attribute grammar to produce an English Natural Language Interface with support for prepositional phrases in queries
+		\item Developed an online interface to query facts about the Solar system as a demonstration
+		\item Uploaded the work in the form of the XSaiga package on Hackage\cite{XSaiga:2016}
+		\item Unifying semantic concepts may be a useful technique in solving other NL problems:
+		\begin{itemize}
+			\item Handling of Primary and Secondary sources in inference engines--notions of trust as an attribute
+			\item Postpositions and circumpositions in other languages
+		\end{itemize}
+		\item There will be an increasing need for enabling technologies as IoT and Semantic Web gains mainstream usage
+		\item Hopefully, the approach outlined here will prove fruitful for future researchers to build on in order to satisfy this need
+		\end{itemize}
+	\end{frame}
+
+%	\begin{frame}{Future Publications}
+%		\begin{itemize}
+%			\item Nothing published yet
+%			\item Want to submit to ESWC and ISWC conferences
+%		\end{itemize}
+%	\end{frame}
 	
 	\sectionwithouttoc{Thank You \& Feedback}
 	\begin{frame}{Thank You \& Feedback}
