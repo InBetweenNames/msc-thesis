@@ -36,7 +36,7 @@ other instances of the Monad typeclass.  In Chapter \ref{chapter:futurework}, on
 Aside from the differences noted above, the combinators function the same as they did originally in \cite{frosthafiz2008}.  They are summarized as follows:
 
 \begin{itemize}
-	\item \texttt{(<|>)} -- a combinator that represents an alternative.  In the expression ``\texttt{a <|> b}'', first matching \texttt{a} would be tried, and if that parse failed, then matching \texttt{b} would be tried.
+	\item \texttt{(<|>)} -- a combinator that represents an alternative.  In the expression ``\texttt{a <|> b}'', both \texttt{a} and \texttt{b} are attempted to be matched against the string.  If both \texttt{a} and \texttt{b} match, i.e. the grammar is ambiguous, both parse trees are returned in the result.
 	\item \texttt{(*>)} -- a combinator that represents a sequence.  In the expression ``\texttt{a *> b}'', the parser would try to match \texttt{a} followed by \texttt{b}.  Both must be matched in order for the parse to succeed.
 \end{itemize}
 

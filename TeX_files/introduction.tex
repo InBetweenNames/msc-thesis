@@ -96,15 +96,15 @@ While these approaches have seen success, they all share a shortcoming in that t
 
 The work presented in this thesis draws on two main concepts: executable attribute grammars\cite{frosthafiz2008} and event-based denotational semantics\cite{frostagboola2014}.
 
-Executable attribute grammars are a natural way to implement Natural Language processors\cite{frost1992constructing}, and since they allow top-down rather than bottom-up parsing, they are highly modular\cite{frosthafiz2008}.  This makes them well suited to the natural specification of semantic rules.
+Executable attribute grammars are a natural way to implement Natural Language processors\cite{frost1992constructing}, and since they allow top-down rather than bottom-up parsing, they are highly modular\cite{frosthafiz2008}.  This makes them well suited to the natural specification of semantic rules, since the meanings of terminals and rules in the grammar are able to be defined alongside those rules and terminals in the grammar itself.  Additionally, it is possible to handle left-recursion and ambiguity directly in executable attribute grammars efficiently, allowing these grammars to witness sentences in natural language that are inherently ambiguous.
 
 English denotational semantics were first described by Dr. Richard Montague in 1970\cite{dowty2012introduction}.  Montague proposed
 denotations for English words using characteristic functions described in higher order logic.
 The presence of universal quantification in these characteristic functions made Montague's semantics difficult to implement in a computationally tractable way, however.
-Frost et al. in 1989 presented an improved version of Montague semantics called {\em FLMS}\cite{frost1989constructing} that addressed this need.  Frost's approach was to use sets instead of universal quantifiers in predicates, making the semantics computationally tractable.  In addition, Frost proposed a denotation for transitive verbs which was missing in Montague's semantics\cite{frost2013event}.
+Frost et al. in 1989 presented an improved version of Montague semantics called {\em FLMS}\cite{frost1989constructing} that addressed this need.  Frost's approach was to use sets instead of characteristic functions, making the semantics computationally tractable.  In addition, Frost proposed a denotation for transitive verbs which was missing in Montague's semantics\cite{frost2013event}.
 
-Frost et al. improved on FLMS in 2013 with a new semantics called {\em EV-FLMS}\cite{frost2013event}, intended for use with event-based triplestores.
-This event-based denotational semantics operates on event-based triplestores\cite{frost2014demonstration} rather than entity-based triplestores.  Triplestores describe entities and their relations to other entities, but a problem exists in how to add contextual information to a particular triple.  In an event-based triplestore, triples describe events rather than entities, and information about entities and their relationships to one another may be gleaned from the events in which they occur.  Additional information about an event may be added by simply adding a new triple to the triplestore.
+Frost et al. modified FLMS in 2013 to produce a new semantics called {\em EV-FLMS}\cite{frost2013event}, intended for use with event-based triplestores.
+This event-based denotational semantics operates on event-based triplestores\cite{frost2014demonstration} rather than entity-based triplestores.  Entity-based triplestores describe entities and their relations to other entities, but a problem exists in how to add contextual information to a particular triple.  In an event-based triplestore, triples describe events rather than entities, and information about entities and their relationships to one another may be gleaned from the events in which they occur.  Additional information about an event may be added by simply adding a new triple to the triplestore.
 
 As an example, the sentence ``Jane bought a pencil'' could be represented in an entity-based triplestore with the triple
 
@@ -123,9 +123,9 @@ In an event-based triplestore, the same sentence could be represented with three
 	
 Additionally, other information about the event may be added as well, for example including the purchase price with the triple: \texttt{(event1, cost, \$1)}, or perhaps the time $t$ the transaction occurred with \texttt{(event1, time, $t$)}.
 
-In this Thesis, we present a new event-based denotational semantics called {\em Unified EV-FLMS} or {\em UEV-FLMS} that improves on EV-FLMS by unifying several semantic concepts,
-supporting prepositions that query multiple properties, and solving two problems with how prepositional phrases were handled in the original semantics.
-In doing this, we demonstrate a novel method of handling the word ``by'' as used in the passive form of a verb by treating it directly as a preposition within our grammar, unifying our treatment of active and passive verbs.  With this approach, we are able to accommodate queries such as ``which moon was discovered in 1877 by hall'' without any added complexity to the semantics.
+In this thesis, we present a new event-based denotational semantics called {\em Unified EV-FLMS} or {\em UEV-FLMS} that improves on EV-FLMS by unifying several semantic concepts,
+supporting prepositions that query multiple properties, and solving two problems resulting from how prepositional phrases were handled in the original semantics.
+In doing this, we introduce a novel method of handling the word ``by'' as used in the passive form of a verb by treating it directly as a preposition within our grammar, unifying our treatment of active and passive verbs.  With this approach, we are able to accommodate queries such as ``which moon was discovered in 1877 by hall'' without any added complexity to the semantics.
 
 \section{Thesis Statement}
 By integrating a novel event-based denotational semantics with a parser constructed as an executable attribute grammar, it is possible to create a highly modular and extensible Natural Language Interface to the Semantic Web that supports the use of prepositional phrases in queries.

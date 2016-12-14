@@ -7,7 +7,7 @@
 
 \section{Providing Event-based views into entity-based triplestores}
 
-The system presented in this Thesis requires event-based triplestores in order to function.  Much of the Semantic Web, however, is not comprised of event-based triplestores.  In order to perform queries on these databases, there must be a way to transform these existing triplestores into an event-based form or provide an event-based ``view'' into these databases. 
+The system presented in this thesis report requires event-based triplestores in order to function.  Much of the Semantic Web, however, is not comprised of event-based triplestores.  In order to perform queries on these databases, there must be a way to transform these existing triplestores into an event-based form or provide an event-based ``view'' into these databases. 
 
 In practice, entity-based triplestores also contain {\em ontology} information that describes the structure of particular sets of triples.  An ontology in the Semantic Web
 serves a similar purpose as a schema does in a relational database.  In fact, the original language proposed by the W3C for describing ontologies was called {\em RDF Schema}.  This evolved into what is known today as the {\em Web Ontology Language} or {\em OWL} for short.
@@ -62,7 +62,8 @@ The actual optimization itself would occur in the \texttt{runQueryFusion} functi
 A basic form of query fusion exists in the Solarman source code currently that relies on {\em memoization}.  The SPARQL backend in the Getts module remembers the
 results of previous queries, and so if another query is made for the same information, the previous result is returned.  This optimization was made
 under the assumption that the triples in the triplestore would not change in the span of time that the query was being made.  More sophisticated query fusions
-would be implementable with the above scheme.
+would be implementable with the above scheme.  It may be feasible, for instance, to preprocess queries with this method to form one large ``super-query'' to the endpoint
+that contains all triples needed by each semantic function used in the query.  This would eliminate the overhead associated with performing many small queries to remote SPARQL endpoints, as semantic functions could operate directly on local memory.
 
 \subsection{Data parallelism}
 
@@ -139,11 +140,11 @@ the semantics on GPUs as well.
 
 \subsection{Conceptual spaces}
 
-One promising approach in processing large amounts of data is Conceptual Spaces\cite{gardenfors2004conceptual}, which has already seen some use in performing queries in the Semantic Web\cite{wu2006exploring}\cite{adams2009conceptual}\cite{gardenfors2014geometry} .  It may be possible to develop a new event-based semantics that uses Conceptual Spaces, and by extension Conceptual Geometry, to perform queries on larger datasets.
+One promising approach to processing large amounts of data involves the use of Conceptual Spaces\cite{gardenfors2004conceptual}\cite{widdows2004geometry}\cite{gardenfors2014geometry}\cite{zenker2015applications}, which has already seen some use in performing queries in the Semantic Web\cite{wu2006exploring}\cite{adams2009conceptual}\cite{gardenfors2014geometry}.  It may be possible to develop a new event-based semantics that uses Conceptual Spaces, and by extension Conceptual Geometry, to perform queries on larger datasets.
 
 \section{Summary}
 
-In this Chapter we discussed two potential avenues for Future Work.  We first discussed the notion of an event-based view into an entity-based triplestore.
+In this chapter we discussed two potential avenues for future work.  We first discussed the notion of an event-based view into an entity-based triplestore.
 We then discussed potential ways to improve the performance of our semantics, through more advanced forms of query fusion and taking advantage of the data-parallel
 aspects of FDBR filtering in our semantics.  In the remaining chapters of this Thesis, we present the proof of our Thesis Statement and discuss conclusions that could be drawn from our work.
 

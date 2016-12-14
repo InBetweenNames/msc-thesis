@@ -220,7 +220,7 @@ The key-value stores are held in top-level mutable variables.  Defining top-leve
 
 \subsubsection{Efficiency of ``collect''}
 
-The \texttt{collect} function as defined in \cite{agboola2015extensible} used a key-value store from the \texttt{Data.Map.Lazy} module in Haskell to efficiently construct Images from relations represented as association lists.  Because all key-value pairs of the \texttt{Map} will be traversed in order, immediately, in all cases, in this Thesis the \texttt{Data.Map.Strict} module was used instead.  The asymptotic time complexity of both methods are identical, however the \texttt{Strict} version uses less memory and is slightly faster as it does not attempt to store partially evaluated areas of the Map as {\em thunks}, which are partially evaluated Haskell expressions.
+The \texttt{collect} function as defined in \cite{agboola2015extensible} used a key-value store from the \texttt{Data.Map.Lazy} module in Haskell to efficiently construct Images from relations represented as association lists.  Because all key-value pairs of the \texttt{Map} will be traversed in order, immediately and in all cases, in this thesis the \texttt{Data.Map.Strict} module was used instead.  The asymptotic time complexity of both methods are identical, however the \texttt{Strict} version uses less memory and is slightly faster as it does not attempt to store partially evaluated areas of the Map as {\em thunks}, which are partially evaluated Haskell expressions.
 
 The \texttt{collect} function is defined in this module as:
 
@@ -257,7 +257,7 @@ where
 cmp x y = (fst x) == (fst y)
 \end{code}
 
-In our SPARQL backend, the \texttt{getts\_fdbr\_entevprop} and \texttt{getts\_fdbr\_entevprop\_type} functions efficiently construct FDBRs of their ENTEVPROP relations using this function by requesting that the ENTEVPROP query results be sorted according to the first element in each pair.  Since this groups pairs together in the association list by their first element, \texttt{condense} is used instead of \texttt{collect} in order to construct the FDBR in the SPARQL backend.
+In our SPARQL backend, the \texttt{getts\_fdbr\_entevprop} and \texttt{getts\_fdbr\_entevprop\_type} functions efficiently construct FDBRs from their ENTEVPROP relations using this function by requesting to the SPARQL endpoint that the ENTEVPROP query results be sorted according to the first element in each pair.  Since this groups pairs together in the association list by their first element, \texttt{condense} is used instead of \texttt{collect} in order to construct the FDBR in the SPARQL backend.
 
 \begin{theorem}
 	\texttt{condense} has $O(n)$ worst-case upper-bound asymptotic time complexity, with comparison on the first element in the association list pairs being the key operation.
@@ -411,7 +411,7 @@ $\blacksquare$
 
 \section{Summary}
 
-In this Chapter we presented an overview of our query program structure as well as how we efficiently implemented our semantics in Haskell.
+In this chapter we presented an overview of our query program structure as well as how we efficiently implemented our semantics in Haskell.
 We showed the modifications we made to the parser described in \cite{frosthafiz2008} in order to accommodate monadic functions as attributes.
 We presented a basic form of query fusion as used by our implementation, and showed an improved version of \texttt{collect} for
 grouped association lists.  In Chapter \ref{chapter:timing}, we perform some benchmarks to measure the empirical performance of our code.

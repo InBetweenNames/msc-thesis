@@ -11,8 +11,8 @@
 
 \label{chapter:semantics}
 
-Our demonstration query program, Solarman, uses an event-based denotational semantics in order to perform queries on the Semantic Web.  In this Chapter we present
-an overview of event-based triplestores, a summary of the original event-based semantics that our semantics are based on, and our improved semantics.
+Our demonstration query program, Solarman, uses an event-based denotational semantics in order to perform queries on the Semantic Web.  In this chapter we present
+an overview of event-based triplestores, a summary of the original event-based semantics that our semantics is based on, and our improved semantics.
 We also present a novel method of handling the word ``by'', as in the phrase ``discovered by'', treating it directly as a prepositional phrase in queries.
 
 \section{Event-Based Triplestores}
@@ -164,7 +164,7 @@ are constructed from binary relations with the \texttt{collect} function.
 
 \begin{definition}[Collect function]
 The function collect is defined such that it takes a binary relation as an
-argument, joinrel, and ``returns a new binary relation, containing one binary tuple
+argument, e.g. joinrel, and ``returns a new binary relation, containing one binary tuple
 (x, image\_x) for each member of the projection of the left-hand column of joinrel
 , where image\_x is the mathematical image of x under the relation joinrel''\cite{frost2014denotational}
 \end{definition}
@@ -294,7 +294,7 @@ For example, the \texttt{subjects}, \texttt{objects}, or \texttt{types} of an ev
 \label{section:fdbr}
 
 Originally, transitive verbs were defined in terms of {\em images}\cite{frost2014denotational}.
-In this Thesis, we use the term {\em function defined by the relation} instead of {\em image}, as {\em image} is a term that already exists throughout mathematics and has
+In this thesis report, we use the term {\em function defined by the relation} instead of {\em image}, as {\em image} is a term that already exists throughout mathematics and has
 a different meaning.
 
 \begin{definition}[Function defined by the relation $r$]
@@ -302,7 +302,7 @@ a different meaning.
 \end{definition}
 
 %TODO: Move Haskell impl details to chapter 5
-The function defined by a relation is referred to throughout this thesis by the shorthand {\em FDBR}.  It is represented with an association list in the Haskell code,
+The function defined by a relation is referred to throughout this thesis report by the shorthand {\em FDBR}.  It is represented by an association list in the Haskell code,
 as {\em images} were represented in the original semantics.  The function defined by the relation $r$ is denoted with the syntax $\mathtt{FDBR}(\mathtt{r})$.
 We call an element $\mathtt{(x, image_x)}$ of an FDBR an {\em FDBR-pair}.
 
@@ -322,7 +322,7 @@ The {\em ENTEVPROP\_TYPE} relation is similar, accepting an event type as an arg
 	\end{multline*}
 \end{definition}
 
-In the original semantics, the \texttt{make\_trans} function could be defined as:
+In the original EV-FLMS semantics, the \texttt{make\_trans} function can be defined using the above functions as follows:
 
 \begin{multline*}
   \mathtt{make\_trans} \ \mathtt{event\_type}\ \mathtt{tmph} = \\ \mathtt{tmph} (\mathtt{map} \ \mathtt{fst}\ \mathtt{FDBR}(\mathtt{ENTEVPROP\_TYPE}(\mathtt{event\_type}, \text{``\texttt{subject}''})))
@@ -332,7 +332,7 @@ These relations form the basis on which our new semantics is defined.
 
 \subsection{The implicit `and' problem and the problem of `every'}
 
-In the original semantics there were two problems with how prepositional phrases were implemented.
+In the original semantics there were two problems resulting from how prepositional phrases were implemented.
 
 First, a query such as ``the sun is orbited by every planet'' would have returned \texttt{False} due to the way \texttt{filter\_ev} was implemented.
 
@@ -410,7 +410,7 @@ in the intersection, while the events from the first FDBR are discarded.
 
 For an example of why \texttt{intersect\_fdbr} is defined this way, consider the sentence
 \texttt{a moon spins}.  The events that {\em justify} the claim that a particular moon spins are contained in the FDBR \texttt{spins}.  On the other hand, the events of \texttt{moon}
-are only membership events and don't contribute any useful information about whether a given moon will spin or not.  Therefore we would expect in the FDBR for \texttt{a moon spins},
+are only membership events and don't contribute any useful information about whether a given moon spins or not.  Therefore we would expect in the FDBR for \texttt{a moon spins},
 we would only have events from the \texttt{spins} relation.  Furthermore, it wouldn't make sense to have any entities that weren't moons in \texttt{a moon spins}, nor would
 it make sense for us to be missing any moons, since we know that all moons spin.  If we let $\mathtt{a} = \mathtt{intersect\_fdbr}$, then we capture exactly these semantics.
 
@@ -530,6 +530,22 @@ the semantics.
 
 Therefore, both voices of transitive verbs, and versions both with and without support for prepositional phrases, are handled uniformly and transparently.
 
+As an example of how filtering using prepositional phrases works, consider the query ``who discovered at mt\_wilson in 1938''.
+The FDBR of the verb ``discovered'' contains the FDBR-pair $\left(\text{``}\mathtt{nicholson}\text{''}, \{\mathtt{event1056}, \mathtt{event1057}, \mathtt{event1058}, \mathtt{event1059}\}\right)$.
+In Figure \ref{fig:prepfilt}, a visualization of the four events in the FDBR-pair with ``nicholson'' as the subject is shown.  The matching properties queried
+by the prepositional phrase ``at mt\_wilson'' and ``in 1938'' are highlighted in pink and purple, respectively.  An FDBR is constructed for each prepositional phrase from the properties denoted in each preposition, and those FDBRs are filtered using each preposition's corresponding predicate.  The set of events common to all filtered FDBRs for each prepositional phrase is contained within the dashed box.  According to this chain of prepositions, the set of events that have properties matching all predicates in the chain is $\{\mathtt{event1056},\mathtt{event1058}\}$.  Since there exists a non-empty set of events relevant to all prepositional phrases in the chain, ``nicholson'' is included in the query result.
+Next, consider the FDBR-pair with ``hall'' as the subject for the active ``discover'' verb: $\left(\text{``}\mathtt{hall}\text{''}, \{\mathtt{event1045}, \mathtt{event1046}\}\right)$.
+Since both these events have property ``year'' as ``1877'', filtering using the prepositional phrase ``in 1938'' yields an empty set of matching events.  Therefore, ``hall'' is not
+included in the query result.
+
+\begin{figure}
+	\centering
+	\fbox{\includegraphics[width=\textwidth]{eventfiltering}}
+	\caption{Example using prepositional phrases to filter events}
+	\label{fig:prepfilt}
+\end{figure}
+
+
 \paragraph{Adjectives, common nouns, and intransitive verbs}
 
 In the original semantics, intransitive verbs and common nouns were defined as a set of entities.
@@ -570,8 +586,31 @@ Similarly, the conjoiners for termphrases are also defined in terms of FDBRs:
 
 Note that \texttt{termand tmph1 tmph2} and \texttt{termor tmph1 tmph2} are predicates: they are functions from FDBRs to FDBRs and return exactly the FDBR-pairs
 that are relevant to them.  \texttt{termand tmph1 tmph2} is curiously defined in terms of \texttt{termor}.  The reason for this is that, provided both termphrases
-evaluate to \texttt{True} for FDBR $F$, all FDBR-pairs in both FDBRs are relevant: if any of those FDBR-pairs were to go missing from $F$, calling this new FDBR $F'$, at least one of 
-the termphrases \texttt{tmph1} or \texttt{tmph2} would evaluate to \texttt{False} on $F'$, changing the result.  Hence, all FDBR-pairs of $F$ are relevant.
+evaluate to \texttt{True} for FDBR $F$ (i.e. the returned FDBRs are non-empty), all FDBR-pairs in both returned FDBRs are relevant: if any of those FDBR-pairs were to go missing from $F$, calling this new FDBR $F'$, at least one of the termphrases \texttt{tmph1} or \texttt{tmph2} would evaluate to \texttt{False} on $F'$, changing the result.  Hence, all FDBR-pairs in the FDBRs returned by \texttt{tmph1} and \texttt{tmph2} when evaluated on $F$ are relevant and should be included in the result of \texttt{termand tmph1 tmph2} when evaluated on $F$.  On the other hand, if either termphrase evaluates to \texttt{False} on $F$, then \texttt{termand tmph1 tmph2} evaluates to \texttt{False} on $F$, preserving the semantics of conjunction.
+
+As an example, consider the semantic expression:
+
+\[ (\mathtt{termand}\enspace\mathtt{hall}\enspace\mathtt{nicholson})\enspace\mathtt{discovered\_intrans} \]
+ 
+This expression corresponds to the sentence ``\texttt{hall and nicholson discovered}''. \\
+\texttt{discovered\_intrans} is the intransitive form of the ``discover'' verb, which is an FDBR from the subjects of the events with type ``\texttt{discover\_ev}'' to the set of events they are subjects of.  \texttt{hall} and \texttt{nicholson} are predicates that filter FDBRs for the FDBR-pairs with``hall'' and ``nicholson'' as a subject, respectively. Hence, filtering \\ \texttt{discovered\_intrans} with \texttt{hall} will yield an FDBR with one FDBR-pair:
+
+\[ \{(\text{``}\mathtt{hall}\text{''}, \{ \mathtt{event1045}, \mathtt{event1046} \})\} \]
+
+Similarly, filtering \texttt{discovered\_intrans} with \texttt{nicholson} will yield an FDBR with one FDBR-pair:
+
+\[ \{(\text{``}\mathtt{nicholson}\text{''}, \{ \mathtt{event1056}, \mathtt{event1057}, \mathtt{event1058}, \mathtt{event1059} \})\} \]
+
+Since these FDBRs are both nonempty, both FDBRs are combined into one FDBR with \texttt{termand}:
+
+\begin{gather*}
+	\{ (\text{``}\mathtt{hall}\text{''}, \{ \mathtt{event1045}, \mathtt{event1046} \}), \\ (\text{``}\mathtt{nicholson}\text{''}, \{ \mathtt{event1056}, \mathtt{event1057}, \mathtt{event1058}, \mathtt{event1059} \}) \}
+\end{gather*}
+
+If either of these FDBR-pairs were removed from \texttt{discover\_intrans}, then at least one of \texttt{hall} or \texttt{nicholson} would return an empty FDBR when evaluated on that
+new FDBR, changing the result.  Therefore all FDBR-pairs in \texttt{hall discover\_intrans} and \texttt{nicholson discover\_intrans} are relevant and should be included in the result of \texttt{termand hall nicholson discover\_intrans}.
+
+
 
 \subsection{The use of `by' as a preposition}
 
@@ -587,7 +626,7 @@ of needing to be directly next to the verb.
 
 \section{Summary}
 
-In this Chapter, we presented an overview of event-based denotational semantics.  We first introduced the concept of an event-based triplestore,
+In this chapter we presented an overview of event-based denotational semantics.  We first introduced the concept of an event-based triplestore,
 and then presented a summary of EV-FLMS, an event-based denotational semantics for use on those types of triplestores.  We then presented a new
 event-based denotational semantics called Unified EV-FLMS or UEV-FLMS that improves on FLMS in several ways.  First, we extended the definition of prepositions
 so that they may query multiple properties.  Second, we chose a different name for the concept previously known as an ``Image'' in EV-FLMS that does not clash

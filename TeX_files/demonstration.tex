@@ -27,7 +27,21 @@ The English Natural Language query interface can be accessed via this URL:
 \frame{\includegraphics[width=\textwidth]{natlang4}}
 \caption{Screenshot of English Natural Language Interface}
 \end{figure}
-In the text box labeled ``Enter query here'', English queries about the Solar system can be entered to be evaluated.  This is accomplished using the {\em Common Gateway Interface}, or {\em CGI}, to directly execute the ``Solarman'' program on the server with the given query as an argument.  Internally, Solarman is configured to use a Virtuoso\cite{virtuoso} RDF database as its SPARQL endpoint.
+In the text box labeled ``Enter query here'', English queries about the Solar system can be entered to be evaluated.  This is accomplished using the {\em Common Gateway Interface}, or {\em CGI}, to directly execute the ``Solarman'' program on the server with the given query as an argument.  Internally, Solarman is configured to use a Virtuoso\cite{virtuoso} RDF database as its SPARQL endpoint.  The following SPARQL query is an example query that Solarman could send to a SPARQL endpoint:
+
+\begin{code}
+	PREFIX sol: <http://solarman.richard.myweb.cs.uwindsor.ca#>
+	
+	SELECT DISTINCT ?x1 ?x0 WHERE {
+	?x0 sol:type sol:discover_ev .
+	?x0 sol:object ?x1 .
+	} ORDER BY ASC(?x1) 
+
+\end{code}
+
+In the above example, the triplestore is being queried for all events of the ``discover'' type and the entities that were discovered in each of those events.  Additionally,
+the query stipulates that the results should be lexicographically sorted in ascending order by the names of the entities being discovered in each event.  This ordering constraint is useful
+as it enables the results to be processed into an FDBR in O(n) time, as detailed in chapter \ref{chapter:implementation}.  Each pattern in a SPARQL query that defines restrictions on matching triples is described as a statement ending with a ``\texttt{.}''.  As shown in the example, multiple pattern matching statements are permitted in a single SPARQL query.  A ``\texttt{PREFIX}'' statement may be provided at the start of a SPARQL query to define a shorthand for a {\em namespace} that can be used within patterns.  In our triplestore, all facts about the Solar system are in the ``\texttt{http://solarman.richard.myweb.cs.uwindsor.ca\#}'' namespace.   %TODO: move time complexity proof to Timing
 
 Traversing the ``More Examples'' link will bring up a page that contains a full list of the words that can be used in queries, along with a list of example queries that can be used.
 
@@ -41,7 +55,13 @@ Some example queries that use prepositional phrases include:
 	\item \texttt{where were the moons that were discovered by hall or kuiper in \\ 1877 discovered}
 	\item \texttt{which moons that orbit a planet that orbits a sun were discovered \\ by one person at a place with a telescope}
 	\item \texttt{how were the moons that were discovered with two telescopes\\ discovered}
+	\item \texttt{who discovered something with two telescopes}
 \end{itemize}
+
+The last query, ``\texttt{who discovered something with two telescopes}'', is a valid English sentence that is semantically ambiguous.
+The question could be asking whether someone used two telescopes to discover one particular thing, or whether someone discovered
+potentially multiple objects using two telescopes, using one telescope in each discovery.  Our semantics treats both interpretations
+as valid and uses both in forming query results.
 
 %%
 
@@ -60,7 +80,7 @@ In addition, a ``Direct Query Interface'' is provided that allows users to direc
 The Direct Query Interface is implemented using Safe Haskell\cite{safehaskell}, an extension of the Haskell language that restricts the functions that can be evaluated
 to a safe subset that is suitable for executing untrusted code.  This makes the Direct Query Interface suitable for use on public-facing websites, preventing external users from executing malicious code using the interface.  For example, the expression \texttt{System.IO.readFile "/etc/passwd"} is disallowed under this scheme as both the Haskell \texttt{Prelude} and \texttt{System.IO} modules are by default not trusted.
 
-Examples of queries that can be performed with the Direct Query Interface:
+Examples of Haskell expressions that can be executed with the Direct Query Interface:
 \begin{itemize}
 	\item \texttt{when' \$ something \$ discovered\_ [at mt\_wilson]} \\(English: ``when was something discovered at mt\_wilson'')
 	\item \texttt{how' \$ discovered \$
@@ -141,7 +161,7 @@ The SPARQL endpoint that Solarman uses can be accessed via this URL:
 
 \url{http://speechweb2.cs.uwindsor.ca/sparql}
 
-We use the Virtuoso RDF triplestore and its SPARQL interface\cite{virtuoso} in our demonstration.  To replicate our setup,
+We use the Virtuoso RDF triplestore software and its SPARQL interface\cite{virtuoso} in our demonstration.  To replicate our setup,
 first install the Virtuoso software for your operating system.  Next, obtain a database dump of our triplestore
 in ``n-Triples'' format\cite{w3cntriples} using this URL:
 
@@ -152,7 +172,7 @@ Our semantics can use any SPARQL interface, so the Virtuoso triplestore may be s
 
 \section{Summary}
 
-In this Chapter we summarized previous implementations of Solarman and described our online Natural Language Interface using our Semantics.
+In this chapter we summarized previous implementations of Solarman and described our online Natural Language Interface using our Semantics.
 In Chapter \ref{chapter:semantics}, we present an overview of event-based denotational semantics, summarizing EV-FLMS and introducing UEV-FLMS.
 
 \end{document}
