@@ -6,6 +6,89 @@
 
 \label{chapter:implementation}
 
+\section{Implementation language}
+
+We chose to implement UEV-FLMS in the Haskell programming language\cite{haskell}.
+Briefly, Haskell is a lazily-evaluated functional programming language with first class support
+for monads.  We summarize these concepts and provide justification for our choice in the following subsections:
+
+\subsection{Functional Programming}
+
+Functional programming languages are declarative, rather than imperative, in nature.
+This means that programs are written by composing functions together, much like how mathematical
+functions can be defined in terms of function composition.  Unlike imperative languages,
+mutable state is avoided in programs written in functional languages. This lends lends itself to a highly expressive
+style of programming that heavily encourages code reuse while still retaining the ability to easily reason about code.
+
+
+\subsection{Lazy-evaluation}
+
+In a language that is {\em lazily evaluated}, expressions and subexpressions are evaluated only as they are needed at run-time.  This enables infinitely recursive data structures to be expressed directly in the language, and allows for improved performance in some cases by leaving unnecessary calculations unevaluated.
+
+For example, consider the function \texttt{primes} that returns a list of all prime numbers.
+If no elements of \texttt{primes} are used, then no computation is performed at all.
+If only the first 20 elements of \texttt{primes} are used, only the first 20 elements need to be evaluated,
+with the rest being left unevaluated.  In an eagerly evaluated language, every element of the list returned by \texttt{primes} would be computed the first time it was referenced, resulting in a non-terminating loop.
+In this example, lazy-evaluation enables users to use an intuitive abstraction to iterate through a sequence of prime numbers while avoiding the costs associated with those abstractions in eagerly evaluated languages.
+
+\subsection{Monads}
+
+Monads in functional programming are inspired from their counterparts in category theory.
+In a functional programming language, a type $A$ is a monad if there exists definitions of two functions in that language with the types of those functions as follows:
+
+\begin{itemize}
+	\item $\mathtt{bind} : A\ x \rightarrow \left(\lambda x \rightarrow A\ y\right) \rightarrow A\ y$
+	\item $\mathtt{return} : x \rightarrow A\ x$
+\end{itemize}
+
+\newcommand{\hbind}{>\!\!>\!\!=}
+
+The \texttt{bind} function is commonly used as a binary operator.  In Haskell, the bind function is denoted with operator $\hbind$.
+In addition, these definitions must satisfy the {\em monad laws}.  We use this syntax to summarize the monad laws as follows.
+Here, $a \equiv b$ denotes that the expression $a$ is semantically equivalent to the expression $b$ and hence they are interchangeable.
+These laws are defined using lambda calculus.
+
+\subsubsection{Monad Laws}
+
+$(\forall x)(\forall y)(\forall f)(\forall m)(\forall a)$ $f$ is a function with type $f : x \rightarrow A\ y$, $m$ is a value with type $m : A\ x$, and $a$ is a value with type $a : x$
+
+\begin{itemize}
+	\item Left-identity: $\mathtt{return}\enspace a\ \hbind\ f\ \equiv\ f\enspace a$
+	\item Right-identity: $m\ \hbind\ \mathtt{return}\ \equiv\ m$
+	\item Associativity: $(m\ \hbind\ f)\ \hbind\ g\ \equiv\ m\ \hbind\ (\lambda x \rightarrow f\enspace x\ \hbind\ g)$
+\end{itemize}
+
+In Haskell, computations with monads are expressible with a special syntax called the ``do'' syntax.
+This allows for a convenient way of expressing monadic computations directly within the language.
+Haskell gives special treatment to the monad \texttt{IO}, enabling computations within it
+to be non-referentially transparent.  An example expression in Haskell using the IO monad is as follows:
+
+\begin{code}
+main :: IO ()
+main = do
+	line <- readLine
+	putStrLn ("Hello world! " ++ line)
+\end{code}
+
+This syntax is equivalent to the code:
+
+\begin{code}
+main :: IO ()
+main = readLine >>= (\line -> putStrLn ("Hello world! " ++ line))
+\end{code}
+
+Monads are useful to express computations that involve multiple independent actions with an implicit 
+action that ``ties'' them together.  This can be used, for example, to implicitly pass state as an argument through
+functions, a technique used in Frost and Hafiz's parser to efficiently parse highly ambiguous left recursive grammars\cite{frosthafiz2008}.
+
+\subsection{Why Haskell?}
+
+In particular, mathematical functions are easily implemented in functional languages.  Due to their declarative nature,
+often times the definition of the mathematical function itself can be directly expressed in the language.  Since UEV-FLMS
+is heavily rooted in set-relational theory\cite{frost1989constructing}, we were able to implement all of our semantic functions as they were defined in Chapter \ref{chapter:semantics} by directly expressing those functions in Haskell.  To accommodate communication with external triplestores, we ``lifted'' the implementations of the semantic functions into the IO monad, enabling our semantics to use non-referentially transparent \texttt{getts} functions.  We were also able to modify the original parser that Frost and Hafiz described\cite{frosthafiz2008} to support non-referentially transparent attributes and integrate that with our semantics, owing to the reusability of code that functional languages encourage.
+
+It certainly would have been possible to use an imperative language to achieve the same end-result, however significantly more work would have been involved in doing so.  For one, implementation of UEV-FLMS semantics in an imperative language would have taken much more code, as the mathematical definitions themselves would not be directly expressible in the language. Another difficulty would have been in parsing English queries, since adapting an existing parser for this end may not have been possible.  Certainly, one would not be able to directly express an Executable Attribute Grammar directly in an imperative language without significant work, meaning that the semantics and the parser would not be able to be defined together in a piecewise fashion.
+
 \section{Data representation}
 
 Like the original Haskell implementations, we represent sets in our implementation using lists and binary relations as association lists.  We represent triples using 3-tuples and we represent URIs using the \texttt{String} type, which is a list of \texttt{Char}.
@@ -30,7 +113,7 @@ The parser is defined in the \texttt{AGParser2} module.
 \begin{figure}[h]
 	\centering
 	\frame{\includegraphics[width=\textwidth]{semanticsslide3}}
-	\caption{Parser operation: how an English sentence is mapped to semantic functions for evaluation\cite{graphmqslide}}
+	\caption{Parser operation: how an English sentence is mapped to semantic functions for evaluation\cite{frost2014demonstration} (URL: \url{http://cs.uwindsor.ca/~richard/semantics_presentations/talk_for_GraphQ.ppt})}
 \end{figure}
 
 The types of the semantic functions in \texttt{SolarmanTriplestore} are defined in the TypeAg2 module.
@@ -200,7 +283,7 @@ Three new functions are introduced: \texttt{getts\_fdbr\_entevprop},\\ \texttt{g
 \texttt{getts\_fdbr\_entevprop\_type} serves the same purpose that \texttt{make\_image} had in the original semantics.
 These functions are named after their counterparts in Chapter 3.
 
-Only the three \texttt{getts\_*} functions must be defined for the new type of triplestore at minimum, however efficient implementations
+Only the three \texttt{getts\_*} functions must be defined for the new type of triplestore at minimum. However efficient implementations
 of all functions in the typeclass may be provided if desired.  We provide a backend using a SPARQL endpoint as a triplestore using the
 \texttt{SPARQLBackend} type and a backend for in-program triplestores using the \texttt{[Triple]} type as instances of \texttt{TripleStore}.
 

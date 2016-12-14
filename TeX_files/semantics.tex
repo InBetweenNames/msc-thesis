@@ -43,7 +43,7 @@ These triples describe the event in which ``Sally met Susan'' rather than direct
 Triplestores that organize their information in this fashion are called {\em Event-based Triplestores}.
 
 \begin{definition}[Event-Based Triplestore]
-	A triplestore where the \texttt{subject} of the triples contained within it refer to Events\cite{frostagboola2014}
+	A triplestore where the \texttt{subject} of the triples contained within it refer to events\cite{frostagboola2014}
 \end{definition}
 
 We say that a triple {\em belongs} to an event if the \texttt{subject} of the triple is the name of the event.  For example,
@@ -67,6 +67,8 @@ singly-linked lists, called {\em lists}.  Lists are composed using the \texttt{(
 and the right argument is a list.  The \texttt{(:)} operator is {\em right-associative} prepends the left operand to the right operand.  The empty list is denoted with
 \texttt{[]}.  The syntax \texttt{[x\_1, x\_2, ... x\_n]}, \texttt{(x\_1 : x\_2 : ... : x\_n : [])} and \texttt{(x\_1 : (x\_2 : ... : (x\_n : [])))} are equivalent.
 Lists are homogeneous in that types of all elements in the list must be identical.
+
+Functions in Haskell that take two arguments may be treated as binary operators by surrounding the function name with backticks (\texttt{`}) in a function call.  For example, if the function \texttt{plus} takes two numeric arguments, then the Haskell expressions ``\texttt{plus 1 2}'' and ``\texttt{1 `plus` 2}'' are equivalent.
 
 A summary of the original semantics and the Haskell implementation is provided below:
 
@@ -147,7 +149,7 @@ Conjoiners for common nouns were implemented similarly:
 
 
 A {\em determiner phrase} was defined as being a determiner such as ``a'' or ``every'' applied to a common noun, for example ``every moon''.\cite{frost2014denotational}.
-A {\em termphrase} was defined as being either a a proper noun or a determiner phrase\cite{frost2014denotational}.
+A {\em termphrase} was defined as being either a proper noun or a determiner phrase\cite{frost2014denotational}.
 Conjoiners for termphrases were implemented as follows:
 \vspace{1em}
 \begin{code}
@@ -174,9 +176,8 @@ argument, e.g. joinrel, and ``returns a new binary relation, containing one bina
 \end{definition}
 
 Intuitively speaking, the \texttt{collect} function converts arbitrary binary
-relations into functions.  $\forall x$ All pairs $(x, y_1), (x, y_2), ..., (x,
-y_n)$ are grouped into one pair $(x, \left\{y_1, y_2, ..., y_n\right\})$ in the new binary
-relation.
+relations into functions.  $(\forall x)$ All pairs $(x, y_1), (x, y_2), ..., (x,
+y_n)$ in the argument of \texttt{collect} are grouped into one pair $(x, \left\{y_1, y_2, ..., y_n\right\})$ in the returned binary relation.
 
 In the Haskell implementation, binary relations and images were represented using {\em association
 lists}, which are lists of pairs\cite{frost2014denotational}.
@@ -342,7 +343,7 @@ Second, an implicit ``and'' was placed in between each preposition, transforming
 
 Although the above sentence is ambiguous in that it could be asking whether someone used two telescopes to discover one particular object, or whether
 someone discovered potentially different objects with two telescopes, the asker most certainly did not intend for an implicit ``and'' to be inserted in between the prepositions.
-The reason this happens is because in the original \texttt{filter\_ev} function, the sets of events were not actually ``honed down'' before being passed to subsequent predicates in the preposition chain.
+This happens because in the original \texttt{filter\_ev} function, the sets of events were not actually ``honed down'' before being passed to subsequent predicates in the preposition chain.
 
 In our semantics we define a new \texttt{filter\_ev} function that overcomes
 both these problems.  Its definition is deferred until the {\em Transitive Verbs}
