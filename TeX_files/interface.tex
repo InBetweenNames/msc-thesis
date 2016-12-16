@@ -304,6 +304,7 @@ The key-value stores are held in top-level mutable variables.  Defining top-leve
 
 \subsubsection{Efficiency of ``collect''}
 
+\label{subsubsection:collect}
 The \texttt{collect} function as defined in \cite{agboola2015extensible} used a key-value store from the \texttt{Data.Map.Lazy} module in Haskell to efficiently construct Images from relations represented as association lists.  Because all key-value pairs of the \texttt{Map} will be traversed in order, immediately and in all cases, in this thesis the \texttt{Data.Map.Strict} module was used instead.  The asymptotic time complexity of both methods are identical, however the \texttt{Strict} version uses less memory and is slightly faster as it does not attempt to store partially evaluated areas of the Map as {\em thunks}, which are partially evaluated Haskell expressions.
 
 The \texttt{collect} function is defined in this module as:
@@ -332,8 +333,11 @@ collect = Map.toList . Map.fromListWith (++) . map (\(x, y) -> (x, [y]))
 \subsubsection{Efficiently constructing FDBRs from grouped association lists}
 In addition, a new function, \texttt{condense}, has been created to efficiently construct $FDBR(r)$ such that $r$ is represented by a grouped association list.
 
+\label{subsubsection:condense}
 \begin{definition}[Grouped Association List]
+	%Elements themselves are contiguous
 	An association list where the indices of all pairs in the list with equal first components are contiguous
+	An association list where all pairs with equal first components are contiguous in the list
 \end{definition}
 
 We refer to any association list that is not a grouped association list as an {\em ungrouped association list}.
@@ -358,7 +362,8 @@ We denote tuples with the syntax $(a_1, a_2, \dots, a_n)$.
 Function application is denoted as in Chapter \ref{chapter:semantics}.
 For example: \texttt{head [x, y, z] => x} and \texttt{tail [x, y, z] => [y, z]}.
 Function definition is denoted with a similar syntax, supporting {\em pattern matching} on abstract datatypes such
-as tuples and lists.  For example, the function \texttt{f (cons x xs) = x} matches its first argument with the outer \texttt{cons} in a list, and the function \texttt{g (x, y) = x} matches its first argument with a pair, assigning variables \texttt{x} and \texttt{y} to the first and second components of that pair, respectively.  A \texttt{where} clause may be appended to a function definition to define variables used within that function.  %String comparison in this pseudocode is denoted with the \texttt{strcmp} function.
+as tuples and lists.  For example, the function \texttt{f (cons x xs) = x} matches its first argument with the outer \texttt{cons} in a list, and the function \texttt{g (x, y) = x} matches its first argument with a pair, assigning variables \texttt{x} and \texttt{y} to the first and second components of that pair, respectively.  A \texttt{where} clause may be appended to a function definition to define variables used within that function.  A let binding, using the form \texttt{let pattern = expr in expr'}, creates a local variable binding using pattern matching in an expression.  The expression \texttt{expr} is assigned to the pattern \texttt{pattern}, whose variables are made available in \texttt{expr'}.
+Finally, conditional evaluation is expressed with the \texttt{if expr then expr1 else expr2} expression: if \texttt{expr} evaluates to \texttt{True}, then the result of the expression is \texttt{expr1}, otherwise it is \texttt{expr2}.
 
 These syntax choices were chosen to both simplify expression of the algorithm and ease implementation of the algorithm in a wide variety of programming languages.
 

@@ -9,8 +9,7 @@
 
 We conducted some experiments in order to measure the performance of our implementation.
 First, we compiled all Haskell code with profiling enabled such that we were able to accurately see how much time was spent in various functions.
-Second, we enabled the highest level of optimization possible in the GHC Haskell compiler as we wanted to measure how performance would look
-``in the real world''.
+Second, we enabled the highest level of optimization possible in the GHC Haskell compiler as we wanted to measure how performance would look in the real world.
 
 This was accomplished by using the following arguments to GHC when compiling:
 
@@ -32,78 +31,72 @@ All tests were performed on a system with these specifications:
 
 \section{Experiment description}
 
-In our first experiment, we do a simple measurement to see the amount of CPU time is spent and memory used for constructing the FDBR of
-a particularly large relation.
+In our first experiment, we do a simple measurement to see the amount of CPU time is spent for constructing the FDBR of
+binary relations of various sizes (recall that binary relations and FDBRs are represented with association lists in our code, detailed in Chapter \ref{chapter:implementation}).  
 
 In our second experiment, we examine the amount of time it takes to perform a query, using profiling information to break down
 exactly where most time is spent in processing.
 
 \section{Experiment 1}
 
-We construct a randomized relation represented as an association list with 10,000 unique events and 1000 entities with a varying
-number of pairs in the relation.  We also construct a grouped relation with the same number of unique events and unique entities.
-We compare the implementation of our \texttt{collect} and \texttt{condense} functions versus the previous implementation in
-\cite{agboola2015extensible}.
+We construct both a grouped association list and an ungrouped association list with 10,000 unique events and 1000 entities with a varying number of pairs in both association lists.  Definitions can be found in Section \ref{subsubsection:condense} for grouped association lists and ungrouped association lists.  We chose to use fewer entities than events to ensure that the same entities were reused throughout different events, as would be seen in actual triplestores.  We detail the construction of these association lists as follows.
+
+\paragraph{Random number generation}
+
+We use a uniformly distributed pseudorandom number generator to generate event identifiers and entity identifiers, representing these identifiers as strings.  We use the seed 1024 when initializing the pseudorandom number generator in all cases, in order to make results more easily comparable between the implementations.  
+
+\paragraph{Ungrouped association lists}
+
+For each ungrouped association list of size $n$, we use a uniformly distributed pseudorandom number generator to generate $n$ event identifiers in the range of $[1, 10000]$ and $n$ entity identifiers in the range of $[1, 1000]$, treating the result as a string.  For entities, the word ``entity'' is prepended to the identifier.  For example, if we generate $9900$ as an identifier for an event, the identifier will be a string with name ``event9900''.  We then directly combine both lists of identifiers pairwise to form an association list.  For example, $n = 2$ and we generated entity names ``5'' and ``100'' and event names ``event9'' and ``event500'', these would be combined to form the association list $[(\text{``}5\text{''}, \text{``}event9\text{''}), (\text{``}100\text{''}, \text{``}event500\text{''})]$.
+
+\paragraph{Grouped association lists}
+
+For each grouped association list of size $n$, we used a uniformly distributed pseudorandom number generator to generate $n$ event identifiers just as we did for ungrouped association lists, however we generate the list of entity identifiers differently.  To generate the list of entity identifiers, we calculate $m = n/1000$ and for each $i$ in the range $[1, 1000]$, we repeat $i$ represented as a string $m$ times in a list to obtain a list of $n$ entities.  We chose values of $n$ such that $1000$ divides $n$ to ensure that each entity occurs exactly $m$ times.
+When combining the list of entity identifiers and the list of event identifiers pairwise, the result is a grouped association list.
+
+We compare the implementation of our \texttt{collect} and \texttt{condense} functions versus the previous implementation in \cite{agboola2015extensible} by evaluating them on the constructed association lists.  Definitions for both implementations of \texttt{collect} and \texttt{condense} can be found in Section \ref{subsubsection:collect}.  For ungrouped association lists, we only compare the \texttt{collect} functions since \texttt{condense} may only be used with grouped association lists.
 
 \subsection{Results}
 
 \subsubsection{Ungrouped association lists}
 First, we compare the implementations on ungrouped relations.
 
-For 100,000 pairs:
-
-\begin{itemize}
-	\item Previous implementation: 0.130 sec
-	\item Our implementation: 0.129 sec
-\end{itemize}
-
-For 1,000,000 pairs:
-
-\begin{itemize}
-	\item Previous implementation: 1.426 sec
-	\item Our implementation: 1.388 sec
-\end{itemize}
-
-For 10,000,000 pairs:
-
-\begin{itemize}
-	\item Previous implementation: 14.274 sec
-	\item Our implementation: 14.283 sec
-\end{itemize}
+\begin{tabular}{|l|l|l|}
+	\hline
+	Pairs & Previous \texttt{collect} & Our \texttt{collect} \\
+	\hline
+	100,000 & 0.130 sec & 0.129 sec \\
+	\hline
+	1,000,000 & 1.426 sec & 1.388 sec \\
+	\hline
+	10,000,000 & 14.274 sec & 14.283 sec \\
+	\hline
+\end{tabular}
 
 \subsubsection{Grouped association lists}
-Next, we compare the implementations for grouped relations, including \texttt{condense}.
+Next, we compare the implementations for grouped relations, including the \texttt{condense} as defined in Section \ref{subsubsection:condense}.
 
-\noindent For 100,000 pairs:
-\begin{itemize}
-	\item Previous \texttt{collect}: 0.083 sec
-	\item Our \texttt{collect}: 0.068 sec
-	\item \texttt{condense}: 0.030 sec
-\end{itemize}
-
-\noindent For 1,000,000 pairs:
-\begin{itemize}
-	\item Previous \texttt{collect}: 0.775 sec
-	\item Our \texttt{collect}: 0.756 sec
-	\item \texttt{condense}: 0.401 sec
-\end{itemize}
-
-\noindent For 10,000,000 pairs:
-\begin{itemize}
-	\item Previous \texttt{collect}: 8.169 sec
-	\item Our \texttt{collect}: 7.618 sec
-	\item \texttt{condense}: 4.502 sec
-\end{itemize}
+\begin{tabular}{|l|l|l|l|}
+	\hline
+	Pairs & Previous \texttt{collect} & Our \texttt{collect} & \texttt{condense} \\
+	\hline
+	100,000 & 0.083 sec & 0.068 sec & 0.030 sec \\
+	\hline
+	1,000,000 & 0.775 sec & 0.756 sec & 0.401 sec \\
+	\hline
+	10,000,000 & 8.169 sec & 7.618 sec & 4.502 sec \\
+	\hline
+\end{tabular}
 
 \subsection{Discussion}
 
-In the ungrouped case, both implementations are highly comparable.
-In the grouped case, a very minor improvement was shown for our version of \texttt{collect},
-and a major improvement over both \texttt{collect} implementations was shown for \texttt{condense}.
+In the ungrouped case, both implementations are highly comparable, with no noticeable difference in running time between them.
+
+In the grouped case, both \texttt{collect} implementations fare much better with increasing $n$.  The reason for this is that both implementations use the $Map$ datatype in Haskell, which is a key-value store that internally is represented as a balanced binary tree.  Since the input grouped association list is already sorted on the entities in the association list, this makes building a balanced binary tree out of the elements a simple task.  Both \texttt{collect} implementations are again highly comparable.  The \texttt{condense} function demonstrates a clear improvement with larger values of $n$ over the two \texttt{collect} implementations, as expected from the complexity analysis performed in Section \ref{subsubsection:condense}.
 
 \section{Experiment 2}
 
-We performed two Natural Language queries to our SPARQL endpoints using a simple command line interface constructed for our semantics:
+We performed two Natural Language queries to our SPARQL endpoints using a simple command line interface for Solarman:
 
 \begin{enumerate}
 	\item ``which vacuumous moon that orbits jupiter was discovered by nicholson or hall with a telescope in 1938 in mt\_wilson or mt\_hopkins''
@@ -124,8 +117,25 @@ We also ran our command line interface with these arguments to enable profiling 
 
 After doing so, we examined the ``prof'' files produced by each run of our command line interface.
 
+When profiling for IO, we were interested in how much time was spent in the ``SYSTEM'' module, which is the interface
+that code in Haskell uses to communicate with the underlying operating system.  Any time spent waiting on operating system
+interrupts is represented as time spent in the SYSTEM module.
+
+When profiling for CPU time, the time spent in the SYSTEM module is excluded from the ``prof'' files.
+Since any IO request necessarily involves some amount of CPU overhead, we have included the CPU overhead
+involved in performing any IO request in these results.  A brief explanation is given below for the four categories used:
+
+\begin{itemize}
+	\item SPARQL query generation and result processing including XML parsing:  The time spent in the Data.RDF module provided by the HSparql Haskell package.  This includes the time spent generating SPARQL queries and parsing the results of those queries as represented in XML.  This excludes the underlying network related processing detailed below.
+	\item Network related processing: The time spent in the Network module, used for structuring requests over different protocols to be sent over networks.  This excludes any time actually spent waiting on IO, and only measures the CPU overhead involved in generating these requests.
+	\item Natural Language parsing: The time spent in the AGParser2 module (described in Chapter \ref{chapter:combinators}), excluding the time spent in the semantic functions, detailed below.
+	\item Semantic functions: The time spent spent in the semantic functions in the SolarmanTriplestore module (described in Chapter \ref{chapter:implementation}), excluding any SPARQL query generation and result processing and network related processing.
+\end{itemize}
+
+Hence, we can consider the first two categories to be the IO overhead involved in performing Natural Language queries using our semantics.
+
 A 15 megabit cable connection was used during these tests.  Before performing any experiments,
-we measured latency to the remote SPARQL triplestore as being roughly 60 milliseconds.
+we measured latency to the remote SPARQL triplestore as being approximately 60 milliseconds.
 
 \subsection{Results}
 
@@ -161,6 +171,8 @@ Profiling for IO:
 As is evident from the results, our implementation is heavily IO bound.
 The vast majority of time is spent performing the SPARQL queries themselves, with
 less than 2\% of CPU time actually spent in our semantic functions.
+This means that improvements to the time complexity of the semantic functions has little impact
+in the overall responsiveness of the system.
 
 This provides a good hint as to how to improve the semantics in the future.
 We could potentially alleviate this bottleneck by performing fewer external triplestore queries,
