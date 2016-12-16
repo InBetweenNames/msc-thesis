@@ -330,7 +330,13 @@ collect = Map.toList . Map.fromListWith (++) . map (\(x, y) -> (x, [y]))
 %\end{code}
 
 \subsubsection{Efficiently constructing FDBRs from grouped association lists}
-In addition, a new function, \texttt{condense}, has been created to efficiently construct $FDBR(r)$ such that $r$ is represented by an association list that is grouped according to the first element in each pair.
+In addition, a new function, \texttt{condense}, has been created to efficiently construct $FDBR(r)$ such that $r$ is represented by a grouped association list.
+
+\begin{definition}[Grouped Association List]
+	An association list where the indices of all pairs in the list with equal first components are contiguous
+\end{definition}
+
+We refer to any association list that is not a grouped association list as an {\em ungrouped association list}.
 
 The \texttt{condense} function is defined in this module as:
 
@@ -341,102 +347,84 @@ where
 cmp x y = (fst x) == (fst y)
 \end{code}
 
-In our SPARQL backend, the \texttt{getts\_fdbr\_entevprop} and \texttt{getts\_fdbr\_entevprop\_type} functions efficiently construct FDBRs from their ENTEVPROP relations using this function by requesting to the SPARQL endpoint that the ENTEVPROP query results be sorted according to the first element in each pair.  Since this groups pairs together in the association list by their first element, \texttt{condense} is used instead of \texttt{collect} in order to construct the FDBR in the SPARQL backend.
+In our SPARQL backend, the \texttt{getts\_fdbr\_entevprop} and \texttt{getts\_fdbr\_entevprop\\\_type} functions efficiently construct FDBRs from their ENTEVPROP relations using this function by requesting to the SPARQL endpoint that the ENTEVPROP query results be sorted according to the first element in each pair.  Since this groups pairs together in the association list by their first element, \texttt{condense} is used instead of \texttt{collect} in order to construct the FDBR in the SPARQL backend.
+
+The \texttt{condense} algorithm can be expressed in functional language pseudocode as follows.
+In this pseudocode, we denote lists with the syntax $[a_1, a_2, \dots, a_n]$, with the empty list
+denoted as $[]$.  Lists are represented as a recursive abstract datatype using the \texttt{cons} function as originally used in lambda calculus
+to represent lists using Church Encoding\cite{jansen2013programming}.  The syntax $[a_1, a_2, \dots, a_n]$ is hence equivalent to the expression: \[ \mathtt{cons}\ a_1\ (\mathtt{cons}\ a_2\ (\dots (\mathtt{cons}\ a_n\ [])))) \]
+
+We denote tuples with the syntax $(a_1, a_2, \dots, a_n)$.
+Function application is denoted as in Chapter \ref{chapter:semantics}.
+For example: \texttt{head [x, y, z] => x} and \texttt{tail [x, y, z] => [y, z]}.
+Function definition is denoted with a similar syntax, supporting {\em pattern matching} on abstract datatypes such
+as tuples and lists.  For example, the function \texttt{f (cons x xs) = x} matches its first argument with the outer \texttt{cons} in a list, and the function \texttt{g (x, y) = x} matches its first argument with a pair, assigning variables \texttt{x} and \texttt{y} to the first and second components of that pair, respectively.  A \texttt{where} clause may be appended to a function definition to define variables used within that function.  %String comparison in this pseudocode is denoted with the \texttt{strcmp} function.
+
+These syntax choices were chosen to both simplify expression of the algorithm and ease implementation of the algorithm in a wide variety of programming languages.
+
+\begin{code}
+
+ALGORITHM condense
+INPUT: al (grouped association list)
+OUTPUT: fdbr (FDBR of al as an association list)
+
+condense alist = map mkpair (groupBy cmp alist)
+mkpair list = (head list, map snd list)
+
+fst (a, b) = a
+snd (a, b) = b
+
+head (cons x xs) = x
+tail (cons x xs) = xs
+
+cmp x y = (fst x) == (fst y)
+
+map f [] = []
+map f (cons x xs) = cons (f x) (map f xs)
+
+span p [] =  ([], [])
+span p (cons x xs')
+ = if (p x)
+   then let (ys,zs) = span p xs' in (cons x ys,zs)
+   else ([],(cons x xs'))
+
+groupBy eq []          = []
+groupBy eq (cons x xs) = cons (cons x ys) (groupBy eq zs)
+where (ys,zs) = span (eq x) xs
+
+fdbr = condense al
+
+\end{code}
 
 \begin{theorem}
-	\texttt{condense} has $O(n)$ worst-case upper-bound asymptotic time complexity, with comparison on the first element in the association list pairs being the key operation.
+	%TODO: wording for O(n)
+	Algorithm \texttt{condense} has $O(n)$ worst-case time complexity, with comparison on the first element in the association list pairs being the key operation.
 \end{theorem}
 
 Proof:
 
 \texttt{cmp} is the function that compares two association list pairs by their first element.  
 
-%\begin{proposition}
-%	\texttt{cmp} has $O(1)$ worst-case upper-bound asymptotic time complexity, with comparison being the key operation.
-%\end{proposition}
+Let \texttt{al} be a grouped association list.
+%Let $n$ denote the number of elements in \texttt{al}.
 
-%Proof:
-
-%In the Haskell standard library source code, \texttt{fst} is defined as follows \cite{hstdlib}:
-
-%\begin{code}
-%	fst (x,_) = x
-%\end{code}
-
-%This function has trivially $\theta(1)$ worst-case tight bound time complexity for any key operation.
-
-%Since Haskell is a pass-by-reference language with lazy evaluation, this function will return in a constant amount of time regardless of the size of \texttt{x},
-%as \texttt{x} will not be copied on return of the function.  Therefore \texttt{fst} has $\theta(1)$ worst-case tight bound time complexity.
-
-%The operator \texttt{(==)} for the \texttt{String} type (triples are represented as 3-tuples of \texttt{Strings} in our code) has a worst-case upper bound time %complexity of O$(n)$, because in the worst case, both \texttt{Strings} being compared have length $n$ and are equal, forcing each character in both strings to be %evaluated and compared.
-
-%Only one comparison on the first elements of the pairs \texttt{x} and \texttt{y} is performed for \texttt{cmp x y}.
-%Therefore, the worst-case upper-bound asymptotic time complexity of \texttt{cmp} is O$(1)$.
-
-%Since the $O(n)$ term dominates for large $n$, \texttt{cmp} therefore has a worst-case tight-bound asymptotic time complexity of $O(n)$. \qedsymbol
+\texttt{condense al => map mkpair (groupBy cmp al)}.
 
 \begin{proposition}
-	The function \texttt{List.groupBy cmp} has O$(n)$ worst-case upper-bound asymptotic time complexity, with comparisons on the elements of the input list using \texttt{cmp} being the key operation.
+	The function \texttt{groupBy cmp} has O$(n)$ worst-case time complexity, with comparisons on the elements of the input list using \texttt{cmp} being the key operation.
 \end{proposition}
 
 Proof:
 
-In the Haskell standard library source code, \texttt{Data.List.groupBy} is defined as follows\cite{hstdlib}:
+Let \texttt{lst = (cons x xs)} be a list with $n$ elements.
 
-\begin{code}
-groupBy _  []           =  []
-groupBy eq (x:xs)       =  (x:ys) : groupBy eq zs
-where (ys,zs) = span (eq x) xs
-\end{code}
-
-\texttt{span} is defined as follows\cite{hstdlib}:
-
-\begin{code}
-span _ xs@[]            =  (xs, xs)
-span p xs@(x:xs')
-| p x          =  let (ys,zs) = span p xs' in (x:ys,zs)
-| otherwise    =  ([],xs)
-\end{code}
-
-%\begin{subproposition}
-%	\texttt{span} has O$(n)$ worst case tight bound asymptotic time complexity, with evaluations of predicate \texttt{p} being the key operation.
-%\end{subproposition}
-
-%Proof:
-
-%In the worst case, \texttt{p} will evaluate to \texttt{True} for all elements in the input list \texttt{xs}, forcing
-%the evaluation of \texttt{span} on all suffixes of \texttt{xs}.  Since there are $n + 1$ suffixes of \texttt{xs}, 
-%and \texttt{p} is evaluated for each suffix, it follows that $n + 1$ evaluations of \texttt{p} are performed.
-%Therefore, \texttt{span} has a worst-case lower-bound asymptotic time complexity of O$(n + 1) = $O$(n)$. \qedsymbol
-
-%--
-
-Here, \text{eq = cmp} in \texttt{groupBy}, with \texttt{eq x = cmp x = p} being the predicate function used in \texttt{span}. %for elements of the list \text{(x:xs)}.
-
-%The $0$th contiguous group of elements in a list \texttt{qs} according to a predicate \texttt{pred} is the longest prefix \texttt{pre} of \texttt{qs} where
-%\texttt{pred} is \texttt{True} for all elements in \texttt{pre}.
-
-%The $i$th contiguous group of elements in a list \texttt{qs} according to a predicate \texttt{pred} is the $0$th contiguous group of elements of
-%the list obtained by removing all previous contiguous groups of elements from \texttt{qs}. 
-
-%The $i$th contiguous group of elements in a list \texttt{qs} according to a predicate \texttt{pred} is the longest prefix \texttt{pre} of the list \texttt{rs}
-%where \texttt{rs} is the list obtained by removing all previous contiguous groups of elements from \texttt{qs}, and \texttt{pred} is \texttt{True} for all elements
-%of \texttt{pre}.
-
-%A contiguous group of elements in a list \texttt{qs} under a predicate \texttt{pred} is a contiguous sublist of \texttt{qs} such that \texttt{pred}
-%is \texttt{True} for all elements in the sublist.
-
-%Let $m$ be the number of contiguous groups of elements in the list \texttt{(x:xs)}.
-
-%Let $C$ be the list containing the number of elements in each contiguous group of elements in the list \texttt{(x:xs)}.  \texttt{C[i]} denotes the \texttt{i}th element in \texttt{C}.
-
-Let $n$ denote the number of elements in \texttt{(x:xs)}.
+In \texttt{groupBy cmp (cons x xs)}, argument \texttt{eq = cmp} and the predicate used in \texttt{span} is \texttt{p = eq x = cmp x}.
 
 The function \texttt{span} returns a partition \texttt{(ys, zs)} of the input list \texttt{xs}, where \texttt{ys} is the longest prefix of \texttt{xs} such that predicate \texttt{p} is \texttt{True} on all elements in the prefix, and \texttt{zs} are the remaining elements in \texttt{xs}.  It follows that \texttt{p} is evaluated at least $s$ times and at most $s + 1$ times, where $s$ is the length of \texttt{pre} (it will only be evaluated $s$ times if \texttt{pre = xs}).
 
-By recursing into the second list returned by \texttt{span}, no previous elements of \texttt{(x:xs)} are revisited, and no elements are skipped, so \texttt{groupBy} partitions the input list \texttt{(x:xs)} into $m$ lists.  Call this partition \texttt{part}.  Note that the sum of the lengths of all lists in \texttt{part} is $n$.
+By recursing into the second list returned by \texttt{span}, no previous elements of \texttt{lst} are revisited, and no elements are skipped, so \texttt{groupBy} partitions the input list \texttt{lst} into $m$ lists.  Call this partition \texttt{part}.  Note that the sum of the lengths of all lists in \texttt{part} is $n$.
 
-For each list \texttt{i} in \texttt{part} except the last, \texttt{(length i - 1) + 1 = length i} comparisons will have been made (\texttt{groupBy} calls span on \texttt{xs}, not \texttt{x:xs}).  For the last list $last$ in \texttt{part}, \texttt{(length last - 1)} comparisons will have been made (the longest prefix is \texttt{xs} in this case).  Therefore, the total number of comparisons made can be expressed by:
+For each list \texttt{i} in \texttt{part} except the last, \texttt{((length i) - 1) + 1 = length i} comparisons will have been made (\texttt{groupBy} calls span on \texttt{xs}, not \texttt{cons x xs}).  For the last list $last$ in \texttt{part}, \texttt{(length last - 1)} comparisons will have been made (the longest prefix is \texttt{xs} in this case).  Therefore, the total number of comparisons made can be expressed by:
 
 \begin{code}
 length part[0] + length part[1] + ... + length part[m - 2]
@@ -445,49 +433,21 @@ length part[0] + length part[1] + ... + length part[m - 2]
 = n - 1
 \end{code}
 
-Hence, the worst-case upper-bound asymptotic time complexity of \texttt{List.groupBy cmp} is O$(n - 1)$ = O$(n)$, with comparisons using \texttt{cmp} being the key operation.
+Hence, the worst-case time complexity of \texttt{groupBy cmp} is O$(n - 1)$ = O$(n)$, with comparisons using \texttt{cmp} being the key operation.
 \qedsymbol
 
 --
 
-The lambda provided to \texttt{map} performs no comparisons and therefore has a worst-case tight-bound time complexity of
-$\theta(1)$ with comparisons being the key operation.
-
-The same applies to the composition function $\circ$.
+\texttt{mkpair} performs no comparisons and therefore has a worst-case time complexity of
+$\theta(1)$ with comparisons using \texttt{cmp} being the key operation.
 
 --
 
-%Let \texttt{groupPair list = (fst \$ head list, map snd list)}.
-
-%\begin{proposition}
-%	groupPair has O$(n)$ time complexity
-%\end{proposition}
-
-%Proof:
-
-%\texttt{head list} has a worst-case tight-bound time complexity of $\theta(1)$.
-
-%\texttt{snd} has a worst-case tight-bound time complexity of $\theta(1)$.
-
-%\texttt{map} evaluates \texttt{snd} on every element of \texttt{list}, with
-%a worst-case tight-bound time complexity of $\theta(n)*\theta(1) = \theta(n)$ .
-%--
-
-%\texttt{groupPair} and the lambda used in \texttt{map} used above have an identical definition and therefore have
-%the same asymptotic time complexity.
-
-The \texttt{map} function is composed with the \texttt{List.groupBy cmp} function to produce a new function:
-\begin{code}
-\x -> map (\list -> (fst $ head list, map snd list))
-(List.groupBy cmp x)
-\end{code}
-
-The \texttt{map} function evaluates the lambda over every list in the partition returned by (List.groupBy cmp x).  Since
-neither the map, the lambda, nor the function composition perform any comparisons, they do not contribute to the number
+The \texttt{map} function evaluates \texttt{mkpair} over every list in the partition returned by (groupBy cmp al).  Since
+neither \texttt{map} nor \texttt{mkpair} perform any comparisons using \texttt{cmp}, they do not contribute to the number
 of key operations performed.
 
-Therefore the worst-case upper bound time complexity of \texttt{condense} is \[O(1) + n*(O(1) + O(1)) + O(n) = O(n)\] with comparison on the first element in
-the association list pairs (\texttt{cmp}) being the key operation.
+Therefore, if the length of \texttt{al} is $n$, the worst-case time complexity of \texttt{condense} is \[O(1) + n*(O(1) + O(1)) + O(n) = O(n)\] with comparison on the first element in the association list pairs (\texttt{cmp}) being the key operation.
 $\blacksquare$
 
 %Since \texttt{condense} has a worst-case tight bound asymptotic time complexity of $\theta(n)$, it is optimal. \qedsymbol 

@@ -22,7 +22,7 @@ One problem with entity-based triplestores is that it is difficult to add contex
 One form of reification is to organize information into {\em events}.
 
 \begin{definition}[Event]
-	A set of meaningfully connected physical phenomena occurring in a span of time
+	A set of meaningfully connected physical or abstract phenomena
 \end{definition}
 
 For example, the triple \texttt{(sally, met, susan)} in an entity-based triplestore could be represented by three triples:
@@ -258,6 +258,14 @@ would have produced had it been directly called with all $n$ arguments is return
 We use the syntax $f$ $x_1$ $x_2$ $\dots$ $x_n$ to denote a function or function call with $n$ arguments.  If this syntax is used
 and only a partial number of arguments are provided, then a function of the remaining arguments is returned.  Otherwise,
 this syntax is equivalent to $f(x_1, x_2, \dots, x_n)$.
+
+We use set-builder notation to define the sets and binary relations throughout the semantic functions.  When we provide a definition for a set $R$, we use the syntax:
+
+\[ R(a_1, a_2, ..., a_n) = \{ ... \}  \]
+
+$R$'s arguments (if any) are substituted into the set definition on the right hand side of the equation.
+We may combine this syntax with function currying, as used in the denotations for English words in our semantics,
+to simplify our definitions.-
 
 The improvements from the original semantics presented in
 \cite{frost2014demonstration}\cite{frostagboola2014} are detailed below.
